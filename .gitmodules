@@ -1,0 +1,3 @@
+[submodule "m3bp"]
+	path = m3bp
+	url = https://github.com/fixstars/m3bp
