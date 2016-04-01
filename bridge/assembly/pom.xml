@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Asakusa on M3 Assemblies</name>
+  <artifactId>asakusa-m3bp-assembly</artifactId>
+  <parent>
+    <artifactId>project</artifactId>
+    <groupId>com.asakusafw.m3bp.bridge</groupId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>jar</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/bootstrap.xml</descriptor>
+                <descriptor>src/main/assembly/native-dependencies.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.slf4j:*</exclude>
+                </excludes>
+              </artifactSet>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+              </transformers>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>lib</shadedClassifierName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-custom</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-internalio</artifactId>
+      <version>${asakusafw-dag.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-directio</artifactId>
+      <version>${asakusafw-dag.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-extension-counter</artifactId>
+      <version>${asakusafw-dag.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.bridge</groupId>
+      <artifactId>asakusa-bridge-runtime-directio</artifactId>
+      <version>${asakusafw-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw</groupId>
+      <artifactId>simple-graph</artifactId>
+      <scope>runtime</scope> <!-- default: provided -->
+    </dependency>
+  </dependencies>
+</project>
