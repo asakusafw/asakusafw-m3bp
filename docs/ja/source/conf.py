@@ -36,6 +36,8 @@ extlinks = {
     'asakusafw': ('http://docs.asakusafw.com/latest/release/ja/html/%s', None),
 }
 javadoclinks = {
+    'milestone-asakusafw-m3bp': ("https://github.com/asakusafw/asakusafw-m3bp/issues?&q=milestone:%s", 'asakusafw-m3bp milestone:'),
+    'milestone-asakusafw-dag': ("https://github.com/asakusafw/asakusafw-dag/issues?&q=milestone:%s", 'asakusafw-dag milestone:'),
     'asakusafw-javadoc': ('http://docs.asakusafw.com/latest/release/api/%s.html', ""),
     'asakusa-gradle-groovydoc': ('http://docs.asakusafw.com/latest/release/gradle-plugins/%s.html', ""),
     'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3/latest/release/gradle-plugins/%s.html', ""),
