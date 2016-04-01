@@ -12,7 +12,7 @@ This project includes the followings:
 
 * requirements
   * building Java libraries
-    * JDK (>= 1.8)
+    * Java SE Development Kit (>= 1.8)
     * Maven (>= 3.3)
   * building native libraries
     * CMake (>= 2.8)
@@ -24,6 +24,7 @@ This project includes the followings:
 ### Maven artifacts
 
 ```
+git submodule update --init
 mvn clean install -Pnative [-DskipTests]
 ```
 
@@ -42,7 +43,7 @@ cd gradle
 ## How to use
 
 * requirements
-  * JavaSE >= 1.8
+  * Java SE Development Kit >= 1.8
   * CMake >= 2.8
   * Make
   * GCC-C++ = framework required version
@@ -82,6 +83,7 @@ asakusafw {
 * [Asakusa Framework](https://github.com/asakusafw/asakusafw)
 * [Asakusa DSL Compiler](https://github.com/asakusafw/asakusafw-compiler)
 * [Asakusa DAG Toolset](https://github.com/asakusafw/asakusafw-dag)
+
 
 ## License
 * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
