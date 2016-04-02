@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <name>Asakusa on M3 Mock Runtime Library</name>
   <artifactId>asakusa-m3bp-mock</artifactId>
@@ -12,7 +11,7 @@
 
   <packaging>jar</packaging>
   <properties>
-    <CMAKE_TOOLCHAIN_FILE></CMAKE_TOOLCHAIN_FILE>
+    <CMAKE_TOOLCHAIN_FILE />
   </properties>
   <profiles>
     <profile>
@@ -32,13 +31,13 @@
                 <inherited>false</inherited>
                 <configuration>
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
-                    <mkdir dir="${project.build.directory}/native/test/build"/>
+                    <mkdir dir="${project.build.directory}/native/test/build" />
                     <exec executable="cmake" dir="${project.build.directory}/native/test/build" failonerror="true">
-                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}"/>
-                      <arg value="${basedir}/src/test/native"/>
+                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
+                      <arg value="${basedir}/src/test/native" />
                     </exec>
-                    <exec executable="make" dir="${project.build.directory}/native/test/build" failonerror="true"/>
-                    <mkdir dir="${project.build.directory}/native/test/lib"/>
+                    <exec executable="make" dir="${project.build.directory}/native/test/build" failonerror="true" />
+                    <mkdir dir="${project.build.directory}/native/test/lib" />
                     <copy todir="${project.build.directory}/native/test/lib" flatten="true">
                       <fileset dir="${project.build.directory}/native/test/build">
                         <include name="**/libtesting-*.so" />
