@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <name>Asakusa on M3</name>
   <groupId>com.asakusafw.m3bp</groupId>
   <artifactId>project</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0-RC1</version>
   <packaging>pom</packaging>
 
   <description>Asakusa on M3</description>
@@ -28,7 +27,7 @@
     <connection>scm:git:git@github.com:asakusafw/asakusafw-m3bp.git</connection>
     <developerConnection>scm:git:git@github.com:asakusafw/asakusafw-m3bp.git</developerConnection>
     <url>https://github.com/asakusafw/asakusafw-m3bp</url>
-    <tag>HEAD</tag>
+    <tag>0.1.0-RC1</tag>
   </scm>
 
   <properties>

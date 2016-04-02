@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <name>Asakusa on M3 Runtime Library</name>
   <artifactId>asakusa-m3bp-runtime</artifactId>
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.bridge</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0-RC1</version>
   </parent>
 
   <packaging>jar</packaging>
 
   <properties>
     <CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
-    <CMAKE_TOOLCHAIN_FILE></CMAKE_TOOLCHAIN_FILE>
+    <CMAKE_TOOLCHAIN_FILE />
     <m3bp.location>${basedir}/../../m3bp</m3bp.location>
-    <m3bp.version></m3bp.version>
+    <m3bp.version />
   </properties>
   <profiles>
     <profile>
@@ -64,15 +63,15 @@
                 <inherited>false</inherited>
                 <configuration>
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
-                    <mkdir dir="${project.build.directory}/native/core"/>
+                    <mkdir dir="${project.build.directory}/native/core" />
                     <exec executable="cmake" dir="${project.build.directory}/native/core" failonerror="true">
-                      <arg value="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" unless:blank="${CMAKE_BUILD_TYPE}"/>
-                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}"/>
-                      <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-                      <arg value="${m3bp.location}/src"/>
+                      <arg value="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" unless:blank="${CMAKE_BUILD_TYPE}" />
+                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
+                      <arg value="-DCMAKE_SKIP_RPATH=ON" />
+                      <arg value="${m3bp.location}/src" />
                     </exec>
-                    <mkdir dir="${project.build.directory}/native/lib"/>
-                    <exec executable="make" dir="${project.build.directory}/native/core" failonerror="true"/>
+                    <mkdir dir="${project.build.directory}/native/lib" />
+                    <exec executable="make" dir="${project.build.directory}/native/core" failonerror="true" />
                     <copy todir="${project.build.directory}/native/lib" flatten="true">
                       <fileset dir="${project.build.directory}/native/core" followsymlinks="true">
                         <include name="**/libm3bp.so" /> <!-- is symlink but copied as a regular file by Ant -->
@@ -81,11 +80,7 @@
                         <include name="**/m3bp.dll" />
                       </fileset>
                     </copy>
-                    <echo
-                        message="${m3bp.version}"
-                        encoding="utf-8"
-                        file="${project.build.directory}/native/lib/m3bp.version"
-                        unless:blank="${m3bp.version}"/>
+                    <echo message="${m3bp.version}" encoding="utf-8" file="${project.build.directory}/native/lib/m3bp.version" unless:blank="${m3bp.version}" />
                   </target>
                 </configuration>
               </execution>
@@ -98,18 +93,18 @@
                 <inherited>false</inherited>
                 <configuration>
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
-                    <mkdir dir="${project.build.directory}/native/bridge"/>
+                    <mkdir dir="${project.build.directory}/native/bridge" />
                     <exec executable="cmake" dir="${project.build.directory}/native/bridge" failonerror="true">
-                      <arg value="-DJNI_HEADER_DIR:string=${project.build.directory}/native/include"/>
-                      <arg value="-DCUSTOM_LIBRARIES_DIR:string=${project.build.directory}/native/lib"/>
-                      <arg value="-DM3BP_INCLUDE_DIR:string=${m3bp.location}/include"/>
-                      <arg value="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" unless:blank="${CMAKE_BUILD_TYPE}"/>
-                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}"/>
-                      <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-                      <arg value="${basedir}/src/main/native"/>
+                      <arg value="-DJNI_HEADER_DIR:string=${project.build.directory}/native/include" />
+                      <arg value="-DCUSTOM_LIBRARIES_DIR:string=${project.build.directory}/native/lib" />
+                      <arg value="-DM3BP_INCLUDE_DIR:string=${m3bp.location}/include" />
+                      <arg value="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" unless:blank="${CMAKE_BUILD_TYPE}" />
+                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
+                      <arg value="-DCMAKE_SKIP_RPATH=ON" />
+                      <arg value="${basedir}/src/main/native" />
                     </exec>
-                    <exec executable="make" dir="${project.build.directory}/native/bridge" failonerror="true"/>
-                    <mkdir dir="${project.build.directory}/native/lib"/>
+                    <exec executable="make" dir="${project.build.directory}/native/bridge" failonerror="true" />
+                    <mkdir dir="${project.build.directory}/native/lib" />
                     <copy todir="${project.build.directory}/native/lib" flatten="true">
                       <fileset dir="${project.build.directory}/native/bridge">
                         <include name="**/libm3bpjni.so" />
@@ -174,12 +169,12 @@
                 <inherited>false</inherited>
                 <configuration>
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
-                    <mkdir dir="${project.build.directory}/native/test"/>
+                    <mkdir dir="${project.build.directory}/native/test" />
                     <exec executable="cmake" dir="${project.build.directory}/native/test" failonerror="true">
-                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}"/>
-                      <arg value="${basedir}/src/test/native"/>
+                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
+                      <arg value="${basedir}/src/test/native" />
                     </exec>
-                    <exec executable="make" dir="${project.build.directory}/native/test" failonerror="true"/>
+                    <exec executable="make" dir="${project.build.directory}/native/test" failonerror="true" />
                     <copy todir="${project.build.directory}" flatten="true">
                       <fileset dir="${project.build.directory}/native/test">
                         <include name="**/libtest.so" />
