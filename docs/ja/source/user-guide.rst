@@ -126,9 +126,6 @@ Asakusa on M\ :sup:`3`\ は、Asakusa Framework 0.8.0 以降のバージョン�
 
 ..  _`Shafu`: http://docs.asakusafw.com/jinrikisha/ja/html/shafu.html
 
-..  seealso::
-    Asakusa Frameworkバージョンについては、 :asakusafw:`Asakusa Framework デプロイメントガイド <administration/deployment-guide.html>` などを参照してください。
-
 非対応機能
 ~~~~~~~~~~
 
@@ -177,14 +174,23 @@ Asakusa on M\ :sup:`3`\ を利用して実行モジュールを作成するに�
 
 ここでは、 :asakusafw:`Asakusa Framework スタートガイド <introduction/start-guide.html>` などで使用しているサンプルアプリケーション「カテゴリー別売上金額集計バッチ」をAsakusa on M\ :sup:`3`\ 向けにビルドするよう設定します。
 
+プロジェクトテンプレートのダウンロード
+--------------------------------------
+
+Asakusa on M\ :sup:`3`\ を利用する構成を持つアプリケーション開発用のプロジェクトテンプレートは、以下リンクからダウンロードします。
+
+* `asakusa-m3-template-0.1.0.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3-template-0.1.0.tar.gz>`_
+
 Asakusa on M\ :sup:`3`\  Gradle Plugin
 --------------------------------------
 
 Asakusa on M\ :sup:`3`\  Gradle Pluginは、アプリケーションプロジェクトに対してAsakusa on M\ :sup:`3`\ のさまざまな機能を追加します。
 
-Asakusa on M\ :sup:`3`\  Gradle Pluginを有効にするには、アプリケーションプロジェクトのビルドスクリプト ( :file:`build.gradle` )に対して以下の設定を追加します。
+`プロジェクトテンプレートのダウンロード`_ で説明したプロジェクトテンプレートでは、Asakusa on M\ :sup:`3`\ Gradle Pluginがあらかじめ利用可能になっています。
 
-* ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定をAsakusa on M\ :sup:`3`\  Gradle Pluginの指定に置き換える
+その他のプロジェクトで Asakusa on M\ :sup:`3`\  Gradle Pluginを有効にするには、アプリケーションプロジェクトのビルドスクリプト ( :file:`build.gradle` )に対して以下の設定を追加します。
+
+* ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定をAsakusa on M\ :sup:`3`\  Gradle Pluginの指定に置き換える [#]_
 
   * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.0'``
 
@@ -199,6 +205,8 @@ Asakusa on M\ :sup:`3`\  Gradle Pluginを有効にするには、アプリケー
 ..  literalinclude:: attachment/build.gradle
     :language: groovy
     :emphasize-lines: 8,15
+
+..  [#] Asakusa on Spark と Asakusa on M\ :sup:`3`\ を同時に利用する場合は、Asakusa on Spark Gradle Plugin の設定とAsakusa on M\ :sup:`3`\  Gradle Plugin の両方を記述します。
 
 アプリケーションのビルド
 ------------------------
@@ -229,7 +237,6 @@ Asakusa on M\ :sup:`3`\  Gradle Pluginを有効にするには、アプリケー
 
 ..  hint::
     Shafu利用する場合は、プロジェクトを選択してコンテキストメニューから :menuselection:`Jinrikisha (人力車) --> Asakusaデプロイメントアーカイブを生成` を選択します。
-
 
 Hadoopとの連携
 --------------
