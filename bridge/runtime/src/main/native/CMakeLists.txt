@@ -14,4 +14,5 @@ file(GLOB NATIVE "jni/*.cpp" "mirror/*.cpp" "adapter/*.cpp")
 
 add_library(m3bpjni SHARED ${NATIVE})
 set_target_properties(m3bpjni PROPERTIES COMPILE_FLAGS "-std=c++11 -Wall")
+set_target_properties(m3bpjni PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
 target_link_libraries(m3bpjni m3bp)
