@@ -152,7 +152,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <environmentVariables>
-                <LD_LIBRARY_PATH>${project.build.directory}/native/lib</LD_LIBRARY_PATH>
+                <LD_LIBRARY_PATH>${project.build.directory}/native/lib${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
               </environmentVariables>
             </configuration>
           </plugin>
