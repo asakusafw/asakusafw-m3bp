@@ -1,6 +1,6 @@
 # Asakusa on M<sup>3</sup>BP
 
-Asakusa on M<sup>3</sup> provides facilities that make [Asakusa](https://github.com/asakusafw/asakusafw) batch applications run on [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp).
+Asakusa on M<sup>3</sup>BP provides facilities that make [Asakusa](https://github.com/asakusafw/asakusafw) batch applications run on [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp).
 
 This project includes the followings:
 

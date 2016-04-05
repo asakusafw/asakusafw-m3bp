@@ -1,6 +1,3 @@
-..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
-..  |COMPILER| replace:: DSL Compiler for M\ :sup:`3`\ BP
-
 ====================================
 |FEATURE|\ リファレンス
 ====================================
@@ -65,7 +62,7 @@
 Batch Application Plugin ( ``asakusafw`` ) への拡張
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|FEATURE| Gradle Pluginは Batch Application Plugin に対して\ |FEATURE|\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafw`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
+|FEATURE| Gradle PluginはBatch Application Pluginに対して\ |FEATURE|\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafw`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
 
 以下、 ``build.gradle`` の設定例です。
 

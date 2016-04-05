@@ -1,11 +1,9 @@
-..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
-
 =========
 |FEATURE|
 =========
 
 |FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、
-M\ :sup:`3` for Batch Processingをその実行基盤として利用するための機能セットを提供します。
+|ENGINE|\ をその実行基盤として利用するための機能セットを提供します。
 
 |FEATURE|\ の概要と利用方法は、 :doc:`user-guide` を参照してください。
 
