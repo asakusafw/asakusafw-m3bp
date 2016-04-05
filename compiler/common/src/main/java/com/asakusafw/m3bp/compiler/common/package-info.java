@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Common classes of Asakusa on M3 Compiler.
+ * Common classes of Asakusa on M3BP Compiler.
  */
 package com.asakusafw.m3bp.compiler.common;

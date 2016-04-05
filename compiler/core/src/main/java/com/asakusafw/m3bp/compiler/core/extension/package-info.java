@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Built-in extensions for Asakusa on M3 compiler.
+ * Built-in extensions for Asakusa on M3BP compiler.
  */
 package com.asakusafw.m3bp.compiler.core.extension;

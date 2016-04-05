@@ -63,7 +63,7 @@ source_encoding = 'utf-8'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Asakusa on M3'
+project = u'Asakusa on M3BP'
 copyright = u'2011-2016, Asakusa Framework Team'
 
 # The version info for the project you're documenting, acts as replacement for

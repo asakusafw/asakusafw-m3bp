@@ -18,7 +18,7 @@
 
 usage() {
     cat 1>&2 <<EOF
-Asakusa on M3 Command Line
+Asakusa on M3BP Command Line
 
 Usage:
     $0 batch-id flow-id execution-id batch-arguments class-name [direct-arguments...]
@@ -128,7 +128,7 @@ else
     _EXEC+=("$JAVA_CMD")
 fi
 
-echo "Starting Asakusa on M3:"
+echo "Starting Asakusa on M3BP:"
 echo "           Launcher: ${_EXEC[@]}"
 echo "           Batch ID: $_OPT_BATCH_ID"
 echo "            Flow ID: $_OPT_FLOW_ID"
@@ -171,7 +171,7 @@ fi
 _RET=$?
 if [ $_RET -ne 0 ]
 then
-    echo "Asakusa on M3 failed with exit code: $_RET" 1>&2
+    echo "Asakusa on M3BP failed with exit code: $_RET" 1>&2
     echo "           Launcher: ${_EXEC[@]}" 1>&2
     echo "           Batch ID: $_OPT_BATCH_ID" 1>&2
     echo "            Flow ID: $_OPT_FLOW_ID" 1>&2

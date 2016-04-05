@@ -58,11 +58,11 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
 
     private void configureConfigurations() {
         createConfigurations('asakusafw', [
-            M3bpDist : "Contents of Asakusa on M3 modules (${profile.name}).",
-            M3bpNative : "Contents of Asakusa on M3 native modules (${profile.name}).",
-            M3bpNativeDependencies : "Contents of Asakusa on M3 native dependencies (${profile.name}).",
-            M3bpLib : "Libraries of Asakusa on M3 modules (${profile.name}).",
-            M3bpHadoopLib : "Hadoop Libraries of Asakusa on M3 modules (${profile.name}).",
+            M3bpDist : "Contents of Asakusa on M3BP modules (${profile.name}).",
+            M3bpNative : "Contents of Asakusa on M3BP native modules (${profile.name}).",
+            M3bpNativeDependencies : "Contents of Asakusa on M3BP native dependencies (${profile.name}).",
+            M3bpLib : "Libraries of Asakusa on M3BP modules (${profile.name}).",
+            M3bpHadoopLib : "Hadoop Libraries of Asakusa on M3BP modules (${profile.name}).",
         ])
         configuration('asakusafwM3bpHadoopLib').with { Configuration conf ->
             conf.transitive = true
@@ -145,18 +145,18 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
     private void enableTasks() {
         PluginUtils.afterEvaluate(project) {
             if (extension.isEnabled()) {
-                project.logger.info "Enabling Asakusa on M3 (${profile.name})"
+                project.logger.info "Enabling Asakusa on M3BP (${profile.name})"
                 task('attachAssemble').dependsOn task('attachComponentM3bp')
                 if (extension.isNativeEnabled()) {
-                    project.logger.info "Enabling Asakusa on M3 native modules (${profile.name})"
+                    project.logger.info "Enabling Asakusa on M3BP native modules (${profile.name})"
                     task('attachAssemble').dependsOn task('attachComponentM3bpNative')
                     if (!extension.isUseSystemNativeDependencies()) {
-                        project.logger.info "Enabling Asakusa on M3 native dependencies (${profile.name})"
+                        project.logger.info "Enabling Asakusa on M3BP native dependencies (${profile.name})"
                         task('attachAssemble').dependsOn task('attachComponentM3bpNativeDependencies')
                     }
                 }
                 if (!extension.isUseSystemHadoop()) {
-                    project.logger.info "Enabling Asakusa on M3 Hadoop bundle (${profile.name})"
+                    project.logger.info "Enabling Asakusa on M3BP Hadoop bundle (${profile.name})"
                     task('attachAssemble').dependsOn task('attachComponentM3bpHadoop')
                 }
                 PluginUtils.afterTaskEnabled(project, AsakusaM3bpSdkPlugin.TASK_COMPILE) { Task compiler ->

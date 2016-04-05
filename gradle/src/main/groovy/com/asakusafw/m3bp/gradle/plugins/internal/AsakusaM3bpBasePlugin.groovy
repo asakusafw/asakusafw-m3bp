@@ -21,7 +21,7 @@ import org.gradle.api.Project
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 
 /**
- * A Gradle sub plug-in for Asakusa on M3 compiler.
+ * A Gradle sub plug-in for Asakusa on M3BP compiler.
  */
 class AsakusaM3bpBasePlugin implements Plugin<Project> {
 
@@ -58,14 +58,14 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
     private void configureArtifactVersions() {
         Properties properties = loadProperties(ARTIFACT_INFO_PATH)
         driveProperties(ARTIFACT_INFO_PATH, [
-            'feature-version': 'Asakusa on M3',
+            'feature-version': 'Asakusa on M3BP',
             'core-version': 'Asakusa Core libraries',
             'sdk-version': 'Asakusa SDK',
             'lang-version': 'Asakusa DSL compiler',
             'dag-version': 'Asakusa DAG libraries',
             'hadoop-version': 'Hadoop',
         ])
-        project.logger.info "Asakusa on M3: ${extension.featureVersion}"
+        project.logger.info "Asakusa on M3BP: ${extension.featureVersion}"
     }
 
     private void driveProperties(String path, Map<String, String> configurations) {
@@ -120,7 +120,7 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
 
     private void extendVersionsTask() {
         project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
-            logger.lifecycle "Asakusa on M3: ${extension.featureVersion}"
+            logger.lifecycle "Asakusa on M3BP: ${extension.featureVersion}"
         }
     }
 

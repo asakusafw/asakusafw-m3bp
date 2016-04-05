@@ -1,19 +1,22 @@
+..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
+..  |COMPILER| replace:: DSL Compiler for M\ :sup:`3`\ BP
+
 ====================================
-Asakusa on M\ :sup:`3`\ リファレンス
+|FEATURE|\ リファレンス
 ====================================
 
-この文書では、Asakusa on M\ :sup:`3`\ が提供するGradle PluginやDSLコンパイラの設定、およびバッチアプリケーション実行時の設定などについて説明します。
+この文書では、\ |FEATURE|\ が提供するGradle PluginやDSLコンパイラの設定、およびバッチアプリケーション実行時の設定などについて説明します。
 
-Asakusa on M\ :sup:`3` Gradle Plugin リファレンス
-=================================================
+|FEATURE| Gradle Plugin リファレンス
+====================================
 
-Asakusa on M\ :sup:`3` Gradle Pluginが提供する機能とインターフェースについて個々に解説します。
+|FEATURE| Gradle Pluginが提供する機能とインターフェースについて個々に解説します。
 
 プラグイン
 ----------
 
 ``asakusafw-m3bp``
-    アプリケーションプロジェクトで、Asakusa on M\ :sup:`3` のさまざまな機能を有効にする。
+    アプリケーションプロジェクトで、|FEATURE|\ のさまざまな機能を有効にする。
 
     このプラグインは ``asakusafw`` プラグインや ``asakusafw-organizer`` プラグインを拡張するように作られているため、それぞれのプラグインも併せて有効にする必要がある（ ``apply plugin: 'asakusafw-m3bp'`` だけではほとんどの機能を利用できません）。
 
@@ -21,12 +24,12 @@ Asakusa on M\ :sup:`3` Gradle Pluginが提供する機能とインターフェ�
 ------
 
 ``m3bpCompileBatchapps``
-    Asakusa DSL Compiler for M\ :sup:`3`\ を利用してDSLをコンパイルする [#]_ 。
+    |COMPILER|\ を利用してDSLをコンパイルする [#]_ 。
 
     ``asakusafw`` プラグインが有効である場合にのみ利用可能。
 
 ``attachComponentM3bp``
-    デプロイメントアーカイブにM\ :sup:`3`\ 向けのバッチアプリケーションを実行するためのコンポーネントを追加する。
+    デプロイメントアーカイブに\ |FEATURE|\ 向けのバッチアプリケーションを実行するためのコンポーネントを追加する。
 
     ``asakusafw-organizer`` プラグインが有効である場合にのみ利用可能。
 
@@ -62,7 +65,7 @@ Asakusa on M\ :sup:`3` Gradle Pluginが提供する機能とインターフェ�
 Batch Application Plugin ( ``asakusafw`` ) への拡張
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Asakusa on M\ :sup:`3` Gradle Pluginは Batch Application Plugin に対して Asakusa on M\ :sup:`3`\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafw`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
+|FEATURE| Gradle Pluginは Batch Application Plugin に対して\ |FEATURE|\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafw`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
 
 以下、 ``build.gradle`` の設定例です。
 
@@ -120,10 +123,10 @@ Asakusa on M\ :sup:`3` Gradle Pluginは Batch Application Plugin に対して As
 
     この値はマップ型 ( ``java.util.Map`` ) であるため、プロパティのキーと値をマップのキーと値として追加可能。
 
-    既定値: (M\ :sup:`3`\ 向けのコンパイルに必要な最低限のもの)
+    既定値: (|FEATURE|\ 向けのコンパイルに必要な最低限のもの)
 
 ``m3bp.batchIdPrefix``
-    M\ :sup:`3`\ 向けのバッチアプリケーションに付与するバッチIDの接頭辞を指定する。
+    |FEATURE|\ 向けのバッチアプリケーションに付与するバッチIDの接頭辞を指定する。
 
     文字列を設定すると、それぞれのバッチアプリケーションは「 ``<接頭辞><本来のバッチID>`` 」というバッチIDに強制的に変更される。
 
@@ -132,7 +135,7 @@ Asakusa on M\ :sup:`3` Gradle Pluginは Batch Application Plugin に対して As
     既定値: ``"m3bp."``
 
 ``m3bp.failOnError``
-    M\ :sup:`3`\ 向けのコンパイルを行う際に、コンパイルエラーが発生したら即座にコンパイルを停止するかどうかを選択する。
+    |FEATURE|\ 向けのコンパイルを行う際に、コンパイルエラーが発生したら即座にコンパイルを停止するかどうかを選択する。
 
     コンパイルエラーが発生した際に、 ``true`` を指定した場合にはコンパイルをすぐに停止し、 ``false`` を指定した場合には最後までコンパイルを実施する。
 
@@ -143,19 +146,19 @@ Asakusa on M\ :sup:`3` Gradle Pluginは Batch Application Plugin に対して As
 Framework Organizer Plugin ( ``asakusafwOrganizer`` ) への拡張
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Asakusa on M\ :sup:`3` Gradle Plugin は Framework Organizer Plugin に対して Asakusa on M\ :sup:`3`\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafwOrganizer`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
+|FEATURE| Gradle Plugin は Framework Organizer Plugin に対して\ |FEATURE|\ のビルド設定を行うための規約プロパティを追加します。この規約プロパティは、 ``asakusafwOrganizer`` ブロック内の参照名 ``m3bp`` でアクセスできます [#]_ 。
 
 この規約オブジェクトは以下のプロパティを持ちます。
 
 ``m3bp.enabled``
-    デプロイメントアーカイブにAsakusa on M\ :sup:`3`\ のコンポーネント群を追加するかどうかを指定する。
+    デプロイメントアーカイブに\ |FEATURE|\ のコンポーネント群を追加するかどうかを指定する。
 
     ``true`` を指定した場合にはコンポーネントを追加し、 ``false`` を指定した場合には追加しない。
 
     既定値: ``true`` (コンポーネント群を追加する)
 
 ``m3bp.useSystemNativeDependencies``
-    デプロイメントアーカイブのAsakusa on M\ :sup:`3`\ が、実行環境にインストールされたネイティブの依存ライブラリ群を利用するかどうかを指定する。
+    デプロイメントアーカイブの\ |FEATURE|\ が、実行環境にインストールされたネイティブの依存ライブラリ群を利用するかどうかを指定する。
 
     ``true`` を指定した場合にはインストールされたネイティブの依存ライブラリ群を利用し、 ``false`` を指定した場合にはデプロイメントアーカイブにライブラリ群を含めてそちらを利用する。
 
@@ -163,7 +166,7 @@ Asakusa on M\ :sup:`3` Gradle Plugin は Framework Organizer Plugin に対して
 
     ..  note::
 
-        この設定に ``false`` を指定することで、Asakusa on M\ :sup:`3`\ が利用する ``boost`` などのライブラリをデプロイメントアーカイブに含めることができます。
+        この設定に ``false`` を指定することで、\ |FEATURE|\ が利用する ``boost`` などのライブラリをデプロイメントアーカイブに含めることができます。
         非標準の実行環境の構成を利用している場合や、独自に入手したライブラリを利用したい場合などにはこの設定に ``true`` を指定してください。
         また、それぞれの依存ライブラリのバージョンについては、 ``$ASAKUSA_HOME/m3bp/native`` 以下のライブラリに ``ldd`` コマンドなどを利用して確認してください。
 
@@ -171,28 +174,28 @@ Asakusa on M\ :sup:`3` Gradle Plugin は Framework Organizer Plugin に対して
         詳しくは :doc:`user-guide` を参照してください。
 
 ``m3bp.useSystemHadoop``
-    デプロイメントアーカイブのAsakusa on M\ :sup:`3`\ が、実行環境にインストールされているHadoopを利用するかどうかを指定する。
+    デプロイメントアーカイブの\ |FEATURE|\ が、実行環境にインストールされているHadoopを利用するかどうかを指定する。
 
     ``true`` を指定した場合には環境にインストールされているHadoopを利用し、 ``false`` を指定した場合にはデプロイメントアーカイブに最小構成のHadoopライブラリ群を含めてそちらを利用する。
 
     既定値: ``false`` (実行環境にインストールされたHadoopを利用しない)
 
 ``<profile>.m3bp.enabled``
-    対象のプロファイルに対し、デプロイメントアーカイブにAsakusa on M\ :sup:`3`\ のコンポーネントを追加するかどうかを指定する。
+    対象のプロファイルに対し、デプロイメントアーカイブに\ |FEATURE|\ のコンポーネントを追加するかどうかを指定する。
 
     前述の ``m3bp.enabled`` と同様だが、こちらはプロファイルごとに指定できる。
 
     既定値: ``asakusafwOrganizer.m3bp.enabled`` (全体のデフォルト値を利用する)
 
 ``<profile>.m3bp.useSystemNativeDependencies``
-    対象のプロファイルに対し、デプロイメントアーカイブのAsakusa on M\ :sup:`3`\ が、実行環境にインストールされたネイティブの依存ライブラリ群を利用するかどうかを指定する。
+    対象のプロファイルに対し、デプロイメントアーカイブの\ |FEATURE|\ が、実行環境にインストールされたネイティブの依存ライブラリ群を利用するかどうかを指定する。
 
     前述の ``m3bp.useSystemNativeDependencies`` と同様だが、こちらはプロファイルごとに指定できる。
 
     既定値: ``asakusafwOrganizer.m3bp.useSystemNativeDependencies`` (全体のデフォルト値を利用する)
 
 ``<profile>.m3bp.useSystemHadoop``
-    対象のプロファイルに対し、デプロイメントアーカイブのAsakusa on M\ :sup:`3`\ が、実行環境にインストールされているHadoopを利用するかどうかを指定する。
+    対象のプロファイルに対し、デプロイメントアーカイブの\ |FEATURE|\ が、実行環境にインストールされているHadoopを利用するかどうかを指定する。
 
     前述の ``m3bp.useSystemHadoop`` と同様だが、こちらはプロファイルごとに指定できる。
 
@@ -243,13 +246,14 @@ Asakusa on M\ :sup:`3` Gradle Plugin は Framework Organizer Plugin に対して
 
     このオプションが設定された場合、規約プロパティ ``asakusafw.m3bp.{in,ex}clude`` の設定は無視する。
 
-Asakusa DSL Compiler for M\ :sup:`3` リファレンス
-=================================================
+|COMPILER|\ リファレンス
+========================
 
 コンパイラプロパティ
 --------------------
 
-Asakusa DSL Compiler for M\ :sup:`3`\ で利用可能なコンパイラプロパティについて説明します。これらの設定方法については、 `Batch Application Plugin ( asakusafw ) への拡張`_ の ``m3bp.compilerProperties`` の項を参照してください。
+|COMPILER|\ で利用可能なコンパイラプロパティについて説明します。
+これらの設定方法については、 `Batch Application Plugin ( asakusafw ) への拡張`_ の ``m3bp.compilerProperties`` の項を参照してください。
 
 ``inspection.dsl``
     DSLの構造を可視化するためのファイル( ``etc/inspection/dsl.json`` )を生成するかどうか。
@@ -428,12 +432,12 @@ operator.estimator.* のデフォルト値
 制限事項
 ========
 
-ここでは、Asakusa on M\ :sup:`3`\ 固有の制限事項について説明します。これらの制限は将来のバージョンで緩和される可能性があります。
+ここでは、\ |FEATURE|\ 固有の制限事項について説明します。これらの制限は将来のバージョンで緩和される可能性があります。
 
 非対応機能
 ----------
 
-Asakusa on M\ :sup:`3`\ は、Asakusa Frameworkが提供する以下の機能には対応していません。
+|FEATURE|\ は、Asakusa Frameworkが提供する以下の機能には対応していません。
 
 * ThunderGate
 * レガシーモジュール
@@ -442,10 +446,11 @@ Asakusa on M\ :sup:`3`\ は、Asakusa Frameworkが提供する以下の機能に
 互換性について
 ==============
 
-ここではAsakusa on M\ :sup:`3`\ を利用する場合に考慮すべき、Asakusa Frameworkやバッチアプリケーションの互換性について説明します。
+ここでは\ |FEATURE|\ を利用する場合に考慮すべき、Asakusa Frameworkやバッチアプリケーションの互換性について説明します。
 
 演算子の互換性
 --------------
 
-Asakusa on M\ :sup:`3`\ では、バッチアプリケーション内の演算子内に定義したstaticフィールドを複数のスレッドから利用する場合があります。このため、演算子クラス内でフィールドにstaticを付与している場合、staticの指定を除去するかフィールド参照がスレッドセーフになるようにしてください。
+|FEATURE|\ では、バッチアプリケーション内の演算子内に定義したstaticフィールドを複数のスレッドから利用する場合があります。
+このため、演算子クラス内でフィールドにstaticを付与している場合、staticの指定を除去するかフィールド参照がスレッドセーフになるようにしてください。
 

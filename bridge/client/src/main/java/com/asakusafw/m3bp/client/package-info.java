@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Client for Asakusa on M3.
+ * Client for Asakusa on M3BP.
  */
 package com.asakusafw.m3bp.client;

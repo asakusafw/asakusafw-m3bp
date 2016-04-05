@@ -21,7 +21,7 @@ package com.asakusafw.m3bp.gradle.plugins
 class AsakusafwOrganizerM3bpExtension {
 
     /**
-     * Configuration whether {@code 'Asakusa on M3'} features are enabled or not.
+     * Configuration whether {@code 'Asakusa on M3BP'} features are enabled or not.
      * M3BP facilities will be enabled only if this value is {@code true}.
      * <dl>
      *   <dt> Default value: </dt>
@@ -40,7 +40,7 @@ class AsakusafwOrganizerM3bpExtension {
     boolean nativeEnabled
 
     /**
-     * Configuration whether {@code 'Asakusa on M3'} uses the system native dependency libraries.
+     * Configuration whether {@code 'Asakusa on M3BP'} uses the system native dependency libraries.
      * <dl>
      *   <dt> Default value: </dt>
      *     <dd> {@code false} </dd>
@@ -49,8 +49,8 @@ class AsakusafwOrganizerM3bpExtension {
     boolean useSystemNativeDependencies
 
     /**
-     * Configuration whether {@code 'Asakusa on M3'} uses the system Hadoop installation.
-     * If this is {@code true}, Asakusa on M3 will require a Hadoop installation for the environment.
+     * Configuration whether {@code 'Asakusa on M3BP'} uses the system Hadoop installation.
+     * If this is {@code true}, Asakusa on M3BP will require a Hadoop installation for the environment.
      * Otherwise, the minimal Hadoop libraries will be bundled into the deployment archives.
      * <dl>
      *   <dt> Default value: </dt>

@@ -15,13 +15,13 @@
   <!-- Asakusa DAG Toolset classes -->
   <logger name="com.asakusafw.dag" level="INFO"/>
 
-  <!-- Asakusa on M3 runtime classes -->
+  <!-- Asakusa on M3BP runtime classes -->
   <logger name="com.asakusafw.m3bp" level="INFO"/>
 
-  <!-- M3BP core engine (log level only) -->
+  <!-- M3BP engine (log level only) -->
   <logger name="com.asakusafw.m3bp.core" level="INFO"/>
 
-  <!-- Asakusa on M3 Compiler generated classes -->
+  <!-- Asakusa on M3BP Compiler generated classes -->
   <logger name="com.asakusafw.m3bp.generated" level="INFO"/>
 
   <!-- referred libraries -->

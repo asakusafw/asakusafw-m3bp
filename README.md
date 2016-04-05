@@ -1,12 +1,12 @@
-# Asakusa on M<sup>3</sup>
+# Asakusa on M<sup>3</sup>BP
 
 Asakusa on M<sup>3</sup> provides facilities that make [Asakusa](https://github.com/asakusafw/asakusafw) batch applications run on [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp).
 
 This project includes the followings:
 
-* Asakusa on M<sup>3</sup> Compiler
-* Asakusa on M<sup>3</sup> Runtime
-* Asakusa on M<sup>3</sup> [Gradle](http://gradle.org/) plug-in
+* Asakusa on M<sup>3</sup>BP Compiler
+* Asakusa on M<sup>3</sup>BP Runtime
+* Asakusa on M<sup>3</sup>BP [Gradle](http://gradle.org/) plug-in
 
 ## How to build
 

@@ -1,11 +1,13 @@
-======================
-Asakusa on M\ :sup:`3`
-======================
+..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
 
-Asakusa on M\ :sup:`3`\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、
+=========
+|FEATURE|
+=========
+
+|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、
 M\ :sup:`3` for Batch Processingをその実行基盤として利用するための機能セットを提供します。
 
-Asakusa on M\ :sup:`3`\ の概要と利用方法は、 :doc:`user-guide` を参照してください。
+|FEATURE|\ の概要と利用方法は、 :doc:`user-guide` を参照してください。
 
 ドキュメント
 ============
@@ -36,9 +38,9 @@ Asakusa on M\ :sup:`3`\ の概要と利用方法は、 :doc:`user-guide` を参�
 APIリファレンス
 ---------------
 
-* `Asakusa on M3 Gradle Plugins (Groovydoc)`_
+* `Asakusa on M3BP Gradle Plugins (Groovydoc)`_
 
-..  _`Asakusa on M3 Gradle Plugins (Groovydoc)`: http://docs.asakusafw.com/asakusa-on-m3/latest/release/gradle-plugins/index.html
+..  _`Asakusa on M3BP Gradle Plugins (Groovydoc)`: http://docs.asakusafw.com/asakusa-on-m3bp/latest/release/gradle-plugins/index.html
 
 リンク
 ======

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Internal classes of Gradle plug-ins for Asakusa on M3.
+ * Internal classes of Gradle plug-ins for Asakusa on M3BP.
  */
 package com.asakusafw.m3bp.gradle.plugins.internal;
