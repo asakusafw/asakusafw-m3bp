@@ -16,7 +16,7 @@
 package com.asakusafw.m3bp.gradle.plugins.internal
 
 /**
- * An extension object for the Asakusa on M3 features.
+ * An extension object for the Asakusa on M3BP features.
  * This is only for internal use.
  */
 class AsakusaM3bpBaseExtension {

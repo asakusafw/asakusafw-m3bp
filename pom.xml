@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <name>Asakusa on M3</name>
+  <name>Asakusa on M3BP</name>
   <groupId>com.asakusafw.m3bp</groupId>
   <artifactId>project</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <description>Asakusa on M3</description>
+  <description>Asakusa on M3BP</description>
   <url>http://asakusafw.com</url>
   <licenses>
     <license>
@@ -392,8 +392,8 @@ encoding/<project>=UTF-8
             <docencoding>UTF-8</docencoding>
             <locale>en_US</locale>
             <show>protected</show>
-            <doctitle>Asakusa on M3 API References (Version ${project.version})</doctitle>
-            <windowtitle>Asakusa on M3 API References (Version ${project.version})</windowtitle>
+            <doctitle>Asakusa on M3BP API References (Version ${project.version})</doctitle>
+            <windowtitle>Asakusa on M3BP API References (Version ${project.version})</windowtitle>
             <additionalparam>-Xdoclint:all</additionalparam>
           </configuration>
           <executions>
@@ -467,8 +467,8 @@ encoding/<project>=UTF-8
           <docencoding>UTF-8</docencoding>
           <locale>en_US</locale>
           <show>protected</show>
-          <doctitle>Asakusa on M3 API References (Version ${project.version})</doctitle>
-          <windowtitle>Asakusa on M3 API References (Version ${project.version})</windowtitle>
+          <doctitle>Asakusa on M3BP API References (Version ${project.version})</doctitle>
+          <windowtitle>Asakusa on M3BP API References (Version ${project.version})</windowtitle>
           <additionalparam>-Xdoclint:all</additionalparam>
         </configuration>
         <reportSets>

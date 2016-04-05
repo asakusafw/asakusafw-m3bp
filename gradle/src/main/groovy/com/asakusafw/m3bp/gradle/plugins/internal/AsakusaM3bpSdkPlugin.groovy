@@ -27,7 +27,7 @@ import com.asakusafw.gradle.tasks.AsakusaCompileTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
 
 /**
- * A Gradle sub plug-in for Asakusa on M3 SDK.
+ * A Gradle sub plug-in for Asakusa on M3BP SDK.
  */
 class AsakusaM3bpSdkPlugin implements Plugin<Project> {
 

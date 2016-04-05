@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Core implementations of Asakusa on M3 Compiler.
+ * Core implementations of Asakusa on M3BP Compiler.
  */
 package com.asakusafw.m3bp.compiler.core;

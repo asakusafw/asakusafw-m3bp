@@ -1,15 +1,19 @@
-====================================
-Asakusa on M\ :sup:`3`\ ユーザガイド
-====================================
+..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
+..  |ENGINE| replace:: M\ :sup:`3` for BP
+..  |COMPILER| replace:: DSL Compiler for M\ :sup:`3`\ BP
 
-この文書では、Asakusa on M\ :sup:`3`\ を利用してバッチアプリケーションをビルドし、実行する方法について説明します。
+=========================
+|FEATURE|\ ユーザーガイド
+=========================
+
+この文書では、\ |FEATURE|\ を利用してバッチアプリケーションをビルドし、実行する方法について説明します。
 
 概要
 ====
 
-Asakusa on M\ :sup:`3`\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、M\ :sup:`3` for Batch Processing (M\ :sup:`3` for BP) をその実行基盤として利用するための機能セットを提供します [#]_ 。
+|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、M\ :sup:`3` for Batch Processing (以下、|ENGINE|) をその実行基盤として利用するための機能セットを提供します [#]_ 。
 
-M\ :sup:`3` for BPはDAG (Directed Acyclic Graph; 有向非循環グラフ) の形で表現されたタスクをマルチコア環境で効率よく処理するためのフレームワークで、以下のような特徴があります。
+|ENGINE|\ はDAG (Directed Acyclic Graph; 有向非循環グラフ) の形で表現されたタスクをマルチコア環境で効率よく処理するためのフレームワークで、以下のような特徴があります。
 
 * 単一のコンピューター上で動作
 * 細粒度で動的なタスクスケジューリング
@@ -24,33 +28,33 @@ Asakusa Frameworkの適用領域においても、中間結果が全てメモリ
 構成
 ====
 
-Asakusa on M\ :sup:`3`\ を利用する場合、従来のAsakusa Frameworkが提供するDSLやテスト機構をそのまま利用して開発を行います。
-アプリケーションをビルドして運用環境向けの実行モジュール（デプロイメントアーカイブ）を作成する段階ではじめてAsakusa on M\ :sup:`3`\ のDSLコンパイラを利用します。
+|FEATURE|\ を利用する場合、従来のAsakusa Frameworkが提供するDSLやテスト機構をそのまま利用して開発を行います。
+アプリケーションをビルドして運用環境向けの実行モジュール（デプロイメントアーカイブ）を作成する段階ではじめて\ |FEATURE|\ のDSLコンパイラ(|COMPILER|)を利用します。
 
 ..  figure:: attachment/asakusa-sdk.png
     :width: 640px
 
-また、Asakusa DSL Compiler for M\ :sup:`3`\ で生成したバッチアプリケーションは、従来と同様にYAESSを利用して実行できます。
+また、\ |COMPILER|\ で生成したバッチアプリケーションは、従来と同様にYAESSを利用して実行できます。
 このとき、MapReduceやSparkと異なり、実行基盤にHadoopを利用しません (`Hadoopとの連携`_\ により、HDFS等を利用することもできます)。
 
 ..  figure:: attachment/asakusa-runtime.png
     :width: 640px
 
 Asakusa DSL
-  従来のAsakusa DSLやDMDLで記述したバッチアプリケーションは基本的に変更なしで、Asakusa DSL Compiler for M\ :sup:`3`\ を利用してM\ :sup:`3` for BP上で実行可能なジュールを生成することができます。
+  従来のAsakusa DSLやDMDLで記述したバッチアプリケーションは基本的に変更なしで、\ |COMPILER|\ を利用して\ |ENGINE|\ 上で実行可能なジュールを生成することができます。
 
 テスト機構
-  従来のAsakusa DSLのテスト方法と同様に、エミュレーションモードを利用してAsakusa DSLのテストを実行することができます。このとき、Asakusa on M\ :sup:`3`\ は特に利用しません。
+  従来のAsakusa DSLのテスト方法と同様に、エミュレーションモードを利用してAsakusa DSLのテストを実行することができます。このとき、\ |FEATURE|\ は特に利用しません。
 
 アプリケーションの実行
   従来と同様、YAESSを利用してバッチアプリケーションを実行することができます。
-  実行環境にMapReduce用, Spark用, M\ :sup:`3` for BPのバッチアプリケーションをすべて配置して運用することも可能です。
+  実行環境にMapReduce用、Spark用、\ |ENGINE|\ 用のバッチアプリケーションをすべて配置して運用することも可能です。
 
 外部システム連携
-  Direct I/OやWindGateといった外部システム連携モジュールはAsakusa on M\ :sup:`3`\ のバッチアプリケーションでもそのまま利用することができます。
+  Direct I/OやWindGateといった外部システム連携モジュールは\ |FEATURE|\ のバッチアプリケーションでもそのまま利用することができます。
 
 ..  attention::
-    Asakusa on M\ :sup:`3`\ を利用する上でもWindGateなどの外部システム連携機能において、一部Hadoopの機能を利用します。
+    |FEATURE|\ を利用する上でもWindGateなどの外部システム連携機能において、一部Hadoopの機能を利用します。
 
 ..  _target-platform:
 
@@ -60,9 +64,9 @@ Asakusa DSL
 実行環境
 --------
 
-Asakusa on M\ :sup:`3`\ は、今のところ64ビットx86アーキテクチャのLinux環境 (以下、Linux x64)上のみで動作の確認を行っています。
+|FEATURE|\ は、今のところ64ビットx86アーキテクチャのLinux環境 (以下、Linux x64)上のみで動作の確認を行っています。
 
-Asakusa on M\ :sup:`3`\ のアプリケーションを実行する場合、以下または互換のソフトウェアが必要になります。
+|FEATURE|\ のアプリケーションを実行する場合、以下または互換のソフトウェアが必要になります。
 
 * Java SE Development Kit 8 Update 74 (Linux x64)
 * GNU C++ Library 4.8.5 (``libstdc++.so.6``)
@@ -82,7 +86,7 @@ Asakusa on M\ :sup:`3`\ のアプリケーションを実行する場合、以�
 Hadoopディストリビューション
 ----------------------------
 
-Asakusa on M\ :sup:`3`\ は、実行環境にインストールされたHadoopと連係して動作することもできます。
+|FEATURE|\ は、実行環境にインストールされたHadoopと連係して動作することもできます。
 
 以下のような機能を利用できます。
 
@@ -94,7 +98,7 @@ Asakusa on M\ :sup:`3`\ は、実行環境にインストールされたHadoop�
 
   * HDFSを経由してWindGateの入出力を授受
 
-Asakusa on M\ :sup:`3`\ は、以下のHadoopディストリビューションと組み合わせた運用環境で動作を検証しています。
+|FEATURE|\ は、以下のHadoopディストリビューションと組み合わせた運用環境で動作を検証しています。
 
 ..  list-table:: 動作検証プラットフォーム(Hadoopディストリビューション)
     :widths: 3 3 3 3
@@ -114,7 +118,7 @@ Hadoopとの連携方法は、 `Hadoopとの連携`_ を参照してください
 Asakusa Framework 対応バージョンとコンポーネント
 ------------------------------------------------
 
-Asakusa on M\ :sup:`3`\ は、Asakusa Framework 0.8.0 以降のバージョンが必要です。
+|FEATURE|\ は、Asakusa Framework 0.8.0 以降のバージョンが必要です。
 
 ..  warning::
     上記のバージョンより古いバージョンを使用している場合、以降の手順を実施する **前に** 、 :asakusafw:`Asakusa Gradle Plugin マイグレーションガイド <application/gradle-plugin.html#vup-gradle-plugin>` を参考にして上記のバージョンにマイグレーションしてください。
@@ -129,7 +133,7 @@ Asakusa on M\ :sup:`3`\ は、Asakusa Framework 0.8.0 以降のバージョン�
 非対応機能
 ~~~~~~~~~~
 
-Asakusa on M\ :sup:`3`\ は、Asakusa Frameworkが提供する以下の機能には対応していません。
+|FEATURE|\ は、Asakusa Frameworkが提供する以下の機能には対応していません。
 
 * ThunderGate
 * レガシーモジュール
@@ -140,7 +144,7 @@ Asakusa on M\ :sup:`3`\ は、Asakusa Frameworkが提供する以下の機能に
 
 バッチアプリケーションの開発環境には、従来のAsakusa Frameworkの開発環境に加え、実行環境上で動作するネイティブライブラリをビルドするための環境が必要となります。
 
-Asakusa on M\ :sup:`3`\ を利用して実行モジュールを作成するには、以下または互換のソフトウェアが必要になります。
+|FEATURE|\ を利用して実行モジュールを作成するには、以下または互換のソフトウェアが必要になります。
 
 * Java SE Development Kit 8 Update 74
 * CMake 2.8 [#]_
@@ -151,13 +155,13 @@ Asakusa on M\ :sup:`3`\ を利用して実行モジュールを作成するに�
   * g++
 
 ..  attention::
-    Asakusa on M\ :sup:`3`\ を利用する場合、開発環境で使用するJavaはJDK8が必要です。JDK7以下には対応していません。
+    |FEATURE|\ を利用する場合、開発環境で使用するJavaはJDK8が必要です。JDK7以下には対応していません。
 
 ..  attention::
     ビルド環境と実行環境が異なる場合、実行環境で動作するオブジェクトコードを生成するためのクロスコンパイラが必要になります。
     オブジェクトコードの生成時にはCMakeを内部的に利用しているため、クロスコンパイラの設定もCMakeの機能を利用して行うことができます。
 
-    クロスコンパイラを導入したら、Asakusa on M3のコンパイラオプション
+    クロスコンパイラを導入したら、\ |COMPILER|\ のコンパイラオプション
     ``m3bp.native.cmake.CMAKE_TOOLCHAIN_FILE`` にCMakeのツールチェインファイルを指定してください。
 
     参考URL: https://cmake.org/Wiki/CMake_Cross_Compiling
@@ -170,35 +174,37 @@ Asakusa on M\ :sup:`3`\ を利用して実行モジュールを作成するに�
 アプリケーションの開発
 ======================
 
-開発環境上で Asakusa Frameworkのバッチアプリケーションを開発し、Asakusa on M\ :sup:`3`\ のアプリケーションをビルドする方法を見ていきます。
+開発環境上で Asakusa Frameworkのバッチアプリケーションを開発し、\ |FEATURE|\ のアプリケーションをビルドする方法を見ていきます。
 
-ここでは、 :asakusafw:`Asakusa Framework スタートガイド <introduction/start-guide.html>` などで使用しているサンプルアプリケーション「カテゴリー別売上金額集計バッチ」をAsakusa on M\ :sup:`3`\ 向けにビルドするよう設定します。
+ここでは、 :asakusafw:`Asakusa Framework スタートガイド <introduction/start-guide.html>` などで使用しているサンプルアプリケーション「カテゴリー別売上金額集計バッチ」を\ |FEATURE|\ 向けにビルドするよう設定します。
 
 プロジェクトテンプレートのダウンロード
 --------------------------------------
 
-Asakusa on M\ :sup:`3`\ を利用する構成を持つアプリケーション開発用のプロジェクトテンプレートは、以下リンクからダウンロードします。
+|FEATURE|\ を利用する構成を持つアプリケーション開発用のプロジェクトテンプレートは、以下リンクからダウンロードします。
 
-* `asakusa-m3-template-0.1.0.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3-template-0.1.0.tar.gz>`_
+* `asakusa-m3bp-template-0.1.0.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3bp-template-0.1.0.tar.gz>`_
 
-Asakusa on M\ :sup:`3`\  Gradle Plugin
---------------------------------------
+..  _user-guide-gradle-plugin:
 
-Asakusa on M\ :sup:`3`\  Gradle Pluginは、アプリケーションプロジェクトに対してAsakusa on M\ :sup:`3`\ のさまざまな機能を追加します。
+|FEATURE| Gradle Plugin
+-----------------------
 
-`プロジェクトテンプレートのダウンロード`_ で説明したプロジェクトテンプレートでは、Asakusa on M\ :sup:`3`\ Gradle Pluginがあらかじめ利用可能になっています。
+|FEATURE| Gradle Pluginは、アプリケーションプロジェクトに対して\ |FEATURE|\ のさまざまな機能を追加します。
 
-その他のプロジェクトで Asakusa on M\ :sup:`3`\  Gradle Pluginを有効にするには、アプリケーションプロジェクトのビルドスクリプト ( :file:`build.gradle` )に対して以下の設定を追加します。
+`プロジェクトテンプレートのダウンロード`_ で説明したプロジェクトテンプレートでは、\ |FEATURE| Gradle Pluginがあらかじめ利用可能になっています。
 
-* ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定をAsakusa on M\ :sup:`3`\  Gradle Pluginの指定に置き換える [#]_
+その他のプロジェクトで \ |FEATURE| Gradle Pluginを有効にするには、アプリケーションプロジェクトのビルドスクリプト ( :file:`build.gradle` )に対して以下の設定を追加します。
+
+* ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定を\ |FEATURE| Gradle Pluginの指定に置き換える [#]_
 
   * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.0'``
 
-* Asakusa on M\ :sup:`3`\  Gradle Pluginを適用する定義を追加する
+* |FEATURE| Gradle Pluginを適用する定義を追加する
   
   * ``apply plugin: 'asakusafw-m3bp'``
 
-以下はAsakusa on M\ :sup:`3`\  Gradle Pluginの設定を追加したビルドスクリプトの例です。
+以下は\ |FEATURE| Gradle Pluginの設定を追加したビルドスクリプトの例です。
 
 :download:`build.gradle <attachment/build.gradle>`
 
@@ -206,11 +212,11 @@ Asakusa on M\ :sup:`3`\  Gradle Pluginは、アプリケーションプロジェ
     :language: groovy
     :emphasize-lines: 8,15
 
-..  [#] Asakusa on Spark と Asakusa on M\ :sup:`3`\ を同時に利用する場合は、Asakusa on Spark Gradle Plugin の設定とAsakusa on M\ :sup:`3`\  Gradle Plugin の両方を記述します。
+..  [#] Asakusa on Sparkと\ |FEATURE|\ を同時に利用する場合は、Asakusa on Spark Gradle Plugin の設定と\ |FEATURE| Gradle Plugin の両方を記述します。
 
 アプリケーションのビルド
 ------------------------
-`Asakusa on M3 Gradle Plugin`_ を設定した状態で、Gradleタスク :program:`m3bpCompileBatchapps` を実行すると、Asakusa on M\ :sup:`3`\ 向けのバッチアプリケーションのビルドを実行します。
+:ref:`user-guide-gradle-plugin` を設定した状態で、Gradleタスク :program:`m3bpCompileBatchapps` を実行すると、\ |FEATURE|\ 向けのバッチアプリケーションのビルドを実行します。
 
 ..  code-block:: sh
     
@@ -218,16 +224,16 @@ Asakusa on M\ :sup:`3`\  Gradle Pluginは、アプリケーションプロジェ
 
 :program:`m3bpCompileBatchapps` タスクを実行すると、アプリケーションプロジェクトの :file:`build/m3bp-batchapps` 配下にビルド済みのバッチアプリケーションが生成されます。
 
-標準の設定では、Asakusa on M\ :sup:`3`\ のバッチアプリケーションは接頭辞に ``m3bp.`` が付与されます。
-例えば、サンプルアプリケーションのバッチID ``example.summarizeSales`` の場合、Asakusa on M\ :sup:`3`\ のバッチアプリケーションのバッチIDは ``m3bp.example.summarizeSales`` となります。
+標準の設定では、\ |FEATURE|\ のバッチアプリケーションは接頭辞に ``m3bp.`` が付与されます。
+例えば、サンプルアプリケーションのバッチID ``example.summarizeSales`` の場合、\ |FEATURE|\ のバッチアプリケーションのバッチIDは ``m3bp.example.summarizeSales`` となります。
 
 ..  seealso::
-    Asakusa DSL Compiler for M\ :sup:`3`\ で利用可能な設定の詳細は、 :doc:`reference` を参照してください。
+    |COMPILER|\ で利用可能な設定の詳細は、 :doc:`reference` を参照してください。
 
 デプロイメントアーカイブの生成
 ------------------------------
 
-`Asakusa on M3 Gradle Plugin`_\ を設定した状態で、Asakusa Frameworkのデプロイメントアーカイブを作成すると、Asakusa on M\ :sup:`3`\ のバッチアプリケーションアーカイブを含むデプロイメントアーカイブを生成します。
+:ref:`user-guide-gradle-plugin` を設定した状態で、Asakusa Frameworkのデプロイメントアーカイブを作成すると、\ |FEATURE|\ のバッチアプリケーションアーカイブを含むデプロイメントアーカイブを生成します。
 
 デプロイメントアーカイブを生成するには Gradleの :program:`assemble` タスクを実行します。
 
@@ -263,7 +269,7 @@ Hadoopとの連携
 アプリケーションの実行
 ======================
 
-ここでは、Asakusa on M\ :sup:`3`\ 固有の実行環境の設定について説明します。
+ここでは、\ |FEATURE|\ 固有の実行環境の設定について説明します。
 
 Asakusa Frameworkの実行環境の構築方法やバッチアプリケーションを実行する方法の基本的な流れは、 :asakusafw:`Asakusa Framework デプロイメントガイド <administration/deployment-guide.html>` などを参照してください。
 
@@ -273,7 +279,7 @@ Asakusa Frameworkの実行環境の構築方法やバッチアプリケーショ
 デプロイしたバッチアプリケーションをYAESSを使って実行します。
 
 :program:`$ASAKUSA_HOME/yaess/bin/yaess-batch.sh` コマンドに実行するバッチIDとバッチ引数を指定してバッチを実行します。
-標準の設定では、Asakusa on M\ :sup:`3`\ のバッチアプリケーションはバッチIDの接頭辞に ``m3bp.`` が付与されているので、このバッチIDを指定します。
+標準の設定では、\ |FEATURE|\ のバッチアプリケーションはバッチIDの接頭辞に ``m3bp.`` が付与されているので、このバッチIDを指定します。
 
 ..  attention::
     標準の設定では、バッチIDの接頭辞に ``m3bp.`` がついていないバッチIDは従来のHadoop MapReduce向けバッチアプリケーションです。YAESSの実行時にバッチIDの指定を間違えないよう注意してください。
@@ -288,7 +294,7 @@ Asakusa Frameworkの実行環境の構築方法やバッチアプリケーショ
     サンプルアプリケーションのデプロイやデータの配置、実行結果の確認方法などは、 :asakusafw:`Asakusa Framework スタートガイド - サンプルアプリケーションの実行 <introduction/start-guide.html#startguide-running-example>` を参照してください。
 
 ..  attention::
-    Asakusa on M\ :sup:`3`\ ではメモリ上に中間データを配置するため、入力データが膨大であったり中間データが膨らむようなバッチ処理では、メモリ容量が不足してしまう場合があります。この場合、バッチ処理はエラーにより中断されます。
+    |FEATURE|\ ではメモリ上に中間データを配置するため、入力データが膨大であったり中間データが膨らむようなバッチ処理では、メモリ容量が不足してしまう場合があります。この場合、バッチ処理はエラーにより中断されます。
 
     空きメモリ容量を増やすか、またはAsakusa on Sparkなどの利用を検討してください。
 

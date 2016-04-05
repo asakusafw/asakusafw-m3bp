@@ -26,7 +26,7 @@ import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.m3bp.gradle.plugins.AsakusafwOrganizerM3bpExtension
 
 /**
- * A Gradle sub plug-in for Asakusa on M3 project organizer.
+ * A Gradle sub plug-in for Asakusa on M3BP project organizer.
  */
 class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
 
@@ -89,8 +89,8 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
 
     private void configureTasks() {
         defineFacadeTasks([
-            attachComponentM3bp : 'Attaches Asakusa on M3 components to assemblies.',
-            attachM3bpBatchapps : 'Attaches Asakusa on M3 batch applications to assemblies.',
+            attachComponentM3bp : 'Attaches Asakusa on M3BP components to assemblies.',
+            attachM3bpBatchapps : 'Attaches Asakusa on M3BP batch applications to assemblies.',
         ])
     }
 

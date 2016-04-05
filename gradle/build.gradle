@@ -31,7 +31,7 @@ ext.parentPom = { f ->
 group = 'com.asakusafw.m3bp'
 version = parentPom.projectVersion
 
-defaultTasks 'clean', 'build', 'install'
+defaultTasks 'clean', 'build', 'install', "assembleTemplates"
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -74,8 +74,8 @@ eclipse.jdt {
 }
 
 groovydoc {
-    docTitle "Asakusa on M3 Gradle Plugins ${version}"
-    windowTitle "Asakusa on M3 Gradle Plugins ${version}"
+    docTitle "Asakusa on M3BP Gradle Plugins ${version}"
+    windowTitle "Asakusa on M3BP Gradle Plugins ${version}"
     footer "Copyright 2011-${new Date().format('yyyy')} Asakusa Framework Team."
 }
 

@@ -18,7 +18,7 @@ package com.asakusafw.m3bp.compiler.common;
 import com.asakusafw.lang.compiler.common.Location;
 
 /**
- * Constants about Asakusa on M3 jobflow packages.
+ * Constants about Asakusa on M3BP jobflow packages.
  */
 public final class M3bpPackage {
 

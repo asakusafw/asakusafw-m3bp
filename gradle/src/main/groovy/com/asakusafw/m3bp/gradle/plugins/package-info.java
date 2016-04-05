@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Gradle Plug-ins for Asakusa on M3 projects.
+ * Gradle Plug-ins for Asakusa on M3BP projects.
  */
 package com.asakusafw.m3bp.gradle.plugins;

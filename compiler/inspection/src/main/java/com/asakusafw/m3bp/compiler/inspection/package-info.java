@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Inspection tools for Asakusa on M3 compiler.
+ * Inspection tools for Asakusa on M3BP compiler.
  */
 package com.asakusafw.m3bp.compiler.inspection;
