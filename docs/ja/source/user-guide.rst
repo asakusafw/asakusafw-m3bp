@@ -1,7 +1,3 @@
-..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
-..  |ENGINE| replace:: M\ :sup:`3` for BP
-..  |COMPILER| replace:: DSL Compiler for M\ :sup:`3`\ BP
-
 =========================
 |FEATURE|\ ユーザーガイド
 =========================
@@ -11,7 +7,7 @@
 概要
 ====
 
-|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、M\ :sup:`3` for Batch Processing (以下、|ENGINE|) をその実行基盤として利用するための機能セットを提供します [#]_ 。
+|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、\ |ENGINE|\ をその実行基盤として利用するための機能セットを提供します [#]_ 。
 
 |ENGINE|\ はDAG (Directed Acyclic Graph; 有向非循環グラフ) の形で表現されたタスクをマルチコア環境で効率よく処理するためのフレームワークで、以下のような特徴があります。
 

@@ -43,9 +43,13 @@ javadoclinks = {
     'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3/latest/release/gradle-plugins/%s.html', ""),
 }
 
-# The max depth of sidebar toctree.
+# The common header.
 rst_prolog = """
 :tocdepth: 3
+
+..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
+..  |ENGINE| replace:: M\ :sup:`3` for Batch Processing
+..  |COMPILER| replace:: DSL Compiler for M\ :sup:`3`\ BP
 """
 
 # ------------------------------------------------------------------------------
@@ -193,7 +197,7 @@ htmlhelp_basename = 'AsakusaFrameworkdoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 # The paper size ('letter' or 'a4').
-#latex_paper_size = 'letter'
+#latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
 #latex_font_size = '10pt'
@@ -201,7 +205,7 @@ htmlhelp_basename = 'AsakusaFrameworkdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'AsakusaFramework.tex', u'Asakusa Framework Documentation',
+  ('index', 'AsakusaOnM3BP.tex', u'Asakusa on M3BP',
    u'Asakusa Framework Team', 'manual'),
 ]
 
@@ -234,7 +238,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'asakusaframework', u'Asakusa Framework Documentation',
+    ('index', 'asakusaframework', u'Asakusa on M3BP',
      [u'Asakusa Framework Team'], 1)
 ]
 
@@ -242,7 +246,7 @@ man_pages = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-#epub_title = u'Asakusa Framework'
+#epub_title = u'Asakusa on M3BP'
 #epub_author = u'Asakusa Framework Team'
 #epub_publisher = u'Asakusa Framework Team'
 #epub_copyright = copyright

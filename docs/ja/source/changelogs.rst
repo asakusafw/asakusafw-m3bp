@@ -1,5 +1,3 @@
-..  |FEATURE| replace:: Asakusa on M\ :sup:`3`\ BP
-
 ==========
 Changelogs
 ==========
