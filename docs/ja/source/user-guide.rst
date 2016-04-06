@@ -114,29 +114,20 @@ Hadoopディストリビューション
 
 Hadoopとの連携方法は、 `Hadoopとの連携`_ を参照してください。
 
-Asakusa Framework 対応バージョンとコンポーネント
-------------------------------------------------
+Asakusa Framework 対応バージョン
+--------------------------------
 
-|FEATURE|\ は、Asakusa Framework 0.8.0 以降のバージョンが必要です。
+|FEATURE| バージョン |version| は、Asakusa Framework バージョン 0.8.0 を使用します。
 
-..  warning::
-    上記のバージョンより古いバージョンを使用している場合、以降の手順を実施する **前に** 、 :asakusafw:`Asakusa Gradle Plugin マイグレーションガイド <application/gradle-plugin.html#vup-gradle-plugin>` を参考にして上記のバージョンにマイグレーションしてください。
+マイグレーション
+~~~~~~~~~~~~~~~~
 
-アプリケーションのビルドで使用するGradleのバージョンは ``2.12`` に対応しています。これより古いGradleのバージョンを使用している場合、以降の手順を実施する **前に** 、 :asakusafw:`プロジェクトで利用するGradleのバージョンアップ <application/gradle-plugin.html#vup-gradle-wrapper>` を参考にしてバージョンをあげてください。
-
-..  attention::
-    Eclipse上で `Shafu`_ を利用している場合、Eclipse設定画面のメニューから :guilabel:`Jinrikisha (人力車)` 選択し、 :guilabel:`Gradleのバージョン` を上記のバージョンに設定してください。
-
-..  _`Shafu`: http://docs.asakusafw.com/jinrikisha/ja/html/shafu.html
+過去の |FEATURE| バージョンを利用している開発環境、およびアプリケーションプロジェクトのバージョンアップ手順は、:asakusafw:`開発環境マイグレーションガイド <application/migration-guide.html>` を参照してください。
 
 非対応機能
 ~~~~~~~~~~
 
-|FEATURE|\ は、Asakusa Frameworkが提供する以下の機能には対応していません。
-
-* ThunderGate
-* レガシーモジュール
-* その他該当バージョンで非推奨となっている機能
+|FEATURE|\ は、Asakusa Framework の該当バージョンで非推奨となっている機能には対応していません。
 
 開発環境の構築
 ==============
