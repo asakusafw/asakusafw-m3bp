@@ -40,7 +40,7 @@ javadoclinks = {
     'milestone-asakusafw-dag': ("https://github.com/asakusafw/asakusafw-dag/issues?&q=milestone:%s", 'asakusafw-dag milestone:'),
     'asakusafw-javadoc': ('http://docs.asakusafw.com/latest/release/api/%s.html', ""),
     'asakusa-gradle-groovydoc': ('http://docs.asakusafw.com/latest/release/gradle-plugins/%s.html', ""),
-    'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3/latest/release/gradle-plugins/%s.html', ""),
+    'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3bp/latest/release/gradle-plugins/%s.html', ""),
 }
 
 # The common header.
