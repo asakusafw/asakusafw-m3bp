@@ -44,3 +44,4 @@ APIリファレンス
 ======
 
 * :asakusafw:`Asakusa Framework (latest document) <index.html>`
+* `M3 for Batch Processing (GitHub) <https://github.com/fixstars/m3bp>`_

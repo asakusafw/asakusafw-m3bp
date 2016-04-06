@@ -7,7 +7,7 @@
 概要
 ====
 
-|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、\ |ENGINE|\ をその実行基盤として利用するための機能セットを提供します [#]_ 。
+|FEATURE|\ は、Asakusa DSLを始めとするAsakusa Frameworkの開発基盤を利用して作成したバッチアプリケーションに対して、\ |ENGINE| [#]_ をその実行基盤として利用するための機能セットを提供します。
 
 |ENGINE|\ はDAG (Directed Acyclic Graph; 有向非循環グラフ) の形で表現されたタスクをマルチコア環境で効率よく処理するためのフレームワークで、以下のような特徴があります。
 
@@ -31,7 +31,7 @@ Asakusa Frameworkの適用領域においても、中間結果が全てメモリ
     :width: 640px
 
 また、\ |COMPILER|\ で生成したバッチアプリケーションは、従来と同様にYAESSを利用して実行できます。
-このとき、MapReduceやSparkと異なり、実行基盤にHadoopを利用しません (`Hadoopとの連携`_\ により、HDFS等を利用することもできます)。
+このとき、MapReduceやSparkと異なり、実行基盤にHadoopを必要としません (`Hadoopとの連携`_\ により、HDFS等を利用することもできます)。
 
 ..  figure:: attachment/asakusa-runtime.png
     :width: 640px
@@ -74,8 +74,11 @@ Asakusa DSL
     これらのディストリビューションを利用している場合、標準のパッケージ管理ツールで上記の一部を導入できます。
 
 ..  attention::
-    WindGateなどのDirect I/O *以外* の外部連携機能を利用する場合には、実行環境に `hadoop` コマンドの導入が必要です。
+    WindGateなどのDirect I/O **以外** の外部連携機能を利用する場合には、実行環境に ``hadoop`` コマンドの導入が必要です。
     詳しくはそれぞれのドキュメントを参照してください。
+
+    * :asakusafw:`データの直接入出力 - Direct I/O <directio/index.html>`
+    * :asakusafw:`外部システムとの連携 - WindGate <windgate/index.html>`
 
 ..  [#] https://www.open-mpi.org/projects/hwloc/
 
