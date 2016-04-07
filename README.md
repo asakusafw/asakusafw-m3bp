@@ -80,10 +80,12 @@ asakusafw {
 
 ## Referred Projects
 * [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp)
-* [Asakusa Framework](https://github.com/asakusafw/asakusafw)
-* [Asakusa DSL Compiler](https://github.com/asakusafw/asakusafw-compiler)
-* [Asakusa DAG Toolset](https://github.com/asakusafw/asakusafw-dag)
+* [Asakusa Framework Core](https://github.com/asakusafw/asakusafw)
+* [Asakusa Framework Language Toolset](https://github.com/asakusafw/asakusafw-compiler)
+* [Asakusa Framework DAG Toolset](https://github.com/asakusafw/asakusafw-dag)
 
+## Resources
+* [Asakusa on M<sup>3</sup>BP Documentation (ja)](http://docs.asakusafw.com/asakusa-on-m3bp/)
 
 ## License
 * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
