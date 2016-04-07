@@ -52,6 +52,8 @@ cd gradle
 ### Gradle build script example
 
 ```groovy
+group '<your-group>'
+
 buildscript {
     repositories {
         ...
@@ -66,16 +68,6 @@ apply plugin: 'asakusafw-organizer'
 apply plugin: 'asakusafw-m3bp'
 ...
 
-asakusafw {
-    basePackage = '<base-package-name>'
-    javac {
-        sourceCompatibility '1.8'
-        targetCompatibility '1.8'
-    }
-    ...
-}
-
-...
 ```
 
 ## Referred Projects
