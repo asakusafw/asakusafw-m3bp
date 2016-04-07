@@ -49,12 +49,15 @@
 
     ``asakuafw-m3bp`` と ``asakusafw-organizer`` プラグインがいずれも有効である場合、 ``m3bpCompileBatchapps`` が依存関係に追加される。
 
-``attachAssemble_<profile名>``
-    対象のプロファイルのデプロイメントアーカイブに必要なコンポーネントを追加する。
+``compileBatchapp``
+    Asakusa DSLコンパイラを使ってバッチアプリケーションのコンパイルを行い、実行可能モジュールを生成する。
 
-    ``asakuafw-m3bp`` と ``asakusafw-organizer`` プラグインがいずれも有効である場合、 ``attachComponentM3bp`` や ``attachM3bpBatchapps`` のうち有効であるものが依存関係に追加される。
+    ``asakuafw-m3bp`` プラグインが有効である場合、 ``m3bpCompileBatchapps`` が依存関係に追加される。
 
-    このタスクはデプロイメントアーカイブを生成する ``assembleAsakusafw`` の依存先になっているため、このタスクの依存先に上記のタスクを追加することで、デプロイメントアーカイブに必要なコンポーネントを追加できるようになっている。
+``jarBatchapp``
+    ``compileBatchapp`` タスクで生成したバッチアプリケーションを含むjarファイルを生成する。
+
+    ``asakuafw-m3bp`` プラグインが有効である場合、 ``m3bpCompileBatchapps`` タスクの生成物がjarファイルの内容に追加される。
 
 規約プロパティ拡張
 ------------------
