@@ -5,7 +5,7 @@ Changelogs
 Release 0.1.0
 =============
 
-(in development)
+Apr 08, 2016
 
 * The first release of |FEATURE|.
 
