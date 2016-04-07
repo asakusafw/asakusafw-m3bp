@@ -232,7 +232,7 @@ Asakusa Framework 対応バージョン
     ./gradlew assemble
 
 ..  hint::
-    Shafu利用する場合は、プロジェクトを選択してコンテキストメニューから :menuselection:`Jinrikisha (人力車) --> Asakusaデプロイメントアーカイブを生成` を選択します。
+    Shafuを利用する場合は、プロジェクトを選択してコンテキストメニューから :menuselection:`Jinrikisha (人力車) --> Asakusaデプロイメントアーカイブを生成` を選択します。
 
 Hadoopとの連携
 --------------
