@@ -17,9 +17,10 @@
 
 上記のような特徴のため、Hadoop MapReduceやSparkに比べて、小〜中規模データサイズのバッチ処理に非常に適しています。
 
-Asakusa Frameworkの適用領域においても、中間結果が全てメモリ上に収まる規模のバッチにおいてはAsakusa on Sparkよりも高速で、かつ高いコストパフォーマンスになることを確認しています。
+Asakusa Frameworkの適用領域においても、中間結果が全てメモリ上に収まる規模のバッチにおいてはAsakusa on Sparkよりも高速で、かつ高いコストパフォーマンスになることを確認しています [#]_ 。
 
 .. [#] https://github.com/fixstars/m3bp
+.. [#] http://www.asakusafw.com/techinfo/reference.html
 
 構成
 ====
