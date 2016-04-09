@@ -253,6 +253,9 @@ public final class M3bpDagGenerator {
             List<InputSpec> inputs = new ArrayList<>();
             for (OperatorInput input : primary.getInputs()) {
                 Collection<OperatorOutput> opposites = input.getOpposites();
+                if (opposites.isEmpty()) {
+                    continue;
+                }
                 Invariants.require(opposites.size() == 1);
                 opposites.stream()
                         .map(OperatorPort::getOwner)

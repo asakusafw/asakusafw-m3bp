@@ -120,6 +120,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
 
     final JobflowExecutor executor = new JobflowExecutor(Arrays.asList(new InProcessM3bpTaskExecutor(), testio))
             .withBefore(testio::check)
+            .withBefore((a, c) -> ResourceUtil.delete(WORKING))
             .withAfter((a, c) -> ResourceUtil.delete(WORKING));
 
     /**
@@ -719,6 +720,81 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
                 .output("out0", TestOutput.of("out0", MockDataModel.class))
                 .output("out1", TestOutput.of("out1", MockDataModel.class))
                 .connect("in", "op.tx", "op.mst")
+                .connect("op.joined", "out0")
+                .connect("op.missed", "out1"));
+    }
+
+    /**
+     * join w/ orphaned master port.
+     * @throws Exception if failed
+     */
+    @Test
+    public void orphaned_master_join() throws Exception {
+        testio.input("in", MockDataModel.class, o -> {
+            o.write(new MockDataModel(0, "Hello0"));
+            o.write(new MockDataModel(1, "Hello1"));
+            o.write(new MockDataModel(2, "Hello2"));
+        });
+        testio.output("out0", MockDataModel.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        testio.output("out1", MockDataModel.class, o -> {
+            assertThat(o, containsInAnyOrder(
+                    new MockDataModel(0, "Hello0"),
+                    new MockDataModel(1, "Hello1"),
+                    new MockDataModel(2, "Hello2")));
+        });
+        /*
+         * [In] ---> [Join] -> [Out0]
+         *            |   \
+         *        X|--/    \--> [Out1]
+         */
+        run(profile, executor, g -> g
+                .input("in", TestInput.of("in", MockDataModel.class))
+                .operator("op", Ops.class, "join_self", b -> b
+                        .input("mst", typeOf(MockDataModel.class), group("key"))
+                        .input("tx", typeOf(MockDataModel.class), group("key"))
+                        .output("joined", typeOf(MockDataModel.class))
+                        .output("missed", typeOf(MockDataModel.class))
+                        .build())
+                .output("out0", TestOutput.of("out0", MockDataModel.class))
+                .output("out1", TestOutput.of("out1", MockDataModel.class))
+                .connect("in", "op.tx")
+                .connect("op.joined", "out0")
+                .connect("op.missed", "out1"));
+    }
+
+    /**
+     * join w/ orphaned tx port.
+     * @throws Exception if failed
+     */
+    @Test
+    public void orphaned_tx_join() throws Exception {
+        testio.input("in", MockDataModel.class, o -> {
+            o.write(new MockDataModel(0, "Hello0"));
+        });
+        testio.output("out0", MockDataModel.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        testio.output("out1", MockDataModel.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        /*
+         *    X|-> [Join] -> [Out0]
+         *         |   \
+         * [In] ---/    \--> [Out1]
+         */
+        run(profile, executor, g -> g
+                .input("in", TestInput.of("in", MockDataModel.class))
+                .operator("op", Ops.class, "join_self", b -> b
+                        .input("mst", typeOf(MockDataModel.class), group("key"))
+                        .input("tx", typeOf(MockDataModel.class), group("key"))
+                        .output("joined", typeOf(MockDataModel.class))
+                        .output("missed", typeOf(MockDataModel.class))
+                        .build())
+                .output("out0", TestOutput.of("out0", MockDataModel.class))
+                .output("out1", TestOutput.of("out1", MockDataModel.class))
+                .connect("in", "op.mst")
                 .connect("op.joined", "out0")
                 .connect("op.missed", "out1"));
     }
