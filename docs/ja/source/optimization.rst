@@ -132,21 +132,30 @@
 
       個々のレコードが極端に小さかったり大きかったりすることが明らかな場合以外、この値を変更する必要はありません。
 
-..  hidden
-    ``com.asakusafw.m3bp.buffer.access``
+``com.asakusafw.m3bp.buffer.access``
 
-       個々の入出力バッファのアクセス方式を設定します。
+  個々の入出力バッファのアクセス方式を設定します。
 
-       * ``nio``
+  * ``nio``
 
-         * JavaのNIOを利用してバッファにアクセスします。
+    * JavaのNIOを利用してバッファにアクセスします。
 
-       * ``unsafe``
+  * ``unsafe``
 
-         * Javaの非推奨の方法を利用してバッファにアクセスします。
-         * エキスパート以外はこの設定を利用するべきではありません。
+    * Javaの非推奨の方法を利用してバッファにアクセスします。
 
-       既定値: ``nio``
+  既定値: ``nio`` (Java NIOを利用)
+
+  ..  attention::
+      現在の実装では、本設定に ``nio`` を指定した際に以下の状況でエラーになります。
+
+      * :asakusafw:`演算子の性能特性 <dsl/operators.html>` が ``CoGroup``, ``Join``, ``Fold`` のいずれかで、個々のグループのシリアライズ後の容量が2GBを超える場合
+      * :asakusafw:`Direct I/O <directio/index.html>` の出力で、個々のグループ(各ファイル)のシリアライズ後の容量が2GBを超える場合 (出力ファイル名のパターンにワイルドカードを指定している場合にはこの制約はありません)
+
+      このエラーが発生すると、「input group is too large; please use larger addressing mode instead」という主旨のログが表示されます。
+
+      本設定に ``unsafe`` を指定することで、このデータサイズの制限を解除できます。
+
 
 ``hadoop.<name>``
   指定の ``<name>`` を名前に持つHadoopの設定を追加します。
