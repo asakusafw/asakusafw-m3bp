@@ -37,7 +37,7 @@ static m3bp::size_type fit(
         }
         last = (last - start) / 2 + start;
     }
-    throw new std::runtime_error("too large page");
+    throw std::runtime_error("input group is too large; please use larger addressing mode instead");
 }
 
 InputReaderMirror::InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port) :
