@@ -158,15 +158,13 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
     private static final String[] FILE_CMAKE_LISTS = {
             "cmake_minimum_required(VERSION 2.8)",
+            "set(CMAKE_SKIP_RPATH ON)",
             "project(all)",
             "file(GLOB NATIVE \"src/*.cpp\")",
             "include_directories(\"src\")",
             "add_library(application SHARED ${NATIVE})",
-            "if(UNIX)",
-            "    set(COMPILE_OPTIONS \"-std=c++11 -g -Wall -Wextra -fPIC -flto\")",
-            "endif()",
-            "set(CMAKE_SKIP_RPATH ON)",
-            "set_target_properties(application PROPERTIES COMPILE_FLAGS ${COMPILE_OPTIONS})",
+            "set_target_properties(application PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)",
+            "set_target_properties(application PROPERTIES COMPILE_FLAGS \"-std=c++11 -Wall\")",
     };
 
     @Override
