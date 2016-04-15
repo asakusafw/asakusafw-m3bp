@@ -130,6 +130,7 @@ Asakusa Framework 対応バージョン
 
 |FEATURE|\ は、Asakusa Framework の該当バージョンで非推奨となっている機能には対応していません。
 
+
 開発環境の構築
 ==============
 
@@ -250,6 +251,10 @@ Hadoopとの連携
 ..  literalinclude:: attachment/build-system-hadoop.gradle
     :language: groovy
     :emphasize-lines: 19
+
+..  warning::
+    多くのHadoopコマンドは、Java VMのヒープ容量の最大値に非常に小さな値を標準で指定します。
+    この設定を上書きする方法は、 :ref:`ASAKUSA_M3BP_OPTS` を参照してください。
 
 なお、実行環境にインストールされたHadoopを利用する際、以下の順序で ``hadoop`` コマンドを探して利用します (上にあるものほど優先度が高いです)。
 
