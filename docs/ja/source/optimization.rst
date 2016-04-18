@@ -56,6 +56,8 @@
     YAESSではYAESSコマンドを実行する環境の環境変数をYAESSのジョブ実行先に受け渡すための機能がいくつか用意されているので、それらの機能を利用することを推奨します。
     詳しくは :asakusafw:`YAESSユーザーガイド <yaess/user-guide.html>` などを参照してください。
 
+.. _optimization_properties:
+
 設定項目
 ========
 

@@ -125,8 +125,18 @@ Asakusa Framework 対応バージョン
 
 過去の |FEATURE| バージョンを利用している開発環境、およびアプリケーションプロジェクトのバージョンアップ手順は、:asakusafw:`開発環境マイグレーションガイド <application/migration-guide.html>` を参照してください。
 
+制限事項
+--------
+
+現在、\ |FEATURE|\ には以下の制限があります。
+
+* 標準設定では、単一の入力グループが2GB以上になるとエラーが発生する
+
+  * 「input group is too large; please use larger addressing mode instead」という主旨のエラーログが表示されます
+  * 詳しくは :ref:`最適化設定 <optimization_properties>` の「入出力バッファのアクセス方式 (``com.asakusafw.m3bp.buffer.access``)」を参照してください
+
 非対応機能
-~~~~~~~~~~
+----------
 
 |FEATURE|\ は、Asakusa Framework の該当バージョンで非推奨となっている機能には対応していません。
 
