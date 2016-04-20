@@ -21,6 +21,8 @@ import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 
 /**
  * A basic implementation of {@link ConfigurationMirror}.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public class BasicConfigurationMirror implements ConfigurationMirror {
 
@@ -29,6 +31,8 @@ public class BasicConfigurationMirror implements ConfigurationMirror {
     private int partitionCount = 1;
 
     private long outputBufferSize = 256 * 1024;
+
+    private float outputBufferFlushFactor = .8f;
 
     private long recordsPerBuffer = 16 * 1024;
 
@@ -68,6 +72,17 @@ public class BasicConfigurationMirror implements ConfigurationMirror {
     @Override
     public ConfigurationMirror withOutputBufferSize(long newValue) {
         outputBufferSize = newValue;
+        return this;
+    }
+
+    @Override
+    public float getOutputBufferFlushFactor() {
+        return outputBufferFlushFactor;
+    }
+
+    @Override
+    public ConfigurationMirror withOutputBufferFlushFactor(float newValue) {
+        outputBufferFlushFactor = Math.min(.9f, Math.max(.1f, newValue));
         return this;
     }
 

@@ -53,6 +53,8 @@ import com.asakusafw.runtime.core.context.RuntimeContext;
 
 /**
  * Executes {@link GraphInfo} using M3BP.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public final class GraphExecutor {
 
@@ -136,6 +138,7 @@ public final class GraphExecutor {
         configureInt(configuration::withMaxConcurrency, context, KEY_THREAD_MAX);
         configureInt(configuration::withPartitionCount, context, KEY_PARTITIONS);
         configureLong(configuration::withOutputBufferSize, context, KEY_OUTPUT_BUFFER_SIZE);
+        configureFloat(configuration::withOutputBufferFlushFactor, context, KEY_OUTPUT_BUFFER_FLUSH);
         configureLong(configuration::withOutputRecordsPerBuffer, context, KEY_OUTPUT_BUFFER_RECORDS);
         configureEnum(configuration::withAffinityMode, AffinityMode.class, context, KEY_THREAD_AFFINITY);
         configureEnum(configuration::withBufferAccessMode, BufferAccessMode.class, context, KEY_BUFFER_ACCESS);
@@ -147,6 +150,8 @@ public final class GraphExecutor {
                     KEY_PARTITIONS, configuration.getPartitionCount()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_OUTPUT_BUFFER_SIZE, configuration.getOutputBufferSize()));
+            LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
+                    KEY_OUTPUT_BUFFER_FLUSH, configuration.getOutputBufferFlushFactor()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_OUTPUT_BUFFER_RECORDS, configuration.getOutputRecordsPerBuffer()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
@@ -177,6 +182,14 @@ public final class GraphExecutor {
         context.getProperty(key)
                 .map(value -> Arguments.safe(() -> Long.parseLong(value), () -> MessageFormat.format(
                         "{0} must be an integer: {1}",
+                        key, value)))
+                .ifPresent(target::accept);
+    }
+
+    private static void configureFloat(Consumer<Float> target, ProcessorContext context, String key) {
+        context.getProperty(key)
+                .map(value -> Arguments.safe(() -> Float.parseFloat(value), () -> MessageFormat.format(
+                        "{0} must be a number: {1}",
                         key, value)))
                 .ifPresent(target::accept);
     }
