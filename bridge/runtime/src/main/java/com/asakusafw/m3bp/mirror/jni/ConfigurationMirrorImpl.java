@@ -25,10 +25,14 @@ import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 
 /**
  * JNI bridge of {@link ConfigurationMirror}.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public class ConfigurationMirrorImpl implements ConfigurationMirror, NativeMirror {
 
     private final Pointer reference;
+
+    private float outputBufferFlushFactor = .8f;
 
     private BufferAccessMode bufferAccessMode = BufferAccessMode.NIO;
 
@@ -72,6 +76,17 @@ public class ConfigurationMirrorImpl implements ConfigurationMirror, NativeMirro
     @Override
     public ConfigurationMirror withOutputBufferSize(long newValue) {
         setOutputBufferSize0(getPointer().getAddress(), newValue);
+        return this;
+    }
+
+    @Override
+    public float getOutputBufferFlushFactor() {
+        return outputBufferFlushFactor;
+    }
+
+    @Override
+    public ConfigurationMirror withOutputBufferFlushFactor(float newValue) {
+        outputBufferFlushFactor = Math.min(.9f, Math.max(.1f, newValue));
         return this;
     }
 

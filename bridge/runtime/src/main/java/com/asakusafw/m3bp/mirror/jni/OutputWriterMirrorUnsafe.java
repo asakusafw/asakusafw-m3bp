@@ -28,6 +28,8 @@ import com.asakusafw.m3bp.mirror.unsafe.UnsafePageDataOutput;
 
 /**
  * Unsafe implementation of {@link OutputWriterMirror}.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, NativeMirror {
 
@@ -53,16 +55,11 @@ public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, Nativ
 
     private boolean closed = false;
 
-    OutputWriterMirrorUnsafe(Pointer reference) {
+    OutputWriterMirrorUnsafe(Pointer reference, float flushFactor) {
         Arguments.requireNonNull(reference);
         this.reference = reference;
-        this.output = initialize();
+        this.output = new Output(flushFactor);
         ensure();
-    }
-
-    private Output initialize() {
-        Output result = new Output();
-        return result;
     }
 
     @Override
@@ -116,8 +113,8 @@ public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, Nativ
 
     private class Output extends UnsafePageDataOutput {
 
-        Output() {
-            return;
+        Output(float flushFactor) {
+            super(flushFactor);
         }
 
         @Override

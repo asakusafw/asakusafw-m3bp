@@ -30,6 +30,8 @@ import com.asakusafw.m3bp.mirror.basic.AbstractPageDataOutput;
 
 /**
  * JNI bridge of {@link OutputWriterMirror}.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror {
 
@@ -43,11 +45,11 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
 
     private boolean closed = false;
 
-    OutputWriterMirrorImpl(Pointer reference) {
+    OutputWriterMirrorImpl(Pointer reference, float flushFactor) {
         Arguments.requireNonNull(reference);
         this.reference = reference;
         this.hasKey = hasKey0(reference.getAddress());
-        this.output = new Output();
+        this.output = new Output(flushFactor);
         ensure();
     }
 
@@ -116,8 +118,8 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
 
         long totalSize = 0;
 
-        Output() {
-            return;
+        Output(float flushFactor) {
+            super(flushFactor);
         }
 
         @Override

@@ -17,6 +17,8 @@ package com.asakusafw.m3bp.client;
 
 /**
  * Constants for M3BP client.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public final class Constants {
 
@@ -66,6 +68,12 @@ public final class Constants {
      * The configuration key of output buffer size.
      */
     public static final String KEY_OUTPUT_BUFFER_SIZE = KEY_ENGINE_PREFIX + "output.buffer.size"; //$NON-NLS-1$
+
+    /**
+     * The configuration key of output buffer flush factor.
+     * @since 0.1.1
+     */
+    public static final String KEY_OUTPUT_BUFFER_FLUSH = KEY_ENGINE_PREFIX + "output.buffer.flush"; //$NON-NLS-1$
 
     /**
      * The configuration key of record size in each output buffer.
