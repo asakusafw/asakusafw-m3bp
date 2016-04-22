@@ -7,6 +7,7 @@ Release 0.1.1
 
 (in development)
 
+* [ :milestone-m3bp:`0.1.1` ]
 * [ :milestone-asakusafw-dag:`0.1.1` ]
 * [ :milestone-asakusafw-m3bp:`0.1.1` ]
 
@@ -23,7 +24,7 @@ Release 0.1.1
     * - Asakusa Framework DAG Toolset
       - 0.1.1 (|VERSION_UP|)
     * - |ENGINE|
-      - 0.1.0
+      - 0.1.1 (|VERSION_UP|)
 
 Release 0.1.0
 =============
