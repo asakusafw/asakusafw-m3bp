@@ -142,7 +142,7 @@ public final class GraphExecutor {
         configureLong(configuration::withOutputRecordsPerBuffer, context, KEY_OUTPUT_BUFFER_RECORDS);
         configureEnum(configuration::withAffinityMode, AffinityMode.class, context, KEY_THREAD_AFFINITY);
         configureEnum(configuration::withBufferAccessMode, BufferAccessMode.class, context, KEY_BUFFER_ACCESS);
-        configureFile(configuration::withProfilingOutput, context, KEY_PROFILE_OUTPUT);
+        configureFile(configuration::withProfilingOutput, context, KEY_PROFILE_OUTPUT, true);
         if (LOG.isDebugEnabled()) {
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_THREAD_MAX, configuration.getMaxConcurrency()));
@@ -205,8 +205,9 @@ public final class GraphExecutor {
                             .collect(Collectors.joining(", ")))));
     }
 
-    private static void configureFile(Consumer<File> target, ProcessorContext context, String key) {
+    private static void configureFile(Consumer<File> target, ProcessorContext context, String key, boolean resolve) {
         context.getProperty(key)
+                .map(s -> resolve ? resolve(context, s) : s)
                 .map(File::new)
                 .ifPresent(target::accept);
     }
@@ -215,5 +216,9 @@ public final class GraphExecutor {
             Consumer<? super T> target,
             Class<T> type, ProcessorContext context, String key) {
         parseEnum(type, context, key).ifPresent(target::accept);
+    }
+
+    private static String resolve(ProcessorContext context, String value) {
+        return context.getResource(StageInfo.class).get().resolveSystemVariables(value);
     }
 }
