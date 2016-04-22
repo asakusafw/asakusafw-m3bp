@@ -34,6 +34,7 @@ todo_include_todos = True
 
 extlinks = {
     'asakusafw': ('http://docs.asakusafw.com/latest/release/ja/html/%s', None),
+    'milestone-m3bp': ("https://github.com/fixstars/m3bp/issues?&q=milestone:%s", 'm3bp milestone:'),
     'milestone-asakusafw-m3bp': ("https://github.com/asakusafw/asakusafw-m3bp/issues?&q=milestone:%s", 'asakusafw-m3bp milestone:'),
     'milestone-asakusafw-dag': ("https://github.com/asakusafw/asakusafw-dag/issues?&q=milestone:%s", 'asakusafw-dag milestone:'),
     'milestone-asakusafw-compiler': ("https://github.com/asakusafw/asakusafw-compiler/issues?&q=milestone:%s", 'asakusafw-compiler milestone:'),
