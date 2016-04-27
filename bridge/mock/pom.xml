@@ -33,6 +33,8 @@
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
                     <mkdir dir="${project.build.directory}/native/test/build" />
                     <exec executable="cmake" dir="${project.build.directory}/native/test/build" failonerror="true">
+                      <arg value="-G" />
+                      <arg value="Unix Makefiles" />
                       <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
                       <arg value="${basedir}/src/test/native" />
                     </exec>
