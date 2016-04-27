@@ -234,6 +234,8 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
         List<String> cmakeArgs = new ArrayList<>();
         cmakeArgs.add(project.getBasePath().getAbsolutePath());
+        cmakeArgs.add("-G");
+        cmakeArgs.add("Unix Makefiles");
         cmakeOptions.forEach((k, v) -> cmakeArgs.add(String.format("-D%s=%s", k, v)));
         CommandRunner.run(cmake, project.toFile(PATH_BUILD_DIR), cmakeArgs.stream().toArray(String[]::new));
 
