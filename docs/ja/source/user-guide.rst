@@ -112,8 +112,15 @@ Hadoopディストリビューション
       - 2.4 (Apache Hadoop 2.7.1)
       - Red Hat Enterprise Linux 7.2
       - Java SE Development Kit 8u74
+    * - MapR [#]_
+      - 5.1.0 (Apache Hadoop 2.7.0)
+      - CentOS 7.2
+      - Java SE Development Kit 8u74
 
 Hadoopとの連携方法は、 `Hadoopとの連携`_ を参照してください。
+
+..  [#] |FEATURE| をMapRと連携して利用する場合において、バッチアプリケーションの起動時にデッドロックが発生しアプリケーションが実行されないことがある問題を確認しています。
+        この問題の回避方法について `Hadoopとの連携`_ に記載しています。
 
 Asakusa Framework 対応バージョン
 --------------------------------
@@ -271,6 +278,18 @@ Hadoopとの連携
 * 環境変数に ``HADOOP_CMD`` が設定されている場合、 ``$HADOOP_CMD`` コマンドを経由して起動します。
 * 環境変数に ``HADOOP_HOME`` が設定されている場合、 :file:`$HADOOP_HOME/bin/hadoop` コマンドを経由して起動します。
 * :program:`hadoop` コマンドのパスが通っている場合、 :program:`hadoop` コマンドを経由して起動します。
+
+..  attention::
+    MapRなどの一部の環境で ``useSystemHadoop true`` を利用した際に、バッチアプリケーション起動時にデッドロックが発生しアプリケーションが正しく実行されないことがある問題が確認されています。
+    これを回避するには、 ``build.gradle`` に以下の設定を加えてください
+
+    ..  code-block:: groovy
+
+        asakusafwOrganizer {
+            extension {
+                libraries += ["com.asakusafw.m3bp.bridge:asakusa-m3bp-workaround-hadoop:0.1.1"]
+            }
+        }
 
 アプリケーションの実行
 ======================
