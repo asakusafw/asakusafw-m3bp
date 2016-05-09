@@ -210,7 +210,7 @@ Asakusa Framework 対応バージョン
   * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.1'``
 
 * |FEATURE| Gradle Pluginを適用する定義を追加する
-  
+
   * ``apply plugin: 'asakusafw-m3bp'``
 
 以下は\ |FEATURE| Gradle Pluginの設定を追加したビルドスクリプトの例です。
@@ -228,7 +228,7 @@ Asakusa Framework 対応バージョン
 :ref:`user-guide-gradle-plugin` を設定した状態で、Gradleタスク :program:`m3bpCompileBatchapps` を実行すると、\ |FEATURE|\ 向けのバッチアプリケーションのビルドを実行します。
 
 ..  code-block:: sh
-    
+
     ./gradlew m3bpCompileBatchapps
 
 :program:`m3bpCompileBatchapps` タスクを実行すると、アプリケーションプロジェクトの :file:`build/m3bp-batchapps` 配下にビルド済みのバッチアプリケーションが生成されます。
@@ -247,7 +247,7 @@ Asakusa Framework 対応バージョン
 デプロイメントアーカイブを生成するには Gradleの :program:`assemble` タスクを実行します。
 
 ..  code-block:: sh
-    
+
     ./gradlew assemble
 
 ..  hint::
@@ -290,6 +290,11 @@ Hadoopとの連携
                 libraries += ["com.asakusafw.m3bp.bridge:asakusa-m3bp-workaround-hadoop:0.1.1"]
             }
         }
+
+..  attention::
+    Hadoopと連携してバッチアプリケーションを実行した際に、利用する環境によってはバッチアプリケーションのログがHadoopのログ設定の上で出力される可能性があります。
+
+    \ |FEATURE|\ のログ設定を優先したい場合は、環境変数 ``HADOOP_USER_CLASSPATH_FIRST=true`` を設定してください。
 
 アプリケーションの実行
 ======================
