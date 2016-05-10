@@ -6,7 +6,7 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.bridge</groupId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
   </parent>
 
   <packaging>jar</packaging>
