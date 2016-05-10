@@ -6,7 +6,7 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.bridge</groupId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
   </parent>
 
   <packaging>jar</packaging>
@@ -65,6 +65,8 @@
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
                     <mkdir dir="${project.build.directory}/native/core" />
                     <exec executable="cmake" dir="${project.build.directory}/native/core" failonerror="true">
+                      <arg value="-G" />
+                      <arg value="Unix Makefiles" />
                       <arg value="-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" unless:blank="${CMAKE_BUILD_TYPE}" />
                       <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
                       <arg value="-DCMAKE_SKIP_RPATH=ON" />
@@ -95,6 +97,8 @@
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
                     <mkdir dir="${project.build.directory}/native/bridge" />
                     <exec executable="cmake" dir="${project.build.directory}/native/bridge" failonerror="true">
+                      <arg value="-G" />
+                      <arg value="Unix Makefiles" />
                       <arg value="-DJNI_HEADER_DIR:string=${project.build.directory}/native/include" />
                       <arg value="-DCUSTOM_LIBRARIES_DIR:string=${project.build.directory}/native/lib" />
                       <arg value="-DM3BP_INCLUDE_DIR:string=${m3bp.location}/include" />
@@ -171,6 +175,8 @@
                   <target xmlns:if="ant:if" xmlns:unless="ant:unless">
                     <mkdir dir="${project.build.directory}/native/test" />
                     <exec executable="cmake" dir="${project.build.directory}/native/test" failonerror="true">
+                      <arg value="-G" />
+                      <arg value="Unix Makefiles" />
                       <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
                       <arg value="${basedir}/src/test/native" />
                     </exec>

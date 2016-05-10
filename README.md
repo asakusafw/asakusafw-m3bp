@@ -13,7 +13,6 @@ This project includes the followings:
 * requirements
   * building Java libraries
     * Java SE Development Kit (>= 1.8)
-    * Maven (>= 3.3)
   * building native libraries
     * CMake (>= 2.8)
     * Make
@@ -25,7 +24,7 @@ This project includes the followings:
 
 ```
 git submodule update --init
-mvn clean install -Pnative [-DskipTests]
+./mvnw clean install -Pnative [-DskipTests]
 ```
 
 * other available options

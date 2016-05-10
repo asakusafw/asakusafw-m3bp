@@ -19,6 +19,8 @@ import java.io.File;
 
 /**
  * A mirror of M3BP configuration.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public interface ConfigurationMirror {
 
@@ -60,6 +62,21 @@ public interface ConfigurationMirror {
      * @return this
      */
     ConfigurationMirror withOutputBufferSize(long newValue);
+
+    /**
+     * Returns the flush factor of output buffer.
+     * @return the flush factor
+     * @since 0.1.1
+     */
+    float getOutputBufferFlushFactor();
+
+    /**
+     * Sets the flush factor of output buffer.
+     * @param newValue the flush factor
+     * @return this
+     * @since 0.1.1
+     */
+    ConfigurationMirror withOutputBufferFlushFactor(float newValue);
 
     /**
      * Returns the number of available records in each output buffer.

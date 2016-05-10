@@ -138,11 +138,11 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
     static final Location PATH_CMAKE_LISTS = Location.of("CMakeLists.txt");
 
+    static final Location PATH_HEADER_DIR = Location.of("include"); //$NON-NLS-1$
+
     static final Location PATH_SOURCE_DIR = Location.of("src"); //$NON-NLS-1$
 
     static final Location PATH_BUILD_DIR = Location.of("build");
-
-    static final Location PATH_HEADER = PATH_SOURCE_DIR.append(NativeValueComparatorGenerator.HEADER_FILE_NAME);
 
     static final Location PATH_SOURCE = PATH_SOURCE_DIR.append("application.cpp");
 
@@ -159,14 +159,12 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
     private static final String[] FILE_CMAKE_LISTS = {
             "cmake_minimum_required(VERSION 2.8)",
             "project(all)",
-            "file(GLOB NATIVE \"src/*.cpp\")",
-            "include_directories(\"src\")",
-            "add_library(application SHARED ${NATIVE})",
-            "if(UNIX)",
-            "    set(COMPILE_OPTIONS \"-std=c++11 -g -Wall -Wextra -fPIC -flto\")",
-            "endif()",
             "set(CMAKE_SKIP_RPATH ON)",
-            "set_target_properties(application PROPERTIES COMPILE_FLAGS ${COMPILE_OPTIONS})",
+            "file(GLOB NATIVE \"src/*.cpp\")",
+            "include_directories(\"include\")",
+            "add_library(application SHARED ${NATIVE})",
+            "set_target_properties(application PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)",
+            "set_target_properties(application PROPERTIES COMPILE_FLAGS \"-std=c++11 -Wall\")",
     };
 
     @Override
@@ -236,6 +234,8 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
         List<String> cmakeArgs = new ArrayList<>();
         cmakeArgs.add(project.getBasePath().getAbsolutePath());
+        cmakeArgs.add("-G");
+        cmakeArgs.add("Unix Makefiles");
         cmakeOptions.forEach((k, v) -> cmakeArgs.add(String.format("-D%s=%s", k, v)));
         CommandRunner.run(cmake, project.toFile(PATH_BUILD_DIR), cmakeArgs.stream().toArray(String[]::new));
 
@@ -386,23 +386,13 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
         private void defineComparator(ClassDescription type, List<Group.Ordering> orderings, String name) {
             if (generator == null) {
-                putHeader();
+                NativeValueComparatorGenerator.copyHeaderFiles(conf.base, PATH_HEADER_DIR);
+                NativeValueComparatorGenerator.copySourceFiles(conf.base, PATH_SOURCE_DIR);
                 generator = new NativeValueComparatorGenerator(open());
                 added = true;
             }
             DataModelReference reference = conf.loader.load(type);
             generator.add(reference, orderings, name);
-        }
-
-        private void putHeader() {
-            try (PrintWriter writer = new PrintWriter(
-                    new OutputStreamWriter(conf.base.addResource(PATH_HEADER), ENCODING))) {
-                NativeValueComparatorGenerator.putHeader(writer);
-            } catch (IOException e) {
-                throw new DiagnosticException(Diagnostic.Level.ERROR, MessageFormat.format(
-                        "failed to create a file: {0}",
-                        conf.base.toFile(PATH_HEADER)));
-            }
         }
 
         private PrintWriter open() {

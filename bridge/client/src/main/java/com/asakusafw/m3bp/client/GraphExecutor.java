@@ -53,6 +53,8 @@ import com.asakusafw.runtime.core.context.RuntimeContext;
 
 /**
  * Executes {@link GraphInfo} using M3BP.
+ * @since 0.1.0
+ * @version 0.1.1
  */
 public final class GraphExecutor {
 
@@ -136,10 +138,11 @@ public final class GraphExecutor {
         configureInt(configuration::withMaxConcurrency, context, KEY_THREAD_MAX);
         configureInt(configuration::withPartitionCount, context, KEY_PARTITIONS);
         configureLong(configuration::withOutputBufferSize, context, KEY_OUTPUT_BUFFER_SIZE);
+        configureFloat(configuration::withOutputBufferFlushFactor, context, KEY_OUTPUT_BUFFER_FLUSH);
         configureLong(configuration::withOutputRecordsPerBuffer, context, KEY_OUTPUT_BUFFER_RECORDS);
         configureEnum(configuration::withAffinityMode, AffinityMode.class, context, KEY_THREAD_AFFINITY);
         configureEnum(configuration::withBufferAccessMode, BufferAccessMode.class, context, KEY_BUFFER_ACCESS);
-        configureFile(configuration::withProfilingOutput, context, KEY_PROFILE_OUTPUT);
+        configureFile(configuration::withProfilingOutput, context, KEY_PROFILE_OUTPUT, true);
         if (LOG.isDebugEnabled()) {
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_THREAD_MAX, configuration.getMaxConcurrency()));
@@ -147,6 +150,8 @@ public final class GraphExecutor {
                     KEY_PARTITIONS, configuration.getPartitionCount()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_OUTPUT_BUFFER_SIZE, configuration.getOutputBufferSize()));
+            LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
+                    KEY_OUTPUT_BUFFER_FLUSH, configuration.getOutputBufferFlushFactor()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
                     KEY_OUTPUT_BUFFER_RECORDS, configuration.getOutputRecordsPerBuffer()));
             LOG.debug(MessageFormat.format("{0}: {1}", //$NON-NLS-1$
@@ -181,6 +186,14 @@ public final class GraphExecutor {
                 .ifPresent(target::accept);
     }
 
+    private static void configureFloat(Consumer<Float> target, ProcessorContext context, String key) {
+        context.getProperty(key)
+                .map(value -> Arguments.safe(() -> Float.parseFloat(value), () -> MessageFormat.format(
+                        "{0} must be a number: {1}",
+                        key, value)))
+                .ifPresent(target::accept);
+    }
+
     private static <T extends Enum<T>> Optional<T> parseEnum(Class<T> type, ProcessorContext context, String key) {
         return context.getProperty(key)
                 .map(value -> value.toUpperCase(Locale.ENGLISH))
@@ -192,8 +205,9 @@ public final class GraphExecutor {
                             .collect(Collectors.joining(", ")))));
     }
 
-    private static void configureFile(Consumer<File> target, ProcessorContext context, String key) {
+    private static void configureFile(Consumer<File> target, ProcessorContext context, String key, boolean resolve) {
         context.getProperty(key)
+                .map(s -> resolve ? resolve(context, s) : s)
                 .map(File::new)
                 .ifPresent(target::accept);
     }
@@ -202,5 +216,9 @@ public final class GraphExecutor {
             Consumer<? super T> target,
             Class<T> type, ProcessorContext context, String key) {
         parseEnum(type, context, key).ifPresent(target::accept);
+    }
+
+    private static String resolve(ProcessorContext context, String value) {
+        return context.getResource(StageInfo.class).get().resolveSystemVariables(value);
     }
 }

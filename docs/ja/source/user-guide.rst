@@ -112,8 +112,15 @@ Hadoopディストリビューション
       - 2.4 (Apache Hadoop 2.7.1)
       - Red Hat Enterprise Linux 7.2
       - Java SE Development Kit 8u74
+    * - MapR [#]_
+      - 5.1.0 (Apache Hadoop 2.7.0)
+      - CentOS 7.2
+      - Java SE Development Kit 8u74
 
 Hadoopとの連携方法は、 `Hadoopとの連携`_ を参照してください。
+
+..  [#] |FEATURE| をMapRと連携して利用する場合において、バッチアプリケーションの起動時にデッドロックが発生しアプリケーションが実行されないことがある問題を確認しています。
+        この問題の回避方法について `Hadoopとの連携`_ に記載しています。
 
 Asakusa Framework 対応バージョン
 --------------------------------
@@ -125,10 +132,21 @@ Asakusa Framework 対応バージョン
 
 過去の |FEATURE| バージョンを利用している開発環境、およびアプリケーションプロジェクトのバージョンアップ手順は、:asakusafw:`開発環境マイグレーションガイド <application/migration-guide.html>` を参照してください。
 
+制限事項
+--------
+
+現在、\ |FEATURE|\ には以下の制限があります。
+
+* 標準設定では、単一の入力グループが2GB以上になるとエラーが発生する
+
+  * 「input group is too large; please use larger addressing mode instead」という主旨のエラーログが表示されます
+  * 詳しくは :ref:`最適化設定 <optimization_properties>` の「入出力バッファのアクセス方式 (``com.asakusafw.m3bp.buffer.access``)」を参照してください
+
 非対応機能
-~~~~~~~~~~
+----------
 
 |FEATURE|\ は、Asakusa Framework の該当バージョンで非推奨となっている機能には対応していません。
+
 
 開発環境の構築
 ==============
@@ -174,7 +192,7 @@ Asakusa Framework 対応バージョン
 
 |FEATURE|\ を利用する構成を持つアプリケーション開発用のプロジェクトテンプレートは、以下リンクからダウンロードします。
 
-* `asakusa-m3bp-template-0.1.0.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3bp-template-0.1.0.tar.gz>`_
+* `asakusa-m3bp-template-0.1.1.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3bp-template-0.1.1.tar.gz>`_
 
 ..  _user-guide-gradle-plugin:
 
@@ -189,10 +207,10 @@ Asakusa Framework 対応バージョン
 
 * ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定を\ |FEATURE| Gradle Pluginの指定に置き換える [#]_
 
-  * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.0'``
+  * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.1'``
 
 * |FEATURE| Gradle Pluginを適用する定義を追加する
-  
+
   * ``apply plugin: 'asakusafw-m3bp'``
 
 以下は\ |FEATURE| Gradle Pluginの設定を追加したビルドスクリプトの例です。
@@ -210,7 +228,7 @@ Asakusa Framework 対応バージョン
 :ref:`user-guide-gradle-plugin` を設定した状態で、Gradleタスク :program:`m3bpCompileBatchapps` を実行すると、\ |FEATURE|\ 向けのバッチアプリケーションのビルドを実行します。
 
 ..  code-block:: sh
-    
+
     ./gradlew m3bpCompileBatchapps
 
 :program:`m3bpCompileBatchapps` タスクを実行すると、アプリケーションプロジェクトの :file:`build/m3bp-batchapps` 配下にビルド済みのバッチアプリケーションが生成されます。
@@ -229,7 +247,7 @@ Asakusa Framework 対応バージョン
 デプロイメントアーカイブを生成するには Gradleの :program:`assemble` タスクを実行します。
 
 ..  code-block:: sh
-    
+
     ./gradlew assemble
 
 ..  hint::
@@ -251,11 +269,32 @@ Hadoopとの連携
     :language: groovy
     :emphasize-lines: 19
 
+..  warning::
+    多くのHadoopコマンドは、Java VMのヒープ容量の最大値に非常に小さな値を標準で指定します。
+    この設定を上書きする方法は、 :ref:`ASAKUSA_M3BP_OPTS` を参照してください。
+
 なお、実行環境にインストールされたHadoopを利用する際、以下の順序で ``hadoop`` コマンドを探して利用します (上にあるものほど優先度が高いです)。
 
 * 環境変数に ``HADOOP_CMD`` が設定されている場合、 ``$HADOOP_CMD`` コマンドを経由して起動します。
 * 環境変数に ``HADOOP_HOME`` が設定されている場合、 :file:`$HADOOP_HOME/bin/hadoop` コマンドを経由して起動します。
 * :program:`hadoop` コマンドのパスが通っている場合、 :program:`hadoop` コマンドを経由して起動します。
+
+..  attention::
+    MapRなどの一部の環境で ``useSystemHadoop true`` を利用した際に、バッチアプリケーション起動時にデッドロックが発生しアプリケーションが正しく実行されないことがある問題が確認されています。
+    これを回避するには、 ``build.gradle`` に以下の設定を加えてください
+
+    ..  code-block:: groovy
+
+        asakusafwOrganizer {
+            extension {
+                libraries += ["com.asakusafw.m3bp.bridge:asakusa-m3bp-workaround-hadoop:0.1.1"]
+            }
+        }
+
+..  attention::
+    Hadoopと連携してバッチアプリケーションを実行した際に、利用する環境によってはバッチアプリケーションのログがHadoopのログ設定の上で出力される可能性があります。
+
+    \ |FEATURE|\ のログ設定を優先したい場合は、環境変数 ``HADOOP_USER_CLASSPATH_FIRST=true`` を設定してください。
 
 アプリケーションの実行
 ======================

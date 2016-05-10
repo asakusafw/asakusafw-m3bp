@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <name>Custom Framework APIs for Asakusa on M3BP</name>
-  <artifactId>asakusa-m3bp-custom</artifactId>
+  <name>Hadoop workaround for Asakusa on M3BP</name>
+  <artifactId>asakusa-m3bp-workaround-hadoop</artifactId>
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.bridge</groupId>
     <version>0.1.2-SNAPSHOT</version>
+    <relativePath>../..</relativePath>
   </parent>
 
   <packaging>jar</packaging>
@@ -18,12 +19,8 @@
       <version>${asakusafw-dag.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.asakusafw.bridge</groupId>
-      <artifactId>asakusa-bridge-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw</groupId>
-      <artifactId>asakusa-runtime</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
