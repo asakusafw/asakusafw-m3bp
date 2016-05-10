@@ -18,11 +18,6 @@
       <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.asakusafw.dag.compiler</groupId>
-      <artifactId>asakusa-dag-compiler-trace</artifactId>
-      <version>${asakusafw-dag.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-test-compiler</artifactId>
     </dependency>
