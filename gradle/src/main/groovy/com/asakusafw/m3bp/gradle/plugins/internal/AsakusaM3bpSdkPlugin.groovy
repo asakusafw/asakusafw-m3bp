@@ -95,6 +95,7 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-redirector:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-yaess:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-directio:${base.langVersion}"
+                asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-hive:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-windgate:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw:simple-graph:${sdk.asakusafwVersion}"
                 asakusaM3bpCommon "com.asakusafw:java-dom:${sdk.asakusafwVersion}"
