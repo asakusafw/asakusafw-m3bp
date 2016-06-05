@@ -45,6 +45,7 @@ jmethodID find_method(JNIEnv *env, jclass clazz, const char *name, const char *s
 void check_java_exception(JNIEnv *env) {
     jthrowable object = env->ExceptionOccurred();
     if (object) {
+        env->ExceptionClear();
         throw JavaException(object);
     }
 }
