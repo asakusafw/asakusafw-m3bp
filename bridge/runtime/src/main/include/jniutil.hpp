@@ -17,6 +17,7 @@
 #define JNIUTIL_HPP
 
 #include <jni.h>
+#include <string>
 #include <tuple>
 #include <exception>
 

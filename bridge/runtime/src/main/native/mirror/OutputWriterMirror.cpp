@@ -18,8 +18,6 @@
 #include <stdexcept>
 #include <cstdint>
 
-static const m3bp::size_type MAX_BUFFER_SIZE = INT32_MAX;
-
 // NOTE: offset buffer requires "(#-of-entries + 1) * sizeof(m3bp::size_type)" bytes
 static const m3bp::size_type MAX_ENTRIES = INT32_MAX / sizeof(m3bp::size_type);
 

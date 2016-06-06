@@ -18,7 +18,6 @@
 InputPortMirror::InputPortMirror(
         EngineMirror *engine,  VertexMirror *parent,
         m3bp::identifier_type id, const std::string &name) :
-        m_engine(engine),
         m_parent(parent),
         m_id(id),
         m_entity(m3bp::InputPort(name)) {
@@ -29,7 +28,6 @@ InputPortMirror::~InputPortMirror() = default;
 OutputPortMirror::OutputPortMirror(
         EngineMirror *engine, VertexMirror *parent,
         m3bp::identifier_type id, const std::string &name) :
-        m_engine(engine),
         m_parent(parent),
         m_id(id),
         m_entity(m3bp::OutputPort(name)) {

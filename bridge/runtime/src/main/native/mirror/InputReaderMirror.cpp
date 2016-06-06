@@ -42,7 +42,6 @@ static m3bp::size_type fit(
 
 InputReaderMirror::InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port) :
         m_entity(task->input(id)),
-        m_port(port),
         m_has_key(port->entity().movement() == m3bp::Movement::SCATTER_GATHER),
         m_buffer(m_entity.raw_buffer()) {
     put(m_key_offsets, m_buffer.key_offset_table(), 0);

@@ -16,7 +16,6 @@
 #ifndef ADAPTER_HPP
 #define ADAPTER_HPP
 
-#include <jni.h>
 #include <m3bp/m3bp.hpp>
 
 #include "jniutil.hpp"
@@ -26,7 +25,6 @@ class VertexMirror;
 class ProcessorAdapter : public m3bp::ProcessorBase {
 private:
     VertexMirror *m_mirror;
-    jobject m_bridge_object;
 
 public:
     ProcessorAdapter(VertexMirror *mirror);

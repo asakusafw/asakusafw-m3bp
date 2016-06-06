@@ -32,13 +32,11 @@ class OutputPortMirror;
 
 class ConfigurationMirror {
 private:
-    EngineMirror *m_engine;
     m3bp::Configuration m_entity;
 
 public:
     using ValueComparatorType = std::function<bool(const void *, const void *)>;
-    ConfigurationMirror(EngineMirror *engine) :
-        m_engine(engine) {}
+    ConfigurationMirror(EngineMirror *engine) {};
     ~ConfigurationMirror() = default;
     m3bp::Configuration &entity() {
         return m_entity;
@@ -159,7 +157,6 @@ public:
 
 class InputPortMirror {
 private:
-    EngineMirror *m_engine;
     VertexMirror *m_parent;
     m3bp::identifier_type m_id;
     m3bp::InputPort m_entity;
@@ -182,7 +179,6 @@ public:
 
 class OutputPortMirror {
 private:
-    EngineMirror *m_engine;
     VertexMirror *m_parent;
     m3bp::identifier_type m_id;
     m3bp::OutputPort m_entity;
@@ -206,7 +202,6 @@ public:
 class InputReaderMirror {
 private:
     m3bp::InputReader m_entity;
-    InputPortMirror *m_port;
     bool m_has_key;
     m3bp::InputBuffer m_buffer;
     m3bp::size_type m_next_key_count;
