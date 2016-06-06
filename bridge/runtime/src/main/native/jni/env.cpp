@@ -19,7 +19,6 @@
 #include <m3bp/m3bp.hpp>
 
 static JavaVM *_java_vm;
-__thread bool _java_attached = false;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     _java_vm = vm;
@@ -54,7 +53,6 @@ JNIEnv *java_attach() {
     };
     result = _java_vm->AttachCurrentThreadAsDaemon((void**) &env, &thread_args);
     if (result == JNI_OK) {
-        _java_attached = true;
         return env;
     } else {
         throw BridgeError("failed to attach to JVM");
@@ -62,10 +60,5 @@ JNIEnv *java_attach() {
 }
 
 void java_detach() {
-    if (!_java_attached) {
-        return;
-    } else {
-        _java_vm->DetachCurrentThread();
-        _java_attached = false;
-    }
+    _java_vm->DetachCurrentThread();
 }
