@@ -173,6 +173,23 @@ public class EngineMirrorImplTest {
     }
 
     /**
+     * executes erroneous task.
+     * @throws Exception required
+     */
+    @Test(expected = IOException.class)
+    public void task_erroneous() throws Exception {
+        try (EngineMirror mirror = new EngineMirrorImpl(null)) {
+            CallbackProcessor.TASKS.add(c -> {
+                throw new IOException("OK");
+            });
+            configurator.accept(mirror.getConfiguration());
+            FlowGraphMirror graph = mirror.getGraph();
+            graph.addVertex("simple", newVertex(CallbackProcessor.class));
+            mirror.run(new BasicProcessorContext(getClass().getClassLoader()));
+        }
+    }
+
+    /**
      * executes multiple tasks.
      * @throws Exception if failed
      */
@@ -211,12 +228,12 @@ public class EngineMirrorImplTest {
      */
     public static class CallbackProcessor implements VertexProcessor {
 
-        static final List<Consumer<TaskProcessorContext>> TASKS = new ArrayList<>();
+        static final List<IoAction<TaskProcessorContext>> TASKS = new ArrayList<>();
 
         @Override
         public Optional<? extends TaskSchedule> initialize(VertexProcessorContext context) {
             assertThat(TASKS, is(not(empty())));
-            return Optional.of(new BasicTaskSchedule(Lang.project(TASKS, c -> (Info) x -> c.accept(x))));
+            return Optional.of(new BasicTaskSchedule(Lang.project(TASKS, c -> (Info) x -> c.perform(x))));
         }
 
         @Override
@@ -229,7 +246,7 @@ public class EngineMirrorImplTest {
 
         @FunctionalInterface
         private interface Info extends TaskInfo {
-            void run(TaskProcessorContext context);
+            void run(TaskProcessorContext context) throws IOException, InterruptedException;
         }
     }
 
