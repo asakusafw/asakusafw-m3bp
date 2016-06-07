@@ -14,6 +14,7 @@
   <properties>
     <CMAKE_BUILD_TYPE>Release</CMAKE_BUILD_TYPE>
     <CMAKE_TOOLCHAIN_FILE />
+    <make.parallel />
     <m3bp.location>${basedir}/../../m3bp</m3bp.location>
     <m3bp.version />
   </properties>
@@ -73,7 +74,9 @@
                       <arg value="${m3bp.location}/src" />
                     </exec>
                     <mkdir dir="${project.build.directory}/native/lib" />
-                    <exec executable="make" dir="${project.build.directory}/native/core" failonerror="true" />
+                    <exec executable="make" dir="${project.build.directory}/native/core" failonerror="true">
+                      <arg value="-j${make.parallel}" unless:blank="${make.parallel}" />
+                    </exec>
                     <copy todir="${project.build.directory}/native/lib" flatten="true">
                       <fileset dir="${project.build.directory}/native/core" followsymlinks="true">
                         <include name="**/libm3bp.so" /> <!-- is symlink but copied as a regular file by Ant -->
@@ -107,7 +110,9 @@
                       <arg value="-DCMAKE_SKIP_RPATH=ON" />
                       <arg value="${basedir}/src/main/native" />
                     </exec>
-                    <exec executable="make" dir="${project.build.directory}/native/bridge" failonerror="true" />
+                    <exec executable="make" dir="${project.build.directory}/native/bridge" failonerror="true">
+                      <arg value="-j${make.parallel}" unless:blank="${make.parallel}" />
+                    </exec>
                     <mkdir dir="${project.build.directory}/native/lib" />
                     <copy todir="${project.build.directory}/native/lib" flatten="true">
                       <fileset dir="${project.build.directory}/native/bridge">

@@ -31,6 +31,7 @@ git submodule update --init
   * `-Pnative-test`
   * `-DCMAKE_BUILD_TYPE=Debug`
   * `-DCMAKE_TOOLCHAIN_FILE=/path/to/toolchain.cmake`
+  * `-Dmake.parallel=N-of-threads`
 
 ### Gradle plug-ins
 
