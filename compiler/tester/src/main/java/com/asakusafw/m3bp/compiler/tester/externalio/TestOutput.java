@@ -15,6 +15,8 @@
  */
 package com.asakusafw.m3bp.compiler.tester.externalio;
 
+import java.util.Collections;
+
 import com.asakusafw.lang.compiler.model.description.Descriptions;
 import com.asakusafw.lang.compiler.model.description.ImmediateDescription;
 import com.asakusafw.lang.compiler.model.info.ExternalOutputInfo;
@@ -23,6 +25,8 @@ import com.asakusafw.vocabulary.external.ExporterDescription;
 /**
  * An implementation of {@link ExporterDescription} for testing.
  * {@link TestExternalPortProcessor} can process this description.
+ * @since 0.1.0
+ * @version 0.1.2
  */
 public abstract class TestOutput implements ExporterDescription {
 
@@ -32,7 +36,7 @@ public abstract class TestOutput implements ExporterDescription {
      * @param dataType the data type
      * @return the created instance
      */
-    public static TestOutput of(String id, Class<?> dataType) {
+    public static TestOutput.Basic of(String id, Class<?> dataType) {
         return new Basic(id, dataType);
     }
 
@@ -43,6 +47,12 @@ public abstract class TestOutput implements ExporterDescription {
     public abstract String getId();
 
     /**
+     * Returns whether or not this output is a generator.
+     * @return {@code true} if it is generator
+     */
+    public abstract boolean isGenerator();
+
+    /**
      * Returns an {@link ExternalOutputInfo} object for this.
      * @return {@link ExternalOutputInfo} object
      */
@@ -51,6 +61,8 @@ public abstract class TestOutput implements ExporterDescription {
                 Descriptions.classOf(getClass()),
                 TestExternalPortProcessor.MODULE_NAME,
                 Descriptions.classOf(getModelType()),
+                isGenerator(),
+                Collections.emptySet(),
                 new ImmediateDescription(Descriptions.typeOf(String.class), getId()));
     }
 
@@ -62,6 +74,8 @@ public abstract class TestOutput implements ExporterDescription {
         private final String id;
 
         private final Class<?> aClass;
+
+        private boolean generator;
 
         /**
          * Creates a new instance.
@@ -81,6 +95,21 @@ public abstract class TestOutput implements ExporterDescription {
         @Override
         public Class<?> getModelType() {
             return aClass;
+        }
+
+        @Override
+        public boolean isGenerator() {
+            return generator;
+        }
+
+        /**
+         * Sets whether or not this output is a generator.
+         * @param newValue {@code true} if it is generator
+         * @return this
+         */
+        public Basic withGenerator(boolean newValue) {
+            this.generator = newValue;
+            return this;
         }
     }
 }

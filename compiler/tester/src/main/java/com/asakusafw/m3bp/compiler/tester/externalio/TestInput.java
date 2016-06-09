@@ -23,6 +23,8 @@ import com.asakusafw.vocabulary.external.ImporterDescription;
 /**
  * An implementation of {@link ImporterDescription} for testing.
  * {@link TestExternalPortProcessor} can process this description.
+ * @since 0.1.0
+ * @version 0.1.2
  */
 public abstract class TestInput implements ImporterDescription {
 
@@ -32,7 +34,7 @@ public abstract class TestInput implements ImporterDescription {
      * @param dataType the data type
      * @return the created instance
      */
-    public static TestInput of(String id, Class<?> dataType) {
+    public static TestInput.Basic of(String id, Class<?> dataType) {
         return new Basic(id, dataType, DataSize.UNKNOWN);
     }
 
@@ -43,7 +45,7 @@ public abstract class TestInput implements ImporterDescription {
      * @param dataSize the data size
      * @return the created instance
      */
-    public static TestInput of(String id, Class<?> dataType, DataSize dataSize) {
+    public static TestInput.Basic of(String id, Class<?> dataType, DataSize dataSize) {
         return new Basic(id, dataType, dataSize);
     }
 
@@ -54,7 +56,7 @@ public abstract class TestInput implements ImporterDescription {
      * @param dataSize the data size
      * @return the created instance
      */
-    public static TestInput of(String id, Class<?> dataType, ExternalInputInfo.DataSize dataSize) {
+    public static TestInput.Basic of(String id, Class<?> dataType, ExternalInputInfo.DataSize dataSize) {
         return new Basic(id, dataType, DataSize.valueOf(dataSize.name()));
     }
 
