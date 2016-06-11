@@ -252,6 +252,35 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         });
     }
 
+    /**
+     * Orphaned output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void testio_output_orphaned() throws Exception {
+        testio.output("t", MockDataModel.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        run(profile, executor, g -> g
+                .output("out", TestOutput.of("t", MockDataModel.class)
+                        .withGenerator(true)));
+    }
+
+    /**
+     * Direct I/O flat output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void directio_output_orphaned() throws Exception {
+        enableDirectIo();
+        run(profile, executor, g -> g
+                .output("out", DirectOutput.of("output", "*.bin", MockDataFormat.class)
+                        .withDeletePatterns("*.bin")));
+        directio.output("output", "*.bin", MockDataFormat.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+    }
+
     private void enableDirectIo() {
         Configuration configuration = directio.getContext().newConfiguration();
         profile.forFrameworkInstallation().add(LOCATION_CORE_CONFIGURATION, o -> configuration.writeXml(o));

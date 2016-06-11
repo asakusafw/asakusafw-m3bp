@@ -587,6 +587,9 @@ public final class M3bpDagGenerator {
             VertexSpec vertex = VertexSpec.get(entry.getKey());
             ExternalOutput output = entry.getValue();
             if (externalIo.getInternalOutputs().containsKey(output)) {
+                if (isEmptyOutput(vertex)) {
+                    continue;
+                }
                 String path = externalIo.getInternalOutputs().get(output);
                 resolveInternalOutput(vertex, output, path);
             } else if (externalIo.getGenericOutputs().contains(output)) {
@@ -600,14 +603,21 @@ public final class M3bpDagGenerator {
 
     private void resolveGenericOutput(VertexSpec vertex, ExternalOutput port) {
         LOG.debug("resolving generic output vertex: {} ({})", vertex.getId(), vertex.getLabel()); //$NON-NLS-1$
-        CompilerOptions options = context.getRoot().getOptions();
-        String path = options.getRuntimeWorkingPath(String.format("%s/part-*", //$NON-NLS-1$
-                port.getName()));
-        context.getRoot().addExternalOutput(
-                port.getName(),
-                port.getInfo(),
-                Arrays.asList(path));
-        registerInternalOutput(vertex, port, path);
+        if (isEmptyOutput(vertex)) {
+            context.getRoot().addExternalOutput(
+                    port.getName(),
+                    port.getInfo(),
+                    Collections.emptyList());
+        } else {
+            CompilerOptions options = context.getRoot().getOptions();
+            String path = options.getRuntimeWorkingPath(String.format("%s/part-*", //$NON-NLS-1$
+                    port.getName()));
+            context.getRoot().addExternalOutput(
+                    port.getName(),
+                    port.getInfo(),
+                    Arrays.asList(path));
+            registerInternalOutput(vertex, port, path);
+        }
     }
 
     private void resolveInternalOutput(VertexSpec vertex, ExternalOutput port, String path) {
@@ -627,6 +637,9 @@ public final class M3bpDagGenerator {
                 continue;
             }
             VertexSpec vertex = VertexSpec.get(entry.getKey());
+            if (isEmptyOutput(vertex)) {
+                continue;
+            }
             DirectFileOutputModel model = Invariants.requireNonNull(externalIo.getDirectOutputs().get(output));
             ResolvedVertexInfo v = registerDirectOutputPrepare(vertex, output, model, setup);
             prepares.add(v);
@@ -783,6 +796,15 @@ public final class M3bpDagGenerator {
 
     private String q(SubPlan element, String name) {
         return q(VertexSpec.get(element), name);
+    }
+
+    private boolean isEmptyOutput(VertexSpec vertex) {
+        if (vertex.getOperationType() != OperationType.OUTPUT) {
+            return false;
+        }
+        return vertex.getOrigin().getInputs().stream()
+            .map(InputSpec::get)
+            .anyMatch(p -> p.getInputType() != InputType.NO_DATA) == false;
     }
 
     private boolean isDirectInputFilterEnabled() {
