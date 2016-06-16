@@ -287,10 +287,9 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
             boolean initialize,
             Callback callback) throws IOException, InterruptedException {
         assert runningContext.get() != null;
-        float flushFactor = configuration.getOutputBufferFlushFactor();
         boolean unsafe = useUnsafe;
         ProcessorContext context = runningContext.get();
-        TaskMirrorImpl task = new TaskMirrorImpl(new Pointer(taskReference), flushFactor, unsafe);
+        TaskMirrorImpl task = new TaskMirrorImpl(new Pointer(taskReference), configuration, unsafe);
         VertexProcessorBridge bridge = getBridge(new Pointer(vertexReference), initialize);
         try {
             callback.call(bridge, context, task);
