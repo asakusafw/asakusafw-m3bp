@@ -256,6 +256,8 @@ class OutputWriterMirror {
 private:
     m3bp::OutputWriter m_entity;
     OutputPortMirror *m_port;
+    m3bp::size_type m_buffer_size;
+    m3bp::size_type m_record_count;
     bool m_has_key;
     m3bp::OutputBuffer m_buffer;
     bool m_ensured;
@@ -264,12 +266,17 @@ private:
     std::tuple<const void *, m3bp::size_type> m_offsets;
     std::tuple<const void *, m3bp::size_type> m_key_lengths;
     void ensure();
+    void allocate();
 
 public:
     OutputWriterMirror(m3bp::Task *task, m3bp::identifier_type id, OutputPortMirror *port);
     ~OutputWriterMirror();
     bool has_key() {
         return m_has_key;
+    }
+    void configure(m3bp::size_type buffer_size, m3bp::size_type record_count) {
+        m_buffer_size = buffer_size;
+        m_record_count = record_count;
     }
     void flush(size_t record_count);
     m3bp::size_type base_offset();
