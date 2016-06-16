@@ -16,6 +16,7 @@
 package com.asakusafw.m3bp.mirror.unsafe;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 import com.asakusafw.dag.utils.buffer.unsafe.UnsafeDataBuffer;
 import com.asakusafw.m3bp.mirror.PageDataOutput;
@@ -36,7 +37,6 @@ public class UnsafePageDataOutput extends UnsafeDataBuffer implements PageDataOu
 
     private long dataThreshold = 0L;
 
-    @SuppressWarnings("unused")
     private long dataEnd = 0L;
 
     private long keyTablePtr = 0L;
@@ -76,8 +76,16 @@ public class UnsafePageDataOutput extends UnsafeDataBuffer implements PageDataOu
         pageTablePtr += Long.BYTES;
 
         writtenPages++;
+        long last = dataBegin;
         dataBegin = dataPtr;
         if (Long.compareUnsigned(writtenPages, maxPages) >= 0 || Long.compareUnsigned(dataPtr, dataThreshold) >= 0) {
+            if (Long.compareUnsigned(dataPtr, dataEnd) > 0) {
+                throw new IllegalStateException(MessageFormat.format(
+                        "unsafe buffer overflow: buffer-size={0}, exceeded={1}, last-page-size: {2}",
+                        dataEnd - basePtr,
+                        dataPtr - dataEnd,
+                        dataPtr - last));
+            }
             flush(false);
         }
     }
