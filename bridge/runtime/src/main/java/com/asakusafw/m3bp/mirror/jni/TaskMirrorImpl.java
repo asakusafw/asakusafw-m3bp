@@ -74,9 +74,7 @@ public class TaskMirrorImpl implements TaskMirror, NativeMirror {
     public OutputWriterMirror output(Identifier id) {
         ConfigurationMirror conf = configuration;
         Arguments.requireNonNull(id);
-        Pointer ref = new Pointer(output0(
-                getPointer().getAddress(), id.getValue(),
-                conf.getOutputBufferSize(), conf.getOutputRecordsPerBuffer()));
+        Pointer ref = new Pointer(output0(getPointer().getAddress(), id.getValue()));
         if (unsafe) {
             return new OutputWriterMirrorUnsafe(ref, conf.getOutputBufferFlushFactor());
         } else {
@@ -98,7 +96,7 @@ public class TaskMirrorImpl implements TaskMirror, NativeMirror {
 
     private static native long input0(long self, long id);
 
-    private static native long output0(long self, long id, long bufferSize, long recordCount);
+    private static native long output0(long self, long id);
 
     private static native long logicalTaskId0(long self);
 

@@ -29,8 +29,6 @@ static void put(std::tuple<const void *, m3bp::size_type> &t, const void *begin,
 OutputWriterMirror::OutputWriterMirror(m3bp::Task *task, m3bp::identifier_type id, OutputPortMirror *port) :
         m_entity(task->output(id)),
         m_port(port),
-        m_buffer_size(0),
-        m_record_count(0),
         m_has_key(m_port->entity().has_key()),
         m_ensured(false) {
 }
@@ -39,7 +37,7 @@ OutputWriterMirror::~OutputWriterMirror() = default;
 
 void OutputWriterMirror::ensure() {
     if (!m_ensured) {
-        allocate();
+        m_buffer = m_entity.allocate_buffer();
 
         auto contents = m_buffer.data_buffer();
         auto contents_size = m_buffer.data_buffer_size();
@@ -63,7 +61,7 @@ void OutputWriterMirror::ensure() {
 
 std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size_type> OutputWriterMirror::output_buffer() {
     if (!m_ensured) {
-        allocate();
+        m_buffer = m_entity.allocate_buffer();
         m_ensured = true;
     }
     return std::make_tuple(
@@ -71,16 +69,6 @@ std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size
             m_buffer.offset_table(),
             m_has_key ? m_buffer.key_length_table() : nullptr,
             m_buffer.max_record_count());
-}
-
-void OutputWriterMirror::allocate() {
-    if (!m_ensured) {
-        if (m_buffer_size > 0 && m_record_count > 0) {
-            m_buffer = m_entity.allocate_buffer(m_buffer_size, m_record_count);
-        } else {
-            m_buffer = m_entity.allocate_buffer();
-        }
-    }
 }
 
 m3bp::size_type OutputWriterMirror::base_offset() {
