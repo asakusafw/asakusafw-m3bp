@@ -37,7 +37,7 @@ OutputWriterMirror::~OutputWriterMirror() = default;
 
 void OutputWriterMirror::ensure() {
     if (!m_ensured) {
-        m_buffer = std::move(m_entity.allocate_buffer());
+        m_buffer = m_entity.allocate_buffer();
 
         auto contents = m_buffer.data_buffer();
         auto contents_size = m_buffer.data_buffer_size();
@@ -61,7 +61,7 @@ void OutputWriterMirror::ensure() {
 
 std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size_type> OutputWriterMirror::output_buffer() {
     if (!m_ensured) {
-        m_buffer = std::move(m_entity.allocate_buffer());
+        m_buffer = m_entity.allocate_buffer();
         m_ensured = true;
     }
     return std::make_tuple(

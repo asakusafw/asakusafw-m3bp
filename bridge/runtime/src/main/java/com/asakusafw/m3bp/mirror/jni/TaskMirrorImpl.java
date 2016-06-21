@@ -18,6 +18,7 @@ package com.asakusafw.m3bp.mirror.jni;
 import java.text.MessageFormat;
 
 import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 import com.asakusafw.m3bp.mirror.Identifier;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.OutputWriterMirror;
@@ -26,20 +27,20 @@ import com.asakusafw.m3bp.mirror.TaskMirror;
 /**
  * JNI bridge of {@link TaskMirror}.
  * @since 0.1.0
- * @version 0.1.1
+ * @version 0.1.2
  */
 public class TaskMirrorImpl implements TaskMirror, NativeMirror {
 
     private final Pointer reference;
 
-    private final float flushFactor;
+    private final ConfigurationMirror configuration;
 
     private final boolean unsafe;
 
-    TaskMirrorImpl(Pointer reference, float flushFactor, boolean unsafe) {
+    TaskMirrorImpl(Pointer reference, ConfigurationMirror configuration, boolean unsafe) {
         Arguments.requireNonNull(reference);
         this.reference = reference;
-        this.flushFactor = flushFactor;
+        this.configuration = configuration;
         this.unsafe = unsafe;
     }
 
@@ -71,12 +72,13 @@ public class TaskMirrorImpl implements TaskMirror, NativeMirror {
 
     @Override
     public OutputWriterMirror output(Identifier id) {
+        ConfigurationMirror conf = configuration;
         Arguments.requireNonNull(id);
         Pointer ref = new Pointer(output0(getPointer().getAddress(), id.getValue()));
         if (unsafe) {
-            return new OutputWriterMirrorUnsafe(ref, flushFactor);
+            return new OutputWriterMirrorUnsafe(ref, conf.getOutputBufferFlushFactor());
         } else {
-            return new OutputWriterMirrorImpl(ref, flushFactor);
+            return new OutputWriterMirrorImpl(ref, conf.getOutputBufferFlushFactor());
         }
     }
 
