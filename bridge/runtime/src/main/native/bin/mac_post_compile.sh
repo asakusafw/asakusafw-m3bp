@@ -1,21 +1,25 @@
 #!/bin/bash
 
 set -e
-set -x
 
 LIBDIR=$1
-M3BP_LIBFILE_SIMPLE=libm3bp.dylib
+M3BPJNI_LIBFILE=libm3bpjni.dylib
 
-# If M3BP dylib does not exist, nothing to do in this script,
+# If libm3bpjni.dylib does not exist, nothing to do in this script,
 # for example, on Mac OS X but cross compiling for Linux.
-if [ ! -e ${LIBDIR}/${M3BP_LIBFILE_SIMPLE} ]
+if [ ! -e ${LIBDIR}/${M3BPJNI_LIBFILE} ]
 then
    exit 0
 fi
 
+if [ -z ${BOOST_ROOT} ]
+then
+    echo "$BOOST_ROOT MUST be set to build asakusafw-m3bp on Mac OS X."
+    exit 1
+fi
+
 M3BP_LIBPATH=`ls ${LIBDIR}/libm3bp.*.dylib`
 M3BP_LIBNAME=$(basename ${M3BP_LIBPATH})
-echo "M3BP_LIBNAME: ${M3BP_LIBNAME}"
 
 cp ${BOOST_ROOT}/lib/libboost_*.dylib ${LIBDIR}
 
@@ -28,7 +32,6 @@ do
     done
 done
 
-M3BPJNI_LIBFILE=libm3bpjni.dylib
 install_name_tool -change ${M3BP_LIBNAME} @rpath/${M3BP_LIBNAME} ${LIBDIR}/${M3BPJNI_LIBFILE}
 
 for component in log thread system date_time log_setup filesystem regex chrono atomic
