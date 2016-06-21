@@ -15,7 +15,9 @@
  */
 #include "jniutil.hpp"
 
-static __thread jmethodID _object_to_string = nullptr;
+#ifndef M3BP_NO_THREAD_LOCAL
+static thread_local jmethodID _object_to_string = nullptr;
+#endif
 
 jlong to_pointer(void *p) {
     return (jlong) p;
@@ -74,12 +76,19 @@ std::string java_to_string(JNIEnv *env, jobject object) {
         return std::string("null");
     }
     LocalFrame(env, 4);
+#ifndef M3BP_NO_THREAD_LOCAL
     if (!_object_to_string) {
         jclass clazz = env->FindClass("java/lang/Object");
         check_java_exception(env);
         _object_to_string = env->GetMethodID(clazz, "toString", "()Ljava/lang/String;");
         check_java_exception(env);
     }
+#else
+    jclass clazz = env->FindClass("java/lang/Object");
+    check_java_exception(env);
+    jmethodID _object_to_string = env->GetMethodID(clazz, "toString", "()Ljava/lang/String;");
+    check_java_exception(env);
+#endif
     jstring string = (jstring) env->CallObjectMethod(object, _object_to_string);
     check_java_exception(env);
     if (!string) {

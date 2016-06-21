@@ -157,6 +157,7 @@ else
     export LD_LIBRARY_PATH="$(IFS=:; echo "${_LIBRARYPATH[*]}")"
     "${_EXEC[@]}" \
         $ASAKUSA_M3BP_OPTS \
+        -Djava.library.path="$LD_LIBRARY_PATH" \
         -classpath "$(IFS=:; echo "${_CLASSPATH[*]}")" \
         "com.asakusafw.m3bp.client.Launcher" \
         --client "$_OPT_APPLICATION" \

@@ -82,6 +82,7 @@
                         <include name="**/libm3bp.so" /> <!-- is symlink but copied as a regular file by Ant -->
                         <include name="**/libm3bp.so.*" />
                         <include name="**/libm3bp.dylib" />
+                        <include name="**/libm3bp.*.dylib" />
                         <include name="**/m3bp.dll" />
                       </fileset>
                     </copy>
@@ -124,8 +125,13 @@
                     <delete>
                       <fileset dir="${project.build.directory}/native/lib">
                         <include name="libm3bp.so" /> <!-- for only link from m3bpjni -->
+                        <include name="libm3bp.dylib" /> <!-- for only link from m3bpjni -->
                       </fileset>
                     </delete>
+                    <exec executable="${basedir}/src/main/native/bin/mac_post_compile.sh" osfamily="mac"
+                          failonerror="true">
+                      <arg value="${project.build.directory}/native/lib" />
+                    </exec>
                   </target>
                 </configuration>
               </execution>
