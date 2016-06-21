@@ -81,15 +81,14 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_input0
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl
  * Method:    output0
- * Signature: (JJJJ)J
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_output0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _id, jlong bufferSize, jlong recordCount) {
+(JNIEnv *env, jclass clazz, jlong _self, jlong _id) {
     try {
         TaskMirror *self = (TaskMirror *) _self;
         m3bp::identifier_type id = static_cast<m3bp::identifier_type>(_id);
         OutputWriterMirror *result = self->output(id);
-        result->configure(bufferSize, recordCount);
         return to_pointer(result);
     } catch (JavaException &e) {
         e.rethrow(env);
