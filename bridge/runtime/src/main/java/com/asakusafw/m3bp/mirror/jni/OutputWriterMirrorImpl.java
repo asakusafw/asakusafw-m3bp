@@ -31,7 +31,7 @@ import com.asakusafw.m3bp.mirror.basic.AbstractPageDataOutput;
 /**
  * JNI bridge of {@link OutputWriterMirror}.
  * @since 0.1.0
- * @version 0.1.1
+ * @version 0.1.2
  */
 public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror {
 
@@ -43,6 +43,8 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
 
     final boolean hasKey;
 
+    private boolean ensured = false;
+
     private boolean closed = false;
 
     OutputWriterMirrorImpl(Pointer reference, float flushFactor) {
@@ -50,7 +52,6 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
         this.reference = reference;
         this.hasKey = hasKey0(reference.getAddress());
         this.output = new Output(flushFactor);
-        ensure();
     }
 
     @Override
@@ -60,6 +61,10 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
 
     @Override
     public PageDataOutput getOutput() {
+        if (ensured == false) {
+            ensured = true;
+            ensure();
+        }
         return output;
     }
 
@@ -78,9 +83,10 @@ public class OutputWriterMirrorImpl implements OutputWriterMirror, NativeMirror 
 
     @Override
     public void close() throws IOException, InterruptedException {
-        if (closed == false) {
+        if (ensured && closed == false) {
             output.flush(true);
             close0(getPointer().getAddress());
+            ensured = false;
             closed = true;
             if (LOG.isTraceEnabled()) {
                 LOG.trace("total written: size={}, entries={}, ave-size={}", //$NON-NLS-1$

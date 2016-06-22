@@ -29,7 +29,7 @@ import com.asakusafw.m3bp.mirror.unsafe.UnsafePageDataOutput;
 /**
  * Unsafe implementation of {@link OutputWriterMirror}.
  * @since 0.1.0
- * @version 0.1.1
+ * @version 0.1.2
  */
 public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, NativeMirror {
 
@@ -53,13 +53,14 @@ public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, Nativ
 
     private final Output output;
 
+    private boolean ensured = false;
+
     private boolean closed = false;
 
     OutputWriterMirrorUnsafe(Pointer reference, float flushFactor) {
         Arguments.requireNonNull(reference);
         this.reference = reference;
         this.output = new Output(flushFactor);
-        ensure();
     }
 
     @Override
@@ -69,6 +70,10 @@ public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, Nativ
 
     @Override
     public PageDataOutput getOutput() {
+        if (ensured == false) {
+            ensured = true;
+            ensure();
+        }
         return output;
     }
 
@@ -91,9 +96,10 @@ public final class OutputWriterMirrorUnsafe implements OutputWriterMirror, Nativ
 
     @Override
     public void close() throws IOException, InterruptedException {
-        if (closed == false) {
+        if (ensured && closed == false) {
             output.flush(true);
             close0(getPointer().getAddress());
+            ensured = false;
             closed = true;
         }
     }

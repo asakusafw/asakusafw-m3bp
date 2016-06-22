@@ -30,8 +30,6 @@ public class ValueWriterBridge implements ObjectWriter {
 
     private final OutputWriterMirror writer;
 
-    private final PageDataOutput output;
-
     private final Serializer serializer;
 
     /**
@@ -43,13 +41,12 @@ public class ValueWriterBridge implements ObjectWriter {
         Arguments.requireNonNull(writer);
         Arguments.requireNonNull(serializer);
         this.writer = writer;
-        this.output = writer.getOutput();
         this.serializer = serializer;
     }
 
     @Override
     public void putObject(Object object) throws IOException, InterruptedException {
-        PageDataOutput o = output;
+        PageDataOutput o = writer.getOutput();
         serializer.serialize(object, o);
         o.endPage();
     }
