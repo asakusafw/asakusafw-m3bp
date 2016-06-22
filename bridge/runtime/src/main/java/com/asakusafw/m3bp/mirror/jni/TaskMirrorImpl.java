@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror;
+import com.asakusafw.m3bp.mirror.ConfigurationMirror.BufferAccessMode;
 import com.asakusafw.m3bp.mirror.Identifier;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.OutputWriterMirror;
@@ -37,11 +38,11 @@ public class TaskMirrorImpl implements TaskMirror, NativeMirror {
 
     private final boolean unsafe;
 
-    TaskMirrorImpl(Pointer reference, ConfigurationMirror configuration, boolean unsafe) {
+    TaskMirrorImpl(Pointer reference, ConfigurationMirror configuration) {
         Arguments.requireNonNull(reference);
         this.reference = reference;
         this.configuration = configuration;
-        this.unsafe = unsafe;
+        this.unsafe = configuration.getBufferAccessMode() == BufferAccessMode.UNSAFE;
     }
 
     @Override
