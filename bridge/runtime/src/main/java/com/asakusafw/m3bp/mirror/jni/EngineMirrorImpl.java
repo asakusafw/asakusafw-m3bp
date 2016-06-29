@@ -35,6 +35,7 @@ import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.dag.utils.common.Optionals;
 import com.asakusafw.m3bp.bridge.VertexProcessorBridge;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror;
+import com.asakusafw.m3bp.mirror.ConfigurationMirror.BufferAccessMode;
 import com.asakusafw.m3bp.mirror.EngineMirror;
 import com.asakusafw.m3bp.mirror.FlowGraphMirror;
 import com.asakusafw.m3bp.mirror.TaskMirror;
@@ -94,8 +95,6 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
 
     private final AtomicReference<ProcessorContext> runningContext = new AtomicReference<>(null);
 
-    private volatile boolean useUnsafe;
-
     private final ConcurrentMap<Pointer, VertexProcessorBridge> runningBridges = new ConcurrentHashMap<>();
 
     /**
@@ -129,6 +128,7 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
     @Override
     public void run(ProcessorContext context) throws IOException, InterruptedException {
         Arguments.requireNonNull(context);
+        validateConfigurations();
         if (runningContext.compareAndSet(null, context) == false) {
             throw new IllegalStateException(MessageFormat.format(
                     "other process is running: {0}", //$NON-NLS-1$
@@ -136,7 +136,6 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
         }
         try {
             runningBridges.clear();
-            configureBufferAccessMode();
             run0(getPointer().getAddress());
         } finally {
             runningBridges.clear();
@@ -144,20 +143,10 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
         }
     }
 
-    private void configureBufferAccessMode() {
+    private void validateConfigurations() {
         ConfigurationMirror.BufferAccessMode mode = getConfiguration().getBufferAccessMode();
-        switch (mode) {
-        case NIO:
-            this.useUnsafe = false;
-            break;
-        case UNSAFE:
-            if (UnsafeUtil.isAvailable() == false) {
-                throw new UnsupportedOperationException("unsafe facilities are not available in this environment");
-            }
-            this.useUnsafe = true;
-            break;
-        default:
-            throw new AssertionError(mode);
+        if (mode == BufferAccessMode.UNSAFE && UnsafeUtil.isAvailable() == false) {
+            throw new UnsupportedOperationException("unsafe facilities are not available in this environment");
         }
     }
 
@@ -287,9 +276,8 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
             boolean initialize,
             Callback callback) throws IOException, InterruptedException {
         assert runningContext.get() != null;
-        boolean unsafe = useUnsafe;
         ProcessorContext context = runningContext.get();
-        TaskMirrorImpl task = new TaskMirrorImpl(new Pointer(taskReference), configuration, unsafe);
+        TaskMirrorImpl task = new TaskMirrorImpl(new Pointer(taskReference), configuration);
         VertexProcessorBridge bridge = getBridge(new Pointer(vertexReference), initialize);
         try {
             callback.call(bridge, context, task);
