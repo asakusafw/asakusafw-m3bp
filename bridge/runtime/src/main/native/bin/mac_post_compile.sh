@@ -47,7 +47,15 @@ do
     done
 done
 
-install_name_tool -change ${M3BP_LIBNAME} @rpath/${M3BP_LIBNAME} ${LIBDIR}/${M3BPJNI_LIBFILE}
+install_name_tool -id "@rpath/${M3BPJNI_LIBFILE}" \
+                  -change ${M3BP_LIBNAME} \
+                          @rpath/${M3BP_LIBNAME} \
+                  -add_rpath "@loader_path/." \
+                  ${LIBDIR}/${M3BPJNI_LIBFILE}
+
+install_name_tool -id "@rpath/${M3BP_LIBNAME}" \
+                  -add_rpath "@loader_path/." \
+                  ${LIBDIR}/${M3BP_LIBNAME}
 
 for component in log thread system date_time log_setup filesystem regex chrono atomic
 do
