@@ -79,6 +79,7 @@ import com.asakusafw.dag.compiler.model.plan.VertexSpec;
 import com.asakusafw.dag.compiler.model.plan.VertexSpec.OperationOption;
 import com.asakusafw.dag.compiler.model.plan.VertexSpec.OperationType;
 import com.asakusafw.dag.runtime.adapter.DataTable;
+import com.asakusafw.dag.runtime.directio.DirectFileOutputPrepare;
 import com.asakusafw.dag.runtime.internalio.InternalOutputPrepare;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
@@ -729,7 +730,7 @@ public final class M3bpDagGenerator {
         });
         SubPlan.Input entry = externalIo.getOutputSource(vertex.getOrigin());
         ResolvedInputInfo input = new ResolvedInputInfo(
-                InternalOutputPrepare.INPUT_NAME,
+                DirectFileOutputPrepare.INPUT_NAME,
                 edge);
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 vertex.getId(),
