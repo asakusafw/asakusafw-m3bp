@@ -41,18 +41,18 @@
 以下は環境変数の設定例です。
 
 ..  code-block:: sh
-    
+
     export ASAKUSA_M3BP_ARGS='--engine-conf com.asakusafw.m3bp.thread.max=10'
 
 設定ファイルと環境変数で同じプロパティが設定されていた場合、環境変数の設定値が利用されます。
 
 ..  hint::
     環境変数による設定は、バッチアプリケーションごとに設定を変更したい場合に便利です。
-    
+
 ..  attention::
     :program:`yaess-batch.sh` などのYAESSコマンドを実行する環境と、\ |FEATURE|\ を実行する環境が異なる場合（例えばYAESSのSSH機能を利用している場合）に、
     YAESSコマンドを実行する環境の環境変数が\ |FEATURE|\ を実行する環境に受け渡されないことがある点に注意してください。
-    
+
     YAESSではYAESSコマンドを実行する環境の環境変数をYAESSのジョブ実行先に受け渡すための機能がいくつか用意されているので、それらの機能を利用することを推奨します。
     詳しくは :asakusafw:`YAESSユーザーガイド <yaess/user-guide.html>` などを参照してください。
 
@@ -205,4 +205,4 @@ Java VMの設定
 
     export ASAKUSA_M3BP_OPTS='-Xmx16g'
 
-上記のように書いた場合、Open JDKなどでJavaのヒープ領域の最大置を ``16GB`` に設定できます。
+上記のように書いた場合、Open JDKなどでJavaのヒープ領域の最大値を ``16GB`` に設定できます。
