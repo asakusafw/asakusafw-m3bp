@@ -70,6 +70,9 @@ apply plugin: 'asakusafw-m3bp'
 
 ```
 
+## How to build document
+* See documantation [`README`](docs/README.md).
+
 ## Referred Projects
 * [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp)
 * [Asakusa Framework Core](https://github.com/asakusafw/asakusafw)
