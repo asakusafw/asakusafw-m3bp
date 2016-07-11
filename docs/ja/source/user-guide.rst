@@ -192,7 +192,7 @@ Asakusa Framework 対応バージョン
 
 |FEATURE|\ を利用する構成を持つアプリケーション開発用のプロジェクトテンプレートは、以下リンクからダウンロードします。
 
-* `asakusa-m3bp-template-0.1.1.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3bp-template-0.1.1.tar.gz>`_
+* `asakusa-m3bp-template-0.1.2.tar.gz <http://www.asakusafw.com/download/gradle-plugin/asakusa-m3bp-template-0.1.2.tar.gz>`_
 
 ..  _user-guide-gradle-plugin:
 
@@ -207,7 +207,7 @@ Asakusa Framework 対応バージョン
 
 * ``buildscript/dependencis`` ブロックに指定しているAsakusa Gradle Pluginの指定を\ |FEATURE| Gradle Pluginの指定に置き換える [#]_
 
-  * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.1'``
+  * ``group: 'com.asakusafw.m3bp', name: 'asakusa-m3bp-gradle', version: '0.1.2'``
 
 * |FEATURE| Gradle Pluginを適用する定義を追加する
 
@@ -287,7 +287,7 @@ Hadoopとの連携
 
         asakusafwOrganizer {
             extension {
-                libraries += ["com.asakusafw.m3bp.bridge:asakusa-m3bp-workaround-hadoop:0.1.1"]
+                libraries += ["com.asakusafw.m3bp.bridge:asakusa-m3bp-workaround-hadoop:0.1.2"]
             }
         }
 
