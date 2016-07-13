@@ -69,9 +69,9 @@ Batch Application Plugin ( ``asakusafw`` ) への拡張
 
 以下、 ``build.gradle`` の設定例です。
 
-**build.gradle**
-
 ..  code-block:: groovy
+    :caption: build.gradle
+    :name: build.gradle-reference-1
 
     asakusafw {
         m3bp {

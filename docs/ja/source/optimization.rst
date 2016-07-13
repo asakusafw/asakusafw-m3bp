@@ -19,9 +19,9 @@
 
 設定ファイルはJavaのプロパティファイルのフォーマットと同様です。以下は ``m3bp.properties`` の設定例です。
 
-**m3bp.properties**
-
 ..  code-block:: properties
+    :caption: m3bp.properties
+    :name: m3bp.properties-optimization-1
 
     ## the max number of worker threads
     com.asakusafw.m3bp.thread.max=10
