@@ -215,10 +215,10 @@ Asakusa Framework 対応バージョン
 
 以下は\ |FEATURE| Gradle Pluginの設定を追加したビルドスクリプトの例です。
 
-:download:`build.gradle <attachment/build.gradle>`
-
 ..  literalinclude:: attachment/build.gradle
     :language: groovy
+    :caption: build.gradle
+    :name: build.gradle-user-guide-1
     :emphasize-lines: 8,15
 
 ..  [#] Asakusa on Sparkと\ |FEATURE|\ を同時に利用する場合は、Asakusa on Spark Gradle Plugin の設定と\ |FEATURE| Gradle Plugin の両方を記述します。
@@ -263,10 +263,10 @@ Hadoopとの連携
 
 以下は、 ``prod`` プロファイルのデプロイメントアーカイブに上記の設定を行う例です。
 
-:download:`build.gradle <attachment/build-system-hadoop.gradle>`
-
 ..  literalinclude:: attachment/build-system-hadoop.gradle
     :language: groovy
+    :caption: build.gradle
+    :name: build.gradle-user-guide-2
     :emphasize-lines: 19
 
 ..  warning::
@@ -284,6 +284,8 @@ Hadoopとの連携
     これを回避するには、 ``build.gradle`` に以下の設定を加えてください
 
     ..  code-block:: groovy
+        :caption: build.gradle
+        :name: build.gradle-user-guide-3
 
         asakusafwOrganizer {
             extension {
