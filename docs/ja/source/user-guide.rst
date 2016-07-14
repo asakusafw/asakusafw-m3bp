@@ -125,7 +125,7 @@ Hadoopとの連携方法は、 `Hadoopとの連携`_ を参照してください
 Asakusa Framework 対応バージョン
 --------------------------------
 
-|FEATURE| バージョン |version| は、Asakusa Framework バージョン 0.8.0 を使用します。
+|FEATURE| バージョン |version| は、Asakusa Framework バージョン 0.8.1 を使用します。
 
 マイグレーション
 ~~~~~~~~~~~~~~~~
