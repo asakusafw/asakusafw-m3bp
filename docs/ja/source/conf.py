@@ -33,7 +33,7 @@ extensions = ['sphinx.ext.imgmath', 'sphinx.ext.todo', 'sphinx.ext.extlinks', 'a
 todo_include_todos = True
 
 extlinks = {
-    'asakusafw': ('http://docs.asakusafw.com/latest/release/ja/html/%s', None),
+    'asakusafw': ('http://docs.asakusafw.com/0.8.1/release/ja/html/%s', None),
     'milestone-m3bp': ("https://github.com/fixstars/m3bp/issues?&q=milestone:%s", 'm3bp milestone:'),
     'milestone-asakusafw-m3bp': ("https://github.com/asakusafw/asakusafw-m3bp/issues?&q=milestone:%s", 'asakusafw-m3bp milestone:'),
     'milestone-asakusafw-dag': ("https://github.com/asakusafw/asakusafw-dag/issues?&q=milestone:%s", 'asakusafw-dag milestone:'),
@@ -42,9 +42,9 @@ extlinks = {
     'milestone-asakusafw': ("https://github.com/asakusafw/asakusafw/issues?&q=milestone:%s", 'asakusafw milestone:'),
 }
 javadoclinks = {
-    'asakusafw-javadoc': ('http://docs.asakusafw.com/latest/release/api/%s.html', ""),
-    'asakusa-gradle-groovydoc': ('http://docs.asakusafw.com/latest/release/gradle-plugins/%s.html', ""),
-    'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3bp/latest/release/gradle-plugins/%s.html', ""),
+    'asakusafw-javadoc': ('http://docs.asakusafw.com/0.8.1/release/api/%s.html', ""),
+    'asakusa-gradle-groovydoc': ('http://docs.asakusafw.com/0.8.1/release/gradle-plugins/%s.html', ""),
+    'asakusa-m3bp-gradle-groovydoc': ('http://docs.asakusafw.com/asakusa-on-m3bp/0.1.2/release/gradle-plugins/%s.html', ""),
 }
 
 # The common header.

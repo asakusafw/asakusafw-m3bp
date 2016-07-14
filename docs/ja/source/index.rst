@@ -12,7 +12,7 @@
 
 ..  toctree::
     :maxdepth: 1
-    
+
     user-guide
     optimization
     reference
@@ -36,12 +36,10 @@
 APIリファレンス
 ---------------
 
-* `Asakusa on M3BP Gradle Plugins (Groovydoc)`_
-
-..  _`Asakusa on M3BP Gradle Plugins (Groovydoc)`: http://docs.asakusafw.com/asakusa-on-m3bp/latest/release/gradle-plugins/index.html
+* :asakusa-m3bp-gradle-groovydoc:`Asakusa on M3BP Gradle Plugins (Groovydoc) <index>`
 
 リンク
 ======
 
-* :asakusafw:`Asakusa Framework (latest document) <index.html>`
+* :asakusafw:`Asakusa Framework documentation <index.html>`
 * `M3 for Batch Processing (GitHub) <https://github.com/fixstars/m3bp>`_
