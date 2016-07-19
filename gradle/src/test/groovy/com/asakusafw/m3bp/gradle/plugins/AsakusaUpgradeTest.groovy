@@ -50,10 +50,10 @@ class AsakusaUpgradeTest {
     }
 
     /**
-     * Test for {@code 2.14} (Asakusa on M3BP {@code 0.1.2}).
+     * Test for {@code 2.14.1} (Asakusa on M3BP {@code 0.1.2}).
      */
     @Test
-    void 'v2.14'() {
+    void 'v2.14.1'() {
         doUpgradeFromTestName()
     }
 
