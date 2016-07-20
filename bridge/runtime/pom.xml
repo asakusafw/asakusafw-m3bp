@@ -6,7 +6,7 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.bridge</groupId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.2-RC1</version>
   </parent>
 
   <packaging>jar</packaging>
@@ -128,8 +128,7 @@
                         <include name="libm3bp.dylib" /> <!-- for only link from m3bpjni -->
                       </fileset>
                     </delete>
-                    <exec executable="${basedir}/src/main/native/bin/mac_post_compile.sh" osfamily="mac"
-                          failonerror="true">
+                    <exec executable="${basedir}/src/main/native/bin/mac_post_compile.sh" osfamily="mac" failonerror="true">
                       <arg value="${project.build.directory}/native/lib" />
                     </exec>
                   </target>
