@@ -5,7 +5,7 @@ Changelogs
 Release 0.1.2
 =============
 
-(in development)
+Jul 25, 2016
 
 * [ :milestone-m3bp:`0.1.2` ]
 * [ :milestone-asakusafw-dag:`0.1.2` ]
