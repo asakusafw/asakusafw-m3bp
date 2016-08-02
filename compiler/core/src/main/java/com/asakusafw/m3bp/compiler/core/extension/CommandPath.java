@@ -16,7 +16,9 @@
 package com.asakusafw.m3bp.compiler.core.extension;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +30,17 @@ import com.asakusafw.dag.utils.common.Lang;
  * Represents a command path.
  */
 public class CommandPath {
+
+    static final List<String> EXECUTABLE_EXTENSIONS;
+    static {
+        List<String> extensions = new ArrayList<>();
+        extensions.add(""); //$NON-NLS-1$
+        if (System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH).startsWith("windows")) {
+            extensions.add(".exe");
+            extensions.add(".bat");
+        }
+        EXECUTABLE_EXTENSIONS = extensions;
+    }
 
     private final List<File> directories;
 
@@ -91,8 +104,12 @@ public class CommandPath {
         return Stream.concat(
                     Stream.of(new File(command)).filter(File::isAbsolute),
                     directories.stream().map(d -> new File(d, command)))
-                .filter(File::isFile)
-                .filter(File::canExecute)
+                .map(File::getPath)
+                .flatMap(path -> EXECUTABLE_EXTENSIONS.stream()
+                        .map(path::concat)
+                        .map(File::new)
+                        .filter(File::isFile)
+                        .filter(File::canExecute))
                 .findFirst()
                 .orElse(null);
     }

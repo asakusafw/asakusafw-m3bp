@@ -165,6 +165,9 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
             "add_library(application SHARED ${NATIVE})",
             "set_target_properties(application PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)",
             "set_target_properties(application PROPERTIES COMPILE_FLAGS \"-std=c++11 -Wall\")",
+            "if (WIN32)",
+            "  set_target_properties(application PROPERTIES PREFIX \"\")",
+            "endif (WIN32)",
     };
 
     @Override

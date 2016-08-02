@@ -50,7 +50,7 @@ class AttributeExtractor {
 
     public Optional<List<String>> extractList(String key) {
         return extract(key)
-                .flatMap(v -> {
+                .<List<String>>flatMap(v -> {
                     Matcher matcher = PATTERN_CORRECTION.matcher(v);
                     if (matcher.matches() == false) {
                         return Optionals.empty();
