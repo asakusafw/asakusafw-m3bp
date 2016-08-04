@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileInputModel;
+import com.asakusafw.lang.compiler.extension.directio.DirectFileIoConstants;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileOutputModel;
 import com.asakusafw.lang.compiler.internalio.InternalIoConstants;
 import com.asakusafw.lang.compiler.model.description.ValueDescription;
@@ -49,11 +50,6 @@ import com.asakusafw.lang.compiler.planning.SubPlan;
 public class ExternalIoAnalyzer {
 
     static final Logger LOG = LoggerFactory.getLogger(ExternalIoAnalyzer.class);
-
-    /**
-     * The module name of Direct I/O.
-     */
-    public static final String DIRECTIO_MODULE_NAME = "directio";
 
     private final Map<SubPlan, ExternalOutput> outputMap;
 
@@ -81,8 +77,8 @@ public class ExternalIoAnalyzer {
 
         Set<ExternalInput> inputs = collect(loader, plan, ExternalInput.class);
         Set<ExternalOutput> outputs = collect(loader, plan, ExternalOutput.class);
-        this.directInputs = collect(loader, inputs, DIRECTIO_MODULE_NAME, DirectFileInputModel.class);
-        this.directOutputs = collect(loader, outputs, DIRECTIO_MODULE_NAME, DirectFileOutputModel.class);
+        this.directInputs = collect(loader, inputs, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class);
+        this.directOutputs = collect(loader, outputs, DirectFileIoConstants.MODULE_NAME, DirectFileOutputModel.class);
         this.internalInputs = collect(loader, inputs, InternalIoConstants.MODULE_NAME, String.class);
         this.internalOutputs = collect(loader, outputs, InternalIoConstants.MODULE_NAME, String.class);
         inputs.removeIf(p -> directInputs.containsKey(p) || internalInputs.containsKey(p));

@@ -15,13 +15,19 @@
  */
 package com.asakusafw.m3bp.compiler.core.adapter;
 
-import com.asakusafw.dag.compiler.codegen.BasicSupplierProvider;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
-import com.asakusafw.dag.compiler.codegen.SupplierProvider;
+import com.asakusafw.dag.compiler.codegen.ClassNameMap;
 import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.dag.utils.common.Optionals;
 import com.asakusafw.lang.compiler.api.DataModelLoader;
 import com.asakusafw.lang.compiler.model.description.ClassDescription;
+import com.asakusafw.m3bp.compiler.common.M3bpPackage;
 import com.asakusafw.m3bp.compiler.core.M3bpCompilerContext;
 
 /**
@@ -31,7 +37,9 @@ public class ClassGeneratorContextAdapter implements ClassGeneratorContext {
 
     private final M3bpCompilerContext delegate;
 
-    private final SupplierProvider suppliers;
+    private final ClassNameMap namer = new ClassNameMap(M3bpPackage.CLASS_PREFIX);
+
+    private final Map<Object, ClassDescription> cache = new HashMap<>();
 
     /**
      * Creates a new instance.
@@ -40,9 +48,6 @@ public class ClassGeneratorContextAdapter implements ClassGeneratorContext {
     public ClassGeneratorContextAdapter(M3bpCompilerContext delegate) {
         Arguments.requireNonNull(delegate);
         this.delegate = delegate;
-        this.suppliers = new BasicSupplierProvider(
-                c -> c.dump(delegate.getRoot()::addResourceFile),
-                delegate.getClassNameProvider());
     }
 
     @Override
@@ -56,12 +61,23 @@ public class ClassGeneratorContextAdapter implements ClassGeneratorContext {
     }
 
     @Override
-    public SupplierProvider getSupplierProvider() {
-        return suppliers;
+    public ClassDescription getClassName(String category, String hint) {
+        return namer.get(category, hint);
     }
 
     @Override
     public ClassDescription addClassFile(ClassData data) {
         return delegate.add(data);
+    }
+
+    @Override
+    public Optional<ClassDescription> findCache(Object key) {
+        return Optionals.get(cache, key);
+    }
+
+    @Override
+    public void addCache(Object key, ClassDescription target) {
+        ClassDescription victim = cache.putIfAbsent(key, target);
+        Invariants.require(victim == null, () -> key);
     }
 }

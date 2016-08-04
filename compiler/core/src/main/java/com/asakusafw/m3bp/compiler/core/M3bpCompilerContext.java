@@ -18,7 +18,6 @@ package com.asakusafw.m3bp.compiler.core;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
-import java.util.function.Function;
 
 import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.utils.common.Action;
@@ -32,6 +31,8 @@ import com.asakusafw.lang.compiler.model.info.JobflowInfo;
 
 /**
  * Represents a compiler context.
+ * @since 0.1.0
+ * @version 0.2.0
  */
 public interface M3bpCompilerContext {
 
@@ -46,24 +47,6 @@ public interface M3bpCompilerContext {
      * @return the jobflow info
      */
     JobflowInfo getInfo();
-
-    /**
-     * Returns the class name provider.
-     * @return the class name provider
-     */
-    Function<String, ClassDescription> getClassNameProvider();
-
-    /**
-     * Generates a new class and adds it as a compilation result.
-     * @param category the generating class category
-     * @param generator the class generator
-     * @return the generated class description
-     */
-    default ClassDescription generate(String category, Function<ClassDescription, ClassData> generator) {
-        ClassDescription target = getClassNameProvider().apply(category);
-        ClassData generated = generator.apply(target);
-        return add(generated);
-    }
 
     /**
      * Adds a resource file as a compilation result.
@@ -86,7 +69,7 @@ public interface M3bpCompilerContext {
      * @return the target class description
      */
     default ClassDescription add(ClassData generated) {
-        if (generated.isProvided() == false) {
+        if (generated.hasContents()) {
             try (OutputStream output = getRoot().addClassFile(generated.getDescription())) {
                 generated.dump(output);
             } catch (IOException e) {
@@ -107,8 +90,6 @@ public interface M3bpCompilerContext {
 
         private final JobflowInfo info;
 
-        private final ClassNameProvider namer = new ClassNameProvider();
-
         /**
          * Creates a new instance.
          * @param root the root context
@@ -127,11 +108,6 @@ public interface M3bpCompilerContext {
         @Override
         public JobflowInfo getInfo() {
             return info;
-        }
-
-        @Override
-        public Function<String, ClassDescription> getClassNameProvider() {
-            return namer;
         }
     }
 }
