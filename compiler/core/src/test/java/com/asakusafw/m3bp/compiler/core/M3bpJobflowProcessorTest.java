@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assume;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -59,6 +60,7 @@ import com.asakusafw.m3bp.compiler.tester.externalio.TestIoTaskExecutor;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestOutput;
 import com.asakusafw.runtime.core.Result;
 import com.asakusafw.runtime.directio.DataFilter;
+import com.asakusafw.runtime.windows.WindowsSupport;
 import com.asakusafw.vocabulary.external.ImporterDescription.DataSize;
 import com.asakusafw.vocabulary.flow.processor.PartialAggregation;
 import com.asakusafw.vocabulary.model.Key;
@@ -76,6 +78,12 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     static final File WORKING = new File("target/" + M3bpJobflowProcessorTest.class.getSimpleName());
 
     static final Location LOCATION_CORE_CONFIGURATION = Location.of("core/conf/asakusa-resources.xml"); //$NON-NLS-1$
+
+    /**
+     * Support for Windows platform.
+     */
+    @ClassRule
+    public static final WindowsSupport WINDOWS_SUPPORT = new WindowsSupport();
 
     /**
      * profile helper.
