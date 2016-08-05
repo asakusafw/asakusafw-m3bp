@@ -281,7 +281,7 @@ Framework Organizer Plugin ( ``asakusafwOrganizer`` ) への拡張
 
     ``true`` ならば除去し、 ``false`` ならば除去しない。
 
-    既定値: ``true``
+    既定値: ``false``
 
 ``operator.logging.level``
     DSLで指定した ``@Logging`` 演算子のうち、どのレベル以上を表示するか。
