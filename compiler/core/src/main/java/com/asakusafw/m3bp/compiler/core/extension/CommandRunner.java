@@ -93,16 +93,17 @@ public final class CommandRunner {
             thread.setDaemon(true);
             return thread;
         });
-        try {
-            Future<?> output = executor.submit(new ReaderRedirector(
-                    process.getInputStream(),
-                    s -> LOG.debug("{}: {}", label, s)));
-            Future<?> error = executor.submit(new ReaderRedirector(
-                    process.getErrorStream(),
-                    s -> LOG.warn("{}: {}", label, s)));
+        try (ReaderRedirector stdIn = new ReaderRedirector(
+                process.getInputStream(),
+                s -> LOG.debug("{}: {}", label, s));
+                ReaderRedirector stdErr = new ReaderRedirector(
+                        process.getErrorStream(),
+                        s -> LOG.warn("{}: {}", label, s))) {
+            Future<?> output = executor.submit(stdIn);
+            Future<?> error = executor.submit(stdErr);
             output.get();
             error.get();
-        } catch (ExecutionException e) {
+        } catch (IOException | ExecutionException e) {
             LOG.warn("error occurred while reading output", e);
         } finally {
             executor.shutdownNow();

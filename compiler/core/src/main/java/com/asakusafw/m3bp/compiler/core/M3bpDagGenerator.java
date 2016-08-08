@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.api.model.GraphInfo;
-import com.asakusafw.dag.compiler.codegen.BasicSerDeProvider;
 import com.asakusafw.dag.compiler.codegen.BufferOperatorGenerator;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
 import com.asakusafw.dag.compiler.codegen.CoGroupInputAdapterGenerator;
@@ -43,12 +43,13 @@ import com.asakusafw.dag.compiler.codegen.EdgeDataTableAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.EdgeOutputAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.ExtractAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.ExtractInputAdapterGenerator;
+import com.asakusafw.dag.compiler.codegen.KeyValueSerDeGenerator;
 import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
 import com.asakusafw.dag.compiler.codegen.OperationAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.AggregateNodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.NodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.OperatorNodeInfo;
-import com.asakusafw.dag.compiler.codegen.SerDeProvider;
+import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.codegen.VertexAdapterGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileInputAdapterGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileOutputCommitGenerator;
@@ -57,6 +58,7 @@ import com.asakusafw.dag.compiler.directio.DirectFileOutputSetupGenerator;
 import com.asakusafw.dag.compiler.directio.OutputPatternSerDeGenerator;
 import com.asakusafw.dag.compiler.internalio.InternalInputAdapterGenerator;
 import com.asakusafw.dag.compiler.internalio.InternalOutputPrepareGenerator;
+import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.compiler.model.build.GraphInfoBuilder;
 import com.asakusafw.dag.compiler.model.build.ResolvedInputInfo;
 import com.asakusafw.dag.compiler.model.build.ResolvedOutputInfo;
@@ -140,8 +142,6 @@ public final class M3bpDagGenerator {
 
     private final ClassGeneratorContext generatorContext;
 
-    private final SerDeProvider serdes;
-
     private final CompositeOperatorNodeGenerator genericOperators;
 
     private final ExternalIoAnalyzer externalIo;
@@ -154,7 +154,6 @@ public final class M3bpDagGenerator {
         this.generatorContext = new ClassGeneratorContextAdapter(context);
 
         JobflowProcessor.Context root = context.getRoot();
-        this.serdes = new BasicSerDeProvider(root.getDataModelLoader(), context::add, context.getClassNameProvider());
         this.genericOperators = CompositeOperatorNodeGenerator.load(context.getRoot().getClassLoader());
         this.externalIo = new ExternalIoAnalyzer(root.getClassLoader(), plan);
         this.comparators = Invariants.requireNonNull(
@@ -201,7 +200,7 @@ public final class M3bpDagGenerator {
         List<ClassDescription> dataTableAdapters = resolveDataTableAdapters(resolved, vertex);
         ClassDescription operationAdapter = resolveOperationAdapter(resolved, vertex);
         ClassDescription outputAdapter = resolveOutputAdapter(resolved, vertex);
-        ClassDescription vertexClass = context.generate(q(vertex, "vertex"), c -> {
+        ClassDescription vertexClass = generate(q(vertex, "vertex"), c -> {
             return new VertexAdapterGenerator().generate(
                     generatorContext,
                     inputAdapter,
@@ -286,7 +285,7 @@ public final class M3bpDagGenerator {
     private VertexElement resolveExtractDriver(
             Map<Operator, VertexElement> resolved, VertexSpec vertex, OperatorOutput output) {
         VertexElement succ = resolveSuccessors(resolved, vertex, output);
-        ClassDescription gen = context.generate(q(vertex, "operator"), c -> {
+        ClassDescription gen = generate(q(vertex, "operator"), c -> {
             return new ExtractAdapterGenerator().generate(succ, c);
         });
         return new OperatorNode(gen, TYPE_RESULT, output.getDataType(), succ);
@@ -294,7 +293,7 @@ public final class M3bpDagGenerator {
 
     private ClassDescription resolveExtractInput(InputSpec spec) {
         ExtractInputAdapterGenerator.Spec s = new ExtractInputAdapterGenerator.Spec(spec.getId(), spec.getDataType());
-        return context.generate(q(spec.getOrigin().getOwner(), "adapter.input"), c -> {
+        return generate(q(spec.getOrigin().getOwner(), "adapter.input"), c -> {
             return new ExtractInputAdapterGenerator().generate(generatorContext, s, c);
         });
     }
@@ -306,7 +305,7 @@ public final class M3bpDagGenerator {
                         s.getDataType(),
                         s.getInputOptions().contains(InputSpec.InputOption.SPILL_OUT)))
                 .collect(Collectors.toList());
-        return context.generate(q(vertex, "adapter.input"), c -> {
+        return generate(q(vertex, "adapter.input"), c -> {
             return new CoGroupInputAdapterGenerator().generate(generatorContext, specs, c);
         });
     }
@@ -326,9 +325,9 @@ public final class M3bpDagGenerator {
     }
 
     private ClassDescription resolveInternalInput(VertexSpec vertex, ExternalInput input, Collection<String> paths) {
-        InternalInputAdapterGenerator.Spec spec = new InternalInputAdapterGenerator.Spec(
-                input.getName(), paths, input.getDataType());
-        return context.generate(q(vertex, "input.internalio"), c -> {
+        InternalInputAdapterGenerator.Spec spec =
+                new InternalInputAdapterGenerator.Spec(input.getName(), paths, input.getDataType());
+        return generate(q(vertex, "input.internalio"), c -> {
             return new InternalInputAdapterGenerator().generate(generatorContext, spec, c);
         });
     }
@@ -349,7 +348,7 @@ public final class M3bpDagGenerator {
                 model.getFormatClass(),
                 filterClass,
                 model.isOptional());
-        return context.generate(q(vertex, "input.directio"), c -> {
+        return generate(q(vertex, "input.directio"), c -> {
             return new DirectFileInputAdapterGenerator().generate(generatorContext, spec, c);
         });
     }
@@ -379,7 +378,7 @@ public final class M3bpDagGenerator {
                     spec.getId(), spec.getDataType(),
                     mapperClass, copierClass, combinerClass));
         }
-        return context.generate(q(vertex, "adapter.output"), c -> {
+        return generate(q(vertex, "adapter.output"), c -> {
             return new EdgeOutputAdapterGenerator().generate(generatorContext, specs, c);
         });
     }
@@ -400,14 +399,14 @@ public final class M3bpDagGenerator {
         if (specs.isEmpty()) {
             return Collections.emptyList();
         }
-        ClassDescription generated = context.generate(q(vertex, "adapter.table"), c -> {
+        ClassDescription generated = generate(q(vertex, "adapter.table"), c -> {
             return new EdgeDataTableAdapterGenerator().generate(generatorContext, specs, c);
         });
         return Collections.singletonList(generated);
     }
 
     private ClassDescription resolveOperationAdapter(Map<Operator, VertexElement> resolved, VertexSpec vertex) {
-        return context.generate(q(vertex, "adapter.operation"), c -> {
+        return generate(q(vertex, "adapter.operation"), c -> {
             OperationSpec operation = null;
             for (VertexElement element : resolved.values()) {
                 if (element instanceof InputNode) {
@@ -465,12 +464,10 @@ public final class M3bpDagGenerator {
         }
         OperatorNodeGeneratorContextAdapter adapter =
                 new OperatorNodeGeneratorContextAdapter(generatorContext, vertex.getOrigin(), dependencies);
-        context.generate(q(vertex, "operator"), c -> {
-            NodeInfo info = genericOperators.generate(adapter, operator, c);
-            VertexElement element = resolveNodeInfo(vertex, operator, info);
-            resolved.put(operator, element);
-            return info.getClassData();
-        });
+        NodeInfo info = genericOperators.generate(adapter, operator);
+        VertexElement element = resolveNodeInfo(vertex, operator, info);
+        resolved.put(operator, element);
+        context.add(info.getClassData());
     }
 
     private VertexElement resolveNodeInfo(VertexSpec vertex, Operator operator, NodeInfo info) {
@@ -507,10 +504,8 @@ public final class M3bpDagGenerator {
         } else if (succs.size() == 1) {
             return succs.get(0);
         } else {
-            ClassDescription generated = context.generate(q(vertex, "operator"), c -> {
-                return new BufferOperatorGenerator().generate(succs, c);
-            });
-            return new OperatorNode(generated, TYPE_RESULT, port.getDataType(), succs);
+            ClassDescription buffer = BufferOperatorGenerator.get(generatorContext, succs);
+            return new OperatorNode(buffer, TYPE_RESULT, port.getDataType(), succs);
         }
     }
 
@@ -605,18 +600,11 @@ public final class M3bpDagGenerator {
     private void resolveGenericOutput(VertexSpec vertex, ExternalOutput port) {
         LOG.debug("resolving generic output vertex: {} ({})", vertex.getId(), vertex.getLabel()); //$NON-NLS-1$
         if (isEmptyOutput(vertex)) {
-            context.getRoot().addExternalOutput(
-                    port.getName(),
-                    port.getInfo(),
-                    Collections.emptyList());
+            context.getRoot().addExternalOutput(port.getName(), port.getInfo(), Collections.emptyList());
         } else {
             CompilerOptions options = context.getRoot().getOptions();
-            String path = options.getRuntimeWorkingPath(String.format("%s/part-*", //$NON-NLS-1$
-                    port.getName()));
-            context.getRoot().addExternalOutput(
-                    port.getName(),
-                    port.getInfo(),
-                    Arrays.asList(path));
+            String path = options.getRuntimeWorkingPath(String.format("%s/part-*", port.getName())); //$NON-NLS-1$
+            context.getRoot().addExternalOutput(port.getName(), port.getInfo(), Arrays.asList(path));
             registerInternalOutput(vertex, port, path);
         }
     }
@@ -652,9 +640,8 @@ public final class M3bpDagGenerator {
         List<InternalOutputPrepareGenerator.Spec> specs = new ArrayList<>();
         specs.add(new InternalOutputPrepareGenerator.Spec(output.getName(), path, output.getDataType()));
         ClassDescription serde = getValueSerDe(output.getDataType());
-        ClassDescription vertexClass = context.generate(q(vertex, "output.internal"), c -> { //$NON-NLS-1$
-            InternalOutputPrepareGenerator generator = new InternalOutputPrepareGenerator();
-            return generator.generate(generatorContext, specs, c);
+        ClassDescription vertexClass = generate(q(vertex, "output.internal"), c -> { //$NON-NLS-1$
+            return new InternalOutputPrepareGenerator().generate(generatorContext, specs, c);
         });
         SubPlan.Input entry = externalIo.getOutputSource(vertex.getOrigin());
         ResolvedInputInfo input = new ResolvedInputInfo(
@@ -681,9 +668,8 @@ public final class M3bpDagGenerator {
         }
         LOG.debug("resolving Direct I/O file output setup vertex: {} ({})", //$NON-NLS-1$
                 ID_DIRECT_FILE_OUTPUT_SETUP, specs.size());
-        ClassDescription proc = context.generate("directio.setup", c -> {
-            DirectFileOutputSetupGenerator generator = new DirectFileOutputSetupGenerator();
-            return generator.generate(generatorContext, specs, c);
+        ClassDescription proc = generate("directio.setup", c -> {
+            return new DirectFileOutputSetupGenerator().generate(generatorContext, specs, c);
         });
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 ID_DIRECT_FILE_OUTPUT_SETUP,
@@ -710,9 +696,8 @@ public final class M3bpDagGenerator {
                 model.getFormatClass()));
         EdgeDescriptor edge;
         if (gather) {
-            ClassDescription serde = context.generate(q(vertex, "serde.directio"), c -> { //$NON-NLS-1$
-                OutputPatternSerDeGenerator generator = new OutputPatternSerDeGenerator();
-                return generator.generate(ref, pattern, c);
+            ClassDescription serde = generate(q(vertex, "serde.directio"), c -> { //$NON-NLS-1$
+                return new OutputPatternSerDeGenerator().generate(ref, pattern, c);
             });
             List<Group.Ordering> orderings = pattern.getOrders().stream()
                     .map(o -> new Group.Ordering(
@@ -724,9 +709,8 @@ public final class M3bpDagGenerator {
         } else {
             edge = Descriptors.newOneToOneEdge(supplier(getValueSerDe(output.getDataType())));
         }
-        ClassDescription vertexClass = context.generate(q(vertex, "output.directio"), c -> { //$NON-NLS-1$
-            DirectFileOutputPrepareGenerator generator = new DirectFileOutputPrepareGenerator();
-            return generator.generate(generatorContext, specs, c);
+        ClassDescription vertexClass = generate(q(vertex, "output.directio"), c -> { //$NON-NLS-1$
+            return new DirectFileOutputPrepareGenerator().generate(generatorContext, specs, c);
         });
         SubPlan.Input entry = externalIo.getOutputSource(vertex.getOrigin());
         ResolvedInputInfo input = new ResolvedInputInfo(
@@ -750,9 +734,8 @@ public final class M3bpDagGenerator {
         }
         LOG.debug("resolving Direct I/O file output commit vertex: {} ({})", //$NON-NLS-1$
                 ID_DIRECT_FILE_OUTPUT_COMMIT, specs.size());
-        ClassDescription proc = context.generate("directio.commit", c -> {
-            DirectFileOutputCommitGenerator generator = new DirectFileOutputCommitGenerator();
-            return generator.generate(generatorContext, specs, c);
+        ClassDescription proc = generate("directio.commit", c -> {
+            return new DirectFileOutputCommitGenerator().generate(generatorContext, specs, c);
         });
         ResolvedVertexInfo vertex = new ResolvedVertexInfo(
                 ID_DIRECT_FILE_OUTPUT_COMMIT,
@@ -775,12 +758,17 @@ public final class M3bpDagGenerator {
         return info;
     }
 
+    private ClassDescription generate(String category, Function<ClassDescription, ClassData> generator) {
+        ClassDescription name = generatorContext.getClassName(category);
+        return context.add(generator.apply(name));
+    }
+
     private ClassDescription getValueSerDe(TypeDescription dataType) {
-        return serdes.getValueSerDe(dataType);
+        return ValueSerDeGenerator.get(generatorContext, dataType);
     }
 
     private ClassDescription getKeyValueSerDe(TypeDescription dataType, Group group) {
-        return serdes.getKeyValueSerDe(dataType, group);
+        return KeyValueSerDeGenerator.get(generatorContext, dataType, group);
     }
 
     private String getComparator(TypeDescription type, List<Group.Ordering> orderings) {
