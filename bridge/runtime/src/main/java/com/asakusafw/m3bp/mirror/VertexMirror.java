@@ -76,14 +76,6 @@ public interface VertexMirror {
     VertexProcessor newProcessor(ClassLoader loader);
 
     /**
-     * Returns the number of max concurrency.
-     * @return the number of max concurrency, or {@code -1} if it is not defined
-     */
-    default int getMaxConcurrency() {
-        return -1;
-    }
-
-    /**
      * Adds an input port.
      * @param name the port name
      * @param descriptor the edge descriptor which corresponding to the port

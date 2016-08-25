@@ -22,7 +22,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -30,6 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.dag.utils.common.Tuple;
+import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileInputModel;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileIoConstants;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileOutputModel;
@@ -46,45 +53,44 @@ import com.asakusafw.lang.compiler.planning.SubPlan;
 
 /**
  * Utilities for special I/O.
+ * @since 0.1.0
+ * @version 0.2.0
  */
-public class ExternalIoAnalyzer {
+class ExternalIoAnalyzer {
 
     static final Logger LOG = LoggerFactory.getLogger(ExternalIoAnalyzer.class);
 
     private final Map<SubPlan, ExternalOutput> outputMap;
 
-    private final Map<ExternalInput, DirectFileInputModel> directInputs;
+    private final IoMap<DirectFileInputModel, DirectFileOutputModel> directFile;
 
-    private final Map<ExternalOutput, DirectFileOutputModel> directOutputs;
+    private final IoMap<String, String> internal;
 
-    private final Map<ExternalInput, String> internalInputs;
-
-    private final Map<ExternalOutput, String> internalOutputs;
-
-    private final Set<ExternalInput> genericInputs;
-
-    private final Set<ExternalOutput> genericOutputs;
+    private final IoMap<?, ?> generic;
 
     /**
      * Creates a new instance.
+     * @param options the compiler options
      * @param loader the target class loader
      * @param plan the target plan
      */
-    public ExternalIoAnalyzer(ClassLoader loader, Plan plan) {
+    ExternalIoAnalyzer(CompilerOptions options, ClassLoader loader, Plan plan) {
+        Arguments.requireNonNull(options);
         Arguments.requireNonNull(loader);
         Arguments.requireNonNull(plan);
         this.outputMap = buildOutputMap(plan);
 
         Set<ExternalInput> inputs = collect(loader, plan, ExternalInput.class);
         Set<ExternalOutput> outputs = collect(loader, plan, ExternalOutput.class);
-        this.directInputs = collect(loader, inputs, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class);
-        this.directOutputs = collect(loader, outputs, DirectFileIoConstants.MODULE_NAME, DirectFileOutputModel.class);
-        this.internalInputs = collect(loader, inputs, InternalIoConstants.MODULE_NAME, String.class);
-        this.internalOutputs = collect(loader, outputs, InternalIoConstants.MODULE_NAME, String.class);
-        inputs.removeIf(p -> directInputs.containsKey(p) || internalInputs.containsKey(p));
-        outputs.removeIf(p -> directOutputs.containsKey(p) || internalOutputs.containsKey(p));
-        this.genericInputs = Collections.unmodifiableSet(inputs);
-        this.genericOutputs = Collections.unmodifiableSet(outputs);
+        this.directFile = IoMap.collect(inputs, outputs,
+                extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class),
+                extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileOutputModel.class));
+        this.internal = IoMap.collect(inputs, outputs,
+                extractor(loader, InternalIoConstants.MODULE_NAME, String.class),
+                extractor(loader, InternalIoConstants.MODULE_NAME, String.class));
+        this.generic = IoMap.select(inputs, outputs,
+                p -> directFile.contains(p) == false && internal.contains(p) == false,
+                p -> directFile.contains(p) == false && internal.contains(p) == false);
     }
 
     private Map<SubPlan, ExternalOutput> buildOutputMap(Plan plan) {
@@ -122,51 +128,27 @@ public class ExternalIoAnalyzer {
     }
 
     /**
-     * Returns the direct inputs.
-     * @return the direct inputs
+     * Returns the generic I/O port map.
+     * @return I/O port map
      */
-    public Map<ExternalInput, DirectFileInputModel> getDirectInputs() {
-        return directInputs;
+    public IoMap<?, ?> getGeneric() {
+        return generic;
     }
 
     /**
-     * Returns the internal inputs.
-     * @return the internal inputs
+     * Returns the direct file I/O port map.
+     * @return I/O port map
      */
-    public Map<ExternalInput, String> getInternalInputs() {
-        return internalInputs;
+    public IoMap<DirectFileInputModel, DirectFileOutputModel> getDirectFile() {
+        return directFile;
     }
 
     /**
-     * Returns the generic inputs.
-     * @return the generic inputs
+     * Returns the internal I/O port map.
+     * @return I/O port map
      */
-    public Set<ExternalInput> getGenericInputs() {
-        return genericInputs;
-    }
-
-    /**
-     * Returns the direct outputs.
-     * @return the direct outputs
-     */
-    public Map<ExternalOutput, DirectFileOutputModel> getDirectOutputs() {
-        return directOutputs;
-    }
-
-    /**
-     * Returns the internal outputs.
-     * @return the internal outputs
-     */
-    public Map<ExternalOutput, String> getInternalOutputs() {
-        return internalOutputs;
-    }
-
-    /**
-     * Returns the generic outputs.
-     * @return the generic outputs
-     */
-    public Set<ExternalOutput> getGenericOutputs() {
-        return genericOutputs;
+    public IoMap<String, String> getInternal() {
+        return internal;
     }
 
     private ExternalOutput findExternalOutput(SubPlan sub) {
@@ -204,29 +186,132 @@ public class ExternalIoAnalyzer {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static <P extends ExternalPort, M> Map<P, M> collect(
-            ClassLoader classLoader, Collection<P> ports,
-            String moduleName, Class<M> modelType) {
-        Map<P, M> results = new LinkedHashMap<>();
-        for (P port : ports) {
+    private static <T> Function<ExternalPort, Optional<T>> extractor(
+            ClassLoader classLoader, String moduleName, Class<T> modelType) {
+        return port -> {
             ExternalPortInfo info = port.getInfo();
-            if (info == null || info.getModuleName().equals(moduleName) == false) {
-                continue;
-            }
-            ValueDescription contents = info.getContents();
-            if (contents != null) {
-                try {
-                    Object model = contents.resolve(classLoader);
-                    if (modelType.isInstance(model)) {
-                        results.put(port, modelType.cast(model));
+            if (info != null && info.getModuleName().equals(moduleName)) {
+                ValueDescription contents = info.getContents();
+                if (contents != null) {
+                    try {
+                        Object model = contents.resolve(classLoader);
+                        if (modelType.isInstance(model)) {
+                            return Optionals.of(modelType.cast(model));
+                        }
+                    } catch (ReflectiveOperationException e) {
+                        LOG.warn(MessageFormat.format(
+                                "failed to resolve external port: {0} ({1})",
+                                port, info.getModuleName()), e);
                     }
-                } catch (ReflectiveOperationException e) {
-                    LOG.warn(MessageFormat.format(
-                            "failed to resolve external port: {0} ({1})",
-                            port, info.getModuleName()), e);
                 }
             }
+            return Optionals.empty();
+        };
+    }
+
+    /**
+     * External I/O map.
+     * @param <TInput> the input model type
+     * @param <TOutput> the output model type
+     * @since 0.2.0
+     */
+    public static final class IoMap<TInput, TOutput> {
+
+        final Map<ExternalInput, TInput> inputs;
+
+        final Map<ExternalOutput, TOutput> outputs;
+
+        private IoMap(Map<ExternalInput, TInput> inputs, Map<ExternalOutput, TOutput> outputs) {
+            this.inputs = Collections.unmodifiableMap(inputs);
+            this.outputs = Collections.unmodifiableMap(outputs);
         }
-        return Collections.unmodifiableMap(results);
+
+        static <TInput, TOutput> IoMap<TInput, TOutput> collect(
+                Collection<ExternalInput> in,
+                Collection<ExternalOutput> out,
+                Function<? super ExternalInput, ? extends Optional<? extends TInput>> inputResolver,
+                Function<? super ExternalOutput, ? extends Optional<? extends TOutput>> outputResolver) {
+            return new IoMap<>(
+                    in.stream()
+                        .map(p -> new Tuple<>(p, inputResolver.apply(p)))
+                        .filter(t -> t.right().isPresent())
+                        .map(t -> new Tuple<>(t.left(), t.right().get()))
+                        .collect(Collectors.toMap(Tuple::left, Tuple::right)),
+                    out.stream()
+                        .map(p -> new Tuple<>(p, outputResolver.apply(p)))
+                        .filter(t -> t.right().isPresent())
+                        .map(t -> new Tuple<>(t.left(), t.right().get()))
+                        .collect(Collectors.toMap(Tuple::left, Tuple::right)));
+        }
+
+        static IoMap<?, ?> select(
+                Collection<ExternalInput> in,
+                Collection<ExternalOutput> out,
+                Predicate<? super ExternalInput> inputFilter,
+                Predicate<? super ExternalOutput> outputFilter) {
+            return new IoMap<>(
+                    in.stream()
+                        .filter(inputFilter)
+                        .collect(Collectors.toMap(Function.identity(), Function.identity())),
+                    out.stream()
+                        .filter(outputFilter)
+                        .collect(Collectors.toMap(Function.identity(), Function.identity())));
+        }
+
+        /**
+         * Returns whether or not this map contains the target input.
+         * @param port the target port
+         * @return {@code true} if this map contains the target port, otherwise {@code false}
+         */
+        public boolean contains(ExternalInput port) {
+            return inputs.containsKey(port);
+        }
+
+        /**
+         * Returns whether or not this map contains the target output.
+         * @param port the target port
+         * @return {@code true} if this map contains the target port, otherwise {@code false}
+         */
+        public boolean contains(ExternalOutput port) {
+            return outputs.containsKey(port);
+        }
+
+        /**
+         * Returns the input ports in this map.
+         * @return the input ports
+         */
+        public Set<ExternalInput> inputs() {
+            return inputs.keySet();
+        }
+
+        /**
+         * Returns the output ports in this map.
+         * @return the output ports
+         */
+        public Set<ExternalOutput> outputs() {
+            return outputs.keySet();
+        }
+
+        /**
+         * Returns the model object for the target input.
+         * @param port the target port.
+         * @return the related model
+         * @throws NoSuchElementException if it does not exist
+         */
+        public TInput get(ExternalInput port) {
+            return Optionals.get(inputs, port)
+                    .orElseThrow(() -> new NoSuchElementException(port.toString()));
+        }
+
+        /**
+         * Returns the model object for the target output.
+         * @param port the target port.
+         * @return the related model
+         * @throws NoSuchElementException if it does not exist
+         */
+        public TOutput get(ExternalOutput port) {
+            return Optionals.get(outputs, port)
+                    .orElseThrow(() -> new NoSuchElementException(port.toString()));
+        }
     }
 }

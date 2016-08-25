@@ -303,7 +303,7 @@ public class VertexProcessorBridge {
         }
 
         int maxConcurrency() {
-            return vertexMirror.getMaxConcurrency();
+            return vertexProcessor.getMaxConcurrency();
         }
 
         @Override

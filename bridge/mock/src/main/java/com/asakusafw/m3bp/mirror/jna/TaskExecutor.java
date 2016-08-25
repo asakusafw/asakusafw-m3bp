@@ -25,7 +25,7 @@ import com.asakusafw.dag.api.processor.TaskProcessor;
 import com.asakusafw.dag.api.processor.TaskProcessorContext;
 import com.asakusafw.dag.api.processor.VertexProcessor;
 import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.InterruptibleIo;
+import com.asakusafw.dag.utils.common.InterruptibleIo.Closer;
 import com.asakusafw.dag.utils.common.RunnableWithException;
 
 /**
@@ -53,7 +53,7 @@ class TaskExecutor implements RunnableWithException<Exception> {
 
     @Override
     public void run() throws IOException, InterruptedException {
-        try (InterruptibleIo.Closer closer = new InterruptibleIo.Closer()) {
+        try (Closer closer = new Closer()) {
             TaskProcessor taskProcessor = null;
             while (true) {
                 TaskProcessorContext next = queue.poll();

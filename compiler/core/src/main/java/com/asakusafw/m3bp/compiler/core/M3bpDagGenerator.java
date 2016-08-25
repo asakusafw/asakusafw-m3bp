@@ -84,6 +84,7 @@ import com.asakusafw.dag.runtime.adapter.DataTable;
 import com.asakusafw.dag.runtime.directio.DirectFileOutputPrepare;
 import com.asakusafw.dag.runtime.internalio.InternalOutputPrepare;
 import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.api.JobflowProcessor;
 import com.asakusafw.lang.compiler.api.reference.DataModelReference;
@@ -109,6 +110,7 @@ import com.asakusafw.lang.compiler.model.graph.Operators;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.Planning;
 import com.asakusafw.lang.compiler.planning.SubPlan;
+import com.asakusafw.m3bp.compiler.core.ExternalIoAnalyzer.IoMap;
 import com.asakusafw.m3bp.compiler.core.adapter.ClassGeneratorContextAdapter;
 import com.asakusafw.m3bp.compiler.core.adapter.OperatorNodeGeneratorContextAdapter;
 import com.asakusafw.m3bp.descriptor.Descriptors;
@@ -155,7 +157,7 @@ public final class M3bpDagGenerator {
 
         JobflowProcessor.Context root = context.getRoot();
         this.genericOperators = CompositeOperatorNodeGenerator.load(context.getRoot().getClassLoader());
-        this.externalIo = new ExternalIoAnalyzer(root.getClassLoader(), plan);
+        this.externalIo = new ExternalIoAnalyzer(root.getOptions(), root.getClassLoader(), plan);
         this.comparators = Invariants.requireNonNull(
                 context.getRoot().getExtension(NativeValueComparatorExtension.class));
     }
@@ -311,14 +313,14 @@ public final class M3bpDagGenerator {
     }
 
     private ClassDescription resolveExternalInput(VertexSpec vertex, ExternalInput input) {
-        if (externalIo.getInternalInputs().containsKey(input)) {
-            String path = externalIo.getInternalInputs().get(input);
+        if (externalIo.getInternal().contains(input)) {
+            String path = externalIo.getInternal().get(input);
             return resolveInternalInput(vertex, input, Collections.singleton(path));
-        } else if (externalIo.getDirectInputs().containsKey(input)) {
-            DirectFileInputModel model = externalIo.getDirectInputs().get(input);
+        } else if (externalIo.getDirectFile().contains(input)) {
+            DirectFileInputModel model = externalIo.getDirectFile().get(input);
             return resolveDirectInput(vertex, input, model);
         } else {
-            Invariants.require(externalIo.getGenericInputs().contains(input));
+            Invariants.require(externalIo.getGeneric().contains(input));
             ExternalInputReference ref = context.getRoot().addExternalInput(vertex.getId(), input.getInfo());
             return resolveInternalInput(vertex, input, ref.getPaths());
         }
@@ -582,16 +584,16 @@ public final class M3bpDagGenerator {
         for (Map.Entry<SubPlan, ExternalOutput> entry : externalIo.getOutputMap().entrySet()) {
             VertexSpec vertex = VertexSpec.get(entry.getKey());
             ExternalOutput output = entry.getValue();
-            if (externalIo.getInternalOutputs().containsKey(output)) {
+            if (externalIo.getInternal().contains(output)) {
                 if (isEmptyOutput(vertex)) {
                     continue;
                 }
-                String path = externalIo.getInternalOutputs().get(output);
+                String path = externalIo.getInternal().get(output);
                 resolveInternalOutput(vertex, output, path);
-            } else if (externalIo.getGenericOutputs().contains(output)) {
+            } else if (externalIo.getGeneric().contains(output)) {
                 resolveGenericOutput(vertex, output);
             } else {
-                Invariants.require(externalIo.getDirectOutputs().containsKey(output));
+                Invariants.require(externalIo.getDirectFile().contains(output));
             }
         }
         resolveDirectFileOutputs();
@@ -622,14 +624,14 @@ public final class M3bpDagGenerator {
         List<ResolvedVertexInfo> prepares = new ArrayList<>();
         for (Map.Entry<SubPlan, ExternalOutput> entry : externalIo.getOutputMap().entrySet()) {
             ExternalOutput output = entry.getValue();
-            if (externalIo.getDirectOutputs().containsKey(output) == false) {
+            if (externalIo.getDirectFile().contains(output) == false) {
                 continue;
             }
             VertexSpec vertex = VertexSpec.get(entry.getKey());
             if (isEmptyOutput(vertex)) {
                 continue;
             }
-            DirectFileOutputModel model = Invariants.requireNonNull(externalIo.getDirectOutputs().get(output));
+            DirectFileOutputModel model = Invariants.requireNonNull(externalIo.getDirectFile().get(output));
             ResolvedVertexInfo v = registerDirectOutputPrepare(vertex, output, model, setup);
             prepares.add(v);
         }
@@ -657,11 +659,13 @@ public final class M3bpDagGenerator {
     }
 
     private ResolvedVertexInfo registerDirectOutputSetup() {
-        List<DirectFileOutputSetupGenerator.Spec> specs = externalIo.getDirectOutputs().entrySet().stream()
-                .map(e -> new DirectFileOutputSetupGenerator.Spec(
-                        e.getKey().getName(),
-                        e.getValue().getBasePath(),
-                        e.getValue().getDeletePatterns()))
+        IoMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
+        List<DirectFileOutputSetupGenerator.Spec> specs = ports.outputs().stream()
+                .map(p -> new Tuple<>(p.getName(), ports.get(p)))
+                .map(t -> new DirectFileOutputSetupGenerator.Spec(
+                        t.left(),
+                        t.right().getBasePath(),
+                        t.right().getDeletePatterns()))
                 .collect(Collectors.toList());
         if (specs.isEmpty()) {
             return null;
@@ -726,8 +730,10 @@ public final class M3bpDagGenerator {
     }
 
     private ResolvedVertexInfo registerDirectOutputCommit(Collection<? extends ResolvedVertexInfo> prepares) {
-        List<DirectFileOutputCommitGenerator.Spec> specs = externalIo.getDirectOutputs().entrySet().stream()
-                .map(e -> new DirectFileOutputCommitGenerator.Spec(e.getKey().getName(), e.getValue().getBasePath()))
+        IoMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
+        List<DirectFileOutputCommitGenerator.Spec> specs = ports.outputs().stream()
+                .map(p -> new Tuple<>(p.getName(), ports.get(p)))
+                .map(t -> new DirectFileOutputCommitGenerator.Spec(t.left(), t.right().getBasePath()))
                 .collect(Collectors.toList());
         if (specs.isEmpty()) {
             return null;
