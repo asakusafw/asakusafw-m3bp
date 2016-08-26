@@ -23,7 +23,9 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,6 +36,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcIoAnalyzer;
+import com.asakusafw.dag.runtime.jdbc.operation.JdbcEnvironmentInstaller;
 import com.asakusafw.dag.runtime.testing.MockDataModel;
 import com.asakusafw.dag.runtime.testing.MockKeyValueModel;
 import com.asakusafw.lang.compiler.common.Location;
@@ -50,10 +54,14 @@ import com.asakusafw.m3bp.client.Constants;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;
 import com.asakusafw.m3bp.compiler.core.extension.CommandPath;
 import com.asakusafw.m3bp.compiler.core.extension.NativeValueComparatorParticipant;
-import com.asakusafw.m3bp.compiler.core.testing.DirectInput;
+import com.asakusafw.m3bp.compiler.core.testing.DirectFileInput;
+import com.asakusafw.m3bp.compiler.core.testing.DirectFileOutput;
 import com.asakusafw.m3bp.compiler.core.testing.DirectIoTestHelper;
-import com.asakusafw.m3bp.compiler.core.testing.DirectOutput;
+import com.asakusafw.m3bp.compiler.core.testing.JdbcInput;
+import com.asakusafw.m3bp.compiler.core.testing.JdbcOutput;
+import com.asakusafw.m3bp.compiler.core.testing.JdbcTestHelper;
 import com.asakusafw.m3bp.compiler.core.testing.MockDataFormat;
+import com.asakusafw.m3bp.compiler.core.testing.MockJdbcSupport;
 import com.asakusafw.m3bp.compiler.tester.InProcessM3bpTaskExecutor;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestInput;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestIoTaskExecutor;
@@ -97,7 +105,8 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
             profile.forFrameworkInstallation()
                 .add(M3bpTask.PATH_ENGINE_CONFIG, o -> {
                     Properties p = new Properties();
-                    p.put(Constants.KEY_ENGINE_MOCK, Capability.POSSIBLE.name());
+                    p.putAll(engineConfig);
+                    p.putIfAbsent(Constants.KEY_ENGINE_MOCK, Capability.POSSIBLE.name());
                     p.store(o, null);
                 });
             profile.forCompilerOptions()
@@ -118,11 +127,19 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
 
     final CompilerProfile profile = new CompilerProfile(getClass().getClassLoader());
 
+    final Map<String, String> engineConfig = new LinkedHashMap<>();
+
     /**
      * Direct I/O helper.
      */
     @Rule
     public final DirectIoTestHelper directio = new DirectIoTestHelper();
+
+    /**
+     * RDB for testing.
+     */
+    @Rule
+    public final JdbcTestHelper jdbc = new JdbcTestHelper("testing");
 
     final TestIoTaskExecutor testio = new TestIoTaskExecutor();
 
@@ -163,7 +180,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         });
         enableDirectIo();
         run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class))
+                .input("in", DirectFileInput.of("input", "*.bin", MockDataFormat.class))
                 .output("out", TestOutput.of("t", MockDataModel.class))
                 .connect("in", "out"));
     }
@@ -186,7 +203,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         });
         enableDirectIo();
         run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
+                .input("in", DirectFileInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
                 .output("out", TestOutput.of("t", MockDataModel.class))
                 .connect("in", "out"));
     }
@@ -212,7 +229,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         });
         enableDirectIo();
         run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
+                .input("in", DirectFileInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
                 .output("out", TestOutput.of("t", MockDataModel.class))
                 .connect("in", "out"));
     }
@@ -229,7 +246,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         enableDirectIo();
         run(profile, executor, g -> g
                 .input("in", TestInput.of("t", MockDataModel.class))
-                .output("out", DirectOutput.of("output", "*.bin", MockDataFormat.class))
+                .output("out", DirectFileOutput.of("output", "*.bin", MockDataFormat.class))
                 .connect("in", "out"));
         directio.output("output", "*.bin", MockDataFormat.class, o -> {
             assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
@@ -250,13 +267,53 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
         enableDirectIo();
         run(profile, executor, g -> g
                 .input("in", TestInput.of("t", MockDataModel.class))
-                .output("out", DirectOutput.of("output", "{key}.bin", MockDataFormat.class).withOrder("-value"))
+                .output("out", DirectFileOutput.of("output", "{key}.bin", MockDataFormat.class).withOrder("-value"))
                 .connect("in", "out"));
         directio.output("output", "0.bin", MockDataFormat.class, o -> {
             assertThat(o, contains(new MockDataModel(0, "Hello0")));
         });
         directio.output("output", "1.bin", MockDataFormat.class, o -> {
             assertThat(o, contains(new MockDataModel(1, "Hello1b"), new MockDataModel(1, "Hello1a")));
+        });
+    }
+
+    /**
+     * JDBC input.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_input() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            o.write(new MockDataModel(0, "Hello, world!"));
+        });
+        testio.output("t", MockDataModel.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .input("in", jdbcIn("testing", "a"))
+                .output("out", TestOutput.of("t", MockDataModel.class))
+                .connect("in", "out"));
+    }
+
+    /**
+     * JDBC output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_output() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        testio.input("t", MockDataModel.class, o -> {
+            o.write(new MockDataModel(0, "Hello, world!"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .input("in", TestInput.of("t", MockDataModel.class))
+                .output("out", jdbcOut("testing", "a"))
+                .connect("in", "out"));
+        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
         });
     }
 
@@ -275,23 +332,36 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
-     * Direct I/O flat output.
+     * orphaned Direct I/O output.
      * @throws Exception if failed
      */
     @Test
     public void directio_output_orphaned() throws Exception {
         enableDirectIo();
         run(profile, executor, g -> g
-                .output("out", DirectOutput.of("output", "*.bin", MockDataFormat.class)
+                .output("out", DirectFileOutput.of("output", "*.bin", MockDataFormat.class)
                         .withDeletePatterns("*.bin")));
         directio.output("output", "*.bin", MockDataFormat.class, o -> {
             assertThat(o, hasSize(0));
         });
     }
 
-    private void enableDirectIo() {
-        Configuration configuration = directio.getContext().newConfiguration();
-        profile.forFrameworkInstallation().add(LOCATION_CORE_CONFIGURATION, o -> configuration.writeXml(o));
+    /**
+     * orphaned JDBC output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_output_orphaned() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            o.write(new MockDataModel(0, "ERROR"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .output("out", jdbcOut("testing", "a")));
+        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, hasSize(0));
+        });
     }
 
     /**
@@ -859,6 +929,42 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
             }
         }
         return Groups.parse(group, order);
+    }
+
+    private void enableDirectIo() {
+        Configuration configuration = directio.getContext().newConfiguration();
+        profile.forFrameworkInstallation().add(LOCATION_CORE_CONFIGURATION, o -> configuration.writeXml(o));
+    }
+
+    private void enableJdbc(String... profiles) {
+        profile.forCompilerOptions()
+            .withProperty(WindGateJdbcIoAnalyzer.KEY_DIRECT, String.join(",", profiles));
+        for (String name : profiles) {
+            engineConfig.put(
+                    String.format("%s%s.%s",
+                            JdbcEnvironmentInstaller.KEY_PREFIX,
+                            name,
+                            JdbcEnvironmentInstaller.KEY_URL),
+                    jdbc.getJdbcUrl());
+        }
+    }
+
+    private JdbcInput jdbcIn(String profileName, String tableName) {
+        return new JdbcInput(
+                MockDataModel.class,
+                profileName,
+                tableName,
+                MockJdbcSupport.COLUMNS,
+                MockJdbcSupport.class);
+    }
+
+    private JdbcOutput jdbcOut(String profileName, String tableName) {
+        return new JdbcOutput(
+                MockDataModel.class,
+                profileName,
+                tableName,
+                MockJdbcSupport.COLUMNS,
+                MockJdbcSupport.class);
     }
 
     @SuppressWarnings("javadoc")

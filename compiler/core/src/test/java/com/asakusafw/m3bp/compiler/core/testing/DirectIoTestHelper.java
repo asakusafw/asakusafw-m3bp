@@ -46,7 +46,7 @@ public class DirectIoTestHelper implements TestRule {
     private DirectIoContext context;
 
     @Override
-    public Statement apply(final Statement base, final Description description) {
+    public Statement apply(Statement base, Description description) {
         context = new DirectIoContext();
         return context.apply(base, description);
     }
@@ -70,7 +70,7 @@ public class DirectIoTestHelper implements TestRule {
     public <T extends Writable> void input(
             String filePath,
             Class<? extends WritableDataFormat<T>> formatClass,
-            Action<ModelOutput<T>, Exception> action) {
+            Action<ModelOutput<T>, ?> action) {
         Invariants.requireNonNull(context);
         File file = context.file(filePath);
         WritableDataFormat<T> format = ReflectionUtils.newInstance(formatClass, context.newConfiguration());
@@ -94,7 +94,7 @@ public class DirectIoTestHelper implements TestRule {
             String directoryPath,
             String filePattern,
             Class<? extends WritableDataFormat<T>> formatClass,
-            Action<List<T>, Exception> action) {
+            Action<List<T>, ?> action) {
         Invariants.requireNonNull(context);
         File directory = context.file(directoryPath);
         Predicate<String> filter = toFileNamePredicate(filePattern);

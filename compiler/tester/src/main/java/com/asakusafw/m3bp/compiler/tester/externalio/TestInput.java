@@ -66,11 +66,6 @@ public abstract class TestInput implements ImporterDescription {
      */
     public abstract String getId();
 
-    @Override
-    public DataSize getDataSize() {
-        return DataSize.UNKNOWN;
-    }
-
     /**
      * Returns an {@link ExternalInputInfo} object for this.
      * @return {@link ExternalInputInfo} object

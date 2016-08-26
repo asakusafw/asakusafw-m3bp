@@ -15,14 +15,17 @@
  */
 package com.asakusafw.m3bp.compiler.core.testing;
 
-import com.asakusafw.runtime.directio.DataFilter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.asakusafw.runtime.directio.DataFormat;
-import com.asakusafw.vocabulary.directio.DirectFileInputDescription;
+import com.asakusafw.vocabulary.directio.DirectFileOutputDescription;
 
 /**
- * Mock implementation of {@link DirectFileInputDescription}.
+ * A mock implementation of {@link DirectFileOutputDescription}.
  */
-public class DirectInput extends DirectFileInputDescription {
+public class DirectFileOutput extends DirectFileOutputDescription {
 
     private final Class<?> modelType;
 
@@ -32,13 +35,11 @@ public class DirectInput extends DirectFileInputDescription {
 
     private final Class<? extends DataFormat<?>> format;
 
-    private Class<? extends DataFilter<?>> filter;
+    private List<String> deletePatterns = Collections.emptyList();
 
-    private boolean optional;
+    private List<String> order = Collections.emptyList();
 
-    private DataSize dataSize;
-
-    DirectInput(
+    DirectFileOutput(
             Class<?> modelType,
             String basePath, String resourcePattern,
             Class<? extends DataFormat<?>> format) {
@@ -56,11 +57,11 @@ public class DirectInput extends DirectFileInputDescription {
      * @param dataFormat the data format type
      * @return the created instance
      */
-    public static DirectInput of(
+    public static DirectFileOutput of(
             Class<?> dataType,
             String basePath, String pattern,
             Class<? extends DataFormat<?>> dataFormat) {
-        return new DirectInput(dataType, basePath, pattern, dataFormat);
+        return new DirectFileOutput(dataType, basePath, pattern, dataFormat);
     }
 
     /**
@@ -70,7 +71,7 @@ public class DirectInput extends DirectFileInputDescription {
      * @param dataFormat the data format type
      * @return the created instance
      */
-    public static DirectInput of(
+    public static DirectFileOutput of(
             String basePath, String pattern,
             Class<? extends DataFormat<?>> dataFormat) {
         try {
@@ -97,52 +98,37 @@ public class DirectInput extends DirectFileInputDescription {
     }
 
     @Override
+    public List<String> getOrder() {
+        return order;
+    }
+
+    @Override
+    public List<String> getDeletePatterns() {
+        return deletePatterns;
+    }
+
+    @Override
     public Class<? extends DataFormat<?>> getFormat() {
         return format;
     }
 
-    @Override
-    public boolean isOptional() {
-        return optional;
-    }
-
-    @Override
-    public Class<? extends DataFilter<?>> getFilter() {
-        return filter;
-    }
-
-    @Override
-    public DataSize getDataSize() {
-        return dataSize;
-    }
-
     /**
-     * Sets a new value for {@link #getFilter()}.
-     * @param newValue the value to set
+     * Sets a new value for {@link #getOrder()}.
+     * @param newValues the values to set
      * @return this
      */
-    public DirectInput withFilter(Class<? extends DataFilter<?>> newValue) {
-        this.filter = newValue;
+    public DirectFileOutput withOrder(String... newValues) {
+        this.order = Arrays.asList(newValues);
         return this;
     }
 
     /**
-     * Sets a new value for {@link #isOptional()}.
-     * @param newValue the value to set
+     * Sets a new value for {@link #getDeletePatterns()}.
+     * @param newValues the values to set
      * @return this
      */
-    public DirectInput withOptional(boolean newValue) {
-        this.optional = newValue;
-        return this;
-    }
-
-    /**
-     * Sets a new value for {@link #getDataSize()}.
-     * @param newValue the value to set
-     * @return this
-     */
-    public DirectInput withDataSize(DataSize newValue) {
-        this.dataSize = newValue;
+    public DirectFileOutput withDeletePatterns(String... newValues) {
+        this.deletePatterns = Arrays.asList(newValues);
         return this;
     }
 }

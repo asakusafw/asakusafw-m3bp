@@ -33,6 +33,11 @@
       <version>${asakusafw-dag.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.asakusafw.dag.compiler</groupId>
+      <artifactId>asakusa-dag-compiler-jdbc</artifactId>
+      <version>${asakusafw-dag.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.asakusafw.lang.compiler</groupId>
       <artifactId>asakusa-compiler-core</artifactId>
       <version>${asakusafw-lang.version}</version>
@@ -45,6 +50,11 @@
     <dependency>
       <groupId>com.asakusafw.lang.compiler</groupId>
       <artifactId>asakusa-compiler-extension-directio</artifactId>
+      <version>${asakusafw-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.lang.compiler</groupId>
+      <artifactId>asakusa-compiler-extension-windgate</artifactId>
       <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
@@ -63,6 +73,10 @@
     <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-directio-vocabulary</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw</groupId>
+      <artifactId>asakusa-windgate-vocabulary</artifactId>
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
@@ -104,6 +118,13 @@
       <classifier>tests</classifier>
     </dependency>
     <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-jdbc</artifactId>
+      <version>${asakusafw-dag.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
       <groupId>com.asakusafw.lang.compiler</groupId>
       <artifactId>asakusa-compiler-mapreduce-testing</artifactId>
       <version>${asakusafw-lang.version}</version>
@@ -112,6 +133,11 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-mapreduce-client-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

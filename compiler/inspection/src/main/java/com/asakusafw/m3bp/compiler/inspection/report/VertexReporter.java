@@ -38,6 +38,7 @@ public interface VertexReporter extends Io {
     /**
      * Reports a section in {@link VertexSpecView}.
      */
+    @FunctionalInterface
     public interface SectionReporter {
 
         /**

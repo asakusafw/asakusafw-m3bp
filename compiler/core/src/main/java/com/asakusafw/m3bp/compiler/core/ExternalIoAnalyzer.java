@@ -32,11 +32,16 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcInputModel;
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcIoAnalyzer;
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcModel;
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputModel;
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.dag.utils.common.Optionals;
 import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
+import com.asakusafw.lang.compiler.common.NamePattern;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileInputModel;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileIoConstants;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileOutputModel;
@@ -64,6 +69,8 @@ class ExternalIoAnalyzer {
 
     private final IoMap<DirectFileInputModel, DirectFileOutputModel> directFile;
 
+    private final IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> windgateJdbc;
+
     private final IoMap<String, String> internal;
 
     private final IoMap<?, ?> generic;
@@ -82,15 +89,29 @@ class ExternalIoAnalyzer {
 
         Set<ExternalInput> inputs = collect(loader, plan, ExternalInput.class);
         Set<ExternalOutput> outputs = collect(loader, plan, ExternalOutput.class);
+        Predicate<WindGateJdbcModel> windgateJdbcFilter = buildWindGateJdbcFilter(options);
         this.directFile = IoMap.collect(inputs, outputs,
                 extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class),
                 extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileOutputModel.class));
+        this.windgateJdbc = IoMap.collect(inputs, outputs,
+                port -> Optionals.of(port.getInfo())
+                    .flatMap(info -> WindGateJdbcIoAnalyzer.analyze(loader, info))
+                    .filter(windgateJdbcFilter),
+                port -> Optionals.of(port.getInfo())
+                    .flatMap(info -> WindGateJdbcIoAnalyzer.analyze(loader, info))
+                    .filter(windgateJdbcFilter));
         this.internal = IoMap.collect(inputs, outputs,
                 extractor(loader, InternalIoConstants.MODULE_NAME, String.class),
                 extractor(loader, InternalIoConstants.MODULE_NAME, String.class));
         this.generic = IoMap.select(inputs, outputs,
-                p -> directFile.contains(p) == false && internal.contains(p) == false,
-                p -> directFile.contains(p) == false && internal.contains(p) == false);
+                p -> (directFile.contains(p) || windgateJdbc.contains(p) || internal.contains(p)) == false,
+                p -> (directFile.contains(p) || windgateJdbc.contains(p) || internal.contains(p)) == false);
+    }
+
+    private Predicate<WindGateJdbcModel> buildWindGateJdbcFilter(CompilerOptions options) {
+        NamePattern pattern = WindGateJdbcIoAnalyzer.getProfileNamePattern(options);
+        LOG.debug("WindGate JDBC direct profiles: {}", pattern);
+        return model -> pattern.test(model.getProfileName());
     }
 
     private Map<SubPlan, ExternalOutput> buildOutputMap(Plan plan) {
@@ -141,6 +162,14 @@ class ExternalIoAnalyzer {
      */
     public IoMap<DirectFileInputModel, DirectFileOutputModel> getDirectFile() {
         return directFile;
+    }
+
+    /**
+     * Returns the WindGate JDBC I/O port map.
+     * @return the WindGate JDBC I/O port map
+     */
+    public IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> getWindGateJdbc() {
+        return windgateJdbc;
     }
 
     /**

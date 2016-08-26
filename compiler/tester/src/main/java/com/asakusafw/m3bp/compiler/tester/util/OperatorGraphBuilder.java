@@ -45,6 +45,8 @@ import com.asakusafw.lang.compiler.model.graph.OperatorInput;
 import com.asakusafw.lang.compiler.model.graph.OperatorOutput;
 import com.asakusafw.lang.compiler.model.graph.OperatorPort;
 import com.asakusafw.lang.compiler.model.graph.UserOperator;
+import com.asakusafw.lang.compiler.model.info.ExternalInputInfo;
+import com.asakusafw.lang.compiler.model.info.ExternalOutputInfo;
 import com.asakusafw.vocabulary.external.ExporterDescription;
 import com.asakusafw.vocabulary.external.ImporterDescription;
 
@@ -106,8 +108,7 @@ public class OperatorGraphBuilder {
      */
     public OperatorGraphBuilder input(String id, ImporterDescription description) {
         ExternalPortAnalyzer analyzer = new ExternalPortAnalyzerAdapter(context);
-        ExternalInput operator = ExternalInput.newInstance(id, analyzer.analyze(id, description));
-        return add(id, operator);
+        return input(id, analyzer.analyze(id, description));
     }
 
     /**
@@ -118,7 +119,28 @@ public class OperatorGraphBuilder {
      */
     public OperatorGraphBuilder output(String id, ExporterDescription description) {
         ExternalPortAnalyzer analyzer = new ExternalPortAnalyzerAdapter(context);
-        ExternalOutput operator = ExternalOutput.newInstance(id, analyzer.analyze(id, description));
+        return output(id, analyzer.analyze(id, description));
+    }
+
+    /**
+     * Adds an external input.
+     * @param id the operator ID
+     * @param info the external port info
+     * @return this
+     */
+    public OperatorGraphBuilder input(String id, ExternalInputInfo info) {
+        ExternalInput operator = ExternalInput.newInstance(id, info);
+        return add(id, operator);
+    }
+
+    /**
+     * Adds an external output.
+     * @param id the operator ID
+     * @param info the external port info
+     * @return this
+     */
+    public OperatorGraphBuilder output(String id, ExternalOutputInfo info) {
+        ExternalOutput operator = ExternalOutput.newInstance(id, info);
         return add(id, operator);
     }
 
