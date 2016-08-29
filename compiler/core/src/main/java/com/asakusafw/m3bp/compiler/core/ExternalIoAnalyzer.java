@@ -65,6 +65,8 @@ class ExternalIoAnalyzer {
 
     static final Logger LOG = LoggerFactory.getLogger(ExternalIoAnalyzer.class);
 
+    private final Map<SubPlan, ExternalInput> inputMap;
+
     private final Map<SubPlan, ExternalOutput> outputMap;
 
     private final IoMap<DirectFileInputModel, DirectFileOutputModel> directFile;
@@ -85,7 +87,8 @@ class ExternalIoAnalyzer {
         Arguments.requireNonNull(options);
         Arguments.requireNonNull(loader);
         Arguments.requireNonNull(plan);
-        this.outputMap = buildOutputMap(plan);
+        this.inputMap = collectUnique(plan, ExternalInput.class);
+        this.outputMap = collectUnique(plan, ExternalOutput.class);
 
         Set<ExternalInput> inputs = collect(loader, plan, ExternalInput.class);
         Set<ExternalOutput> outputs = collect(loader, plan, ExternalOutput.class);
@@ -114,17 +117,6 @@ class ExternalIoAnalyzer {
         return model -> pattern.test(model.getProfileName());
     }
 
-    private Map<SubPlan, ExternalOutput> buildOutputMap(Plan plan) {
-        Map<SubPlan, ExternalOutput> results = new LinkedHashMap<>();
-        for (SubPlan sub : plan.getElements()) {
-            ExternalOutput output = findExternalOutput(sub);
-            if (output != null) {
-                results.put(sub, output);
-            }
-        }
-        return results;
-    }
-
     /**
      * Returns the source port of the target output sub-plan.
      * @param sub the target sub-plan
@@ -138,6 +130,14 @@ class ExternalIoAnalyzer {
                 .collect(Collectors.toList());
         Invariants.require(ports.size() == 1);
         return ports.get(0);
+    }
+
+    /**
+     * Returns the input map.
+     * @return the input map
+     */
+    public Map<SubPlan, ExternalInput> getInputMap() {
+        return inputMap;
     }
 
     /**
@@ -180,30 +180,18 @@ class ExternalIoAnalyzer {
         return internal;
     }
 
-    private ExternalOutput findExternalOutput(SubPlan sub) {
-        boolean sawOther = false;
-        ExternalOutput result = null;
-        for (Operator operator : sub.getOperators()) {
-            switch (operator.getOperatorKind()) {
-            case OUTPUT:
-                Invariants.require(result == null);
-                result = (ExternalOutput) operator;
-                break;
-            case INPUT:
-            case CORE:
-            case USER:
-            case CUSTOM:
-                sawOther = true;
-                break;
-            case MARKER:
-                break;
-            default:
-                throw new AssertionError(operator);
+    private <T extends Operator> Map<SubPlan, T> collectUnique(Plan plan, Class<T> type) {
+        Map<SubPlan, T> results = new LinkedHashMap<>();
+        for (SubPlan sub : plan.getElements()) {
+            List<Operator> candidates = sub.getOperators().stream()
+                .filter(type::isInstance)
+                .collect(Collectors.toList());
+            Invariants.require(candidates.size() <= 1, () -> candidates);
+            if (candidates.size() == 1) {
+                results.put(sub, type.cast(candidates.iterator().next()));
             }
         }
-        ExternalOutput o = result;
-        Invariants.require(result == null || sawOther == false, () -> o);
-        return result;
+        return results;
     }
 
     private <P extends ExternalPort> Set<P> collect(ClassLoader loader, Plan plan, Class<P> portType) {
@@ -246,9 +234,9 @@ class ExternalIoAnalyzer {
      */
     public static final class IoMap<TInput, TOutput> {
 
-        final Map<ExternalInput, TInput> inputs;
+        private final Map<ExternalInput, TInput> inputs;
 
-        final Map<ExternalOutput, TOutput> outputs;
+        private final Map<ExternalOutput, TOutput> outputs;
 
         private IoMap(Map<ExternalInput, TInput> inputs, Map<ExternalOutput, TOutput> outputs) {
             this.inputs = Collections.unmodifiableMap(inputs);

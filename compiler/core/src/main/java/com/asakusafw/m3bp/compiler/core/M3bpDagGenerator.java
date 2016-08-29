@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,7 @@ import com.asakusafw.dag.runtime.adapter.DataTable;
 import com.asakusafw.dag.runtime.directio.DirectFileOutputPrepare;
 import com.asakusafw.dag.runtime.internalio.InternalOutputPrepare;
 import com.asakusafw.dag.runtime.jdbc.operation.JdbcOutputProcessor;
+import com.asakusafw.dag.runtime.skeleton.VoidVertexProcessor;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
@@ -135,6 +137,8 @@ public final class M3bpDagGenerator {
     private static final String ID_DIRECT_FILE_OUTPUT_SETUP = "_directio-setup";
 
     private static final String ID_DIRECT_FILE_OUTPUT_COMMIT = "_directio-commit";
+
+    private static final String ID_JDBC_BARRIER_PREFIX = "_jdbc-barrier-";
 
     private static final TypeDescription TYPE_RESULT = Descriptions.typeOf(Result.class);
 
@@ -186,6 +190,7 @@ public final class M3bpDagGenerator {
     private GraphInfo generateGraph() {
         resolveOutputs();
         resolveOperations();
+        resolveImplicitDependencies();
         return builder.build(Descriptors::newVoidEdge);
     }
 
@@ -815,6 +820,44 @@ public final class M3bpDagGenerator {
                 Collections.singletonMap(entry, input),
                 Collections.emptyMap());
         bless(vertex, info, vertexClass);
+    }
+
+    private void resolveImplicitDependencies() {
+        resolveJdbcBarriers();
+    }
+
+    private void resolveJdbcBarriers() {
+        IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> io = externalIo.getWindGateJdbc();
+        if (io.inputs().isEmpty() || io.outputs().isEmpty()) {
+            return;
+        }
+        Map<String, Set<ResolvedVertexInfo>> inputs = externalIo.getInputMap().entrySet().stream()
+                .map(e -> new Tuple<>(e.getValue(), builder.get(e.getKey())))
+                .filter(t -> io.contains(t.left()))
+                .filter(t -> t.right() != null)
+                .map(t -> new Tuple<>(io.get(t.left()).getProfileName(), t.right()))
+                .collect(Collectors.groupingBy(Tuple::left, Collectors.mapping(Tuple::right, Collectors.toSet())));
+        Map<String, Set<ResolvedVertexInfo>> outputs = externalIo.getOutputMap().entrySet().stream()
+                .map(e -> new Tuple<>(e.getValue(), builder.get(e.getKey())))
+                .filter(t -> io.contains(t.left()))
+                .filter(t -> t.right() != null)
+                .map(t -> new Tuple<>(io.get(t.left()).getProfileName(), t.right()))
+                .collect(Collectors.groupingBy(Tuple::left, Collectors.mapping(Tuple::right, Collectors.toSet())));
+        Set<String> common = new TreeSet<>();
+        common.addAll(inputs.keySet());
+        common.retainAll(outputs.keySet());
+        common.forEach(profileName -> {
+            LOG.debug("insert JDBC I/O barrier: {}", profileName);
+            Set<ResolvedVertexInfo> upstreams = Invariants.requireNonNull(inputs.get(profileName));
+            Set<ResolvedVertexInfo> downstreams = Invariants.requireNonNull(outputs.get(profileName));
+            ResolvedVertexInfo barrier = bless(new ResolvedVertexInfo(
+                    ID_JDBC_BARRIER_PREFIX + profileName,
+                    Descriptors.newVertex(VoidVertexProcessor.class),
+                    Collections.emptyMap(),
+                    Collections.emptyMap(),
+                    upstreams));
+            downstreams.forEach(barrier::addImplicitDependency);
+        });
     }
 
     private ResolvedVertexInfo bless(ResolvedVertexInfo vertex) {

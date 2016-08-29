@@ -318,6 +318,27 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
+     * JDBC I/O barrier.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_barrier() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.execute(MockJdbcSupport.ddl("b"));
+        jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            o.write(new MockDataModel(0, "Hello, world!"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .input("in", jdbcIn("testing", "a"))
+                .output("out", jdbcOut("testing", "b"))
+                .connect("in", "out"));
+        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
+        });
+    }
+
+    /**
      * Orphaned output.
      * @throws Exception if failed
      */
