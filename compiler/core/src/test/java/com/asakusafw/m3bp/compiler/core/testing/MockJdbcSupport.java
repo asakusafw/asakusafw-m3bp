@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.asakusafw.dag.runtime.testing.MockDataModel;
@@ -48,7 +47,7 @@ public class MockJdbcSupport implements DataModelJdbcSupport<MockDataModel> {
     private static final Map<String, String> COLUMN_MAP = COLUMNS.stream()
             .collect(Collectors.collectingAndThen(
                     Collectors.toMap(
-                            Function.identity(),
+                            s -> s, // NOTE: some compilers cannot infer Function.identity()
                             s -> s.substring(2).toLowerCase(Locale.ENGLISH)),
                     Collections::unmodifiableMap));
 
