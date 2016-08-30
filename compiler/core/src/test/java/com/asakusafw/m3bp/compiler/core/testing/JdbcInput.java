@@ -18,7 +18,9 @@ package com.asakusafw.m3bp.compiler.core.testing;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.vocabulary.windgate.JdbcImporterDescription;
 import com.asakusafw.windgate.core.vocabulary.DataModelJdbcSupport;
 
@@ -39,7 +41,7 @@ public class JdbcInput extends JdbcImporterDescription {
 
     private String condition;
 
-    private Collection<String> options = Collections.emptySet();
+    private Set<Option> options = Collections.emptySet();
 
     private DataSize dataSize;
 
@@ -95,7 +97,7 @@ public class JdbcInput extends JdbcImporterDescription {
     }
 
     @Override
-    public Collection<String> getOptions() {
+    public Collection<Option> getOptions() {
         return options;
     }
 
@@ -119,8 +121,8 @@ public class JdbcInput extends JdbcImporterDescription {
      * @param newValue the value to set
      * @return this
      */
-    public JdbcInput withOptions(Collection<String> newValue) {
-        this.options = newValue;
+    public JdbcInput withOptions(Collection<Option> newValue) {
+        this.options = Arguments.freezeToSet(newValue);
         return this;
     }
 

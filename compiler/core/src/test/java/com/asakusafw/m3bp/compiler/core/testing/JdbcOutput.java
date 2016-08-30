@@ -18,7 +18,9 @@ package com.asakusafw.m3bp.compiler.core.testing;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.vocabulary.windgate.JdbcExporterDescription;
 import com.asakusafw.windgate.core.vocabulary.DataModelJdbcSupport;
 
@@ -39,7 +41,7 @@ public class JdbcOutput extends JdbcExporterDescription {
 
     private String customTruncate;
 
-    private Collection<String> options = Collections.emptySet();
+    private Set<Option> options = Collections.emptySet();
 
     /**
      * Creates a new instance.
@@ -93,7 +95,7 @@ public class JdbcOutput extends JdbcExporterDescription {
     }
 
     @Override
-    public Collection<String> getOptions() {
+    public Set<Option> getOptions() {
         return options;
     }
 
@@ -112,8 +114,8 @@ public class JdbcOutput extends JdbcExporterDescription {
      * @param newValue the value to set
      * @return this
      */
-    public JdbcOutput setOptions(Collection<String> newValue) {
-        this.options = newValue;
+    public JdbcOutput setOptions(Collection<Option> newValue) {
+        this.options = Arguments.freezeToSet(newValue);
         return this;
     }
 }
