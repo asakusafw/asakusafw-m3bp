@@ -90,8 +90,8 @@ class ExternalIoAnalyzer {
         this.inputMap = collectUnique(plan, ExternalInput.class);
         this.outputMap = collectUnique(plan, ExternalOutput.class);
 
-        Set<ExternalInput> inputs = collect(loader, plan, ExternalInput.class);
-        Set<ExternalOutput> outputs = collect(loader, plan, ExternalOutput.class);
+        Set<ExternalInput> inputs = collect(plan, ExternalInput.class);
+        Set<ExternalOutput> outputs = collect(plan, ExternalOutput.class);
         Predicate<WindGateJdbcModel> windgateJdbcFilter = buildWindGateJdbcFilter(options);
         this.directFile = IoMap.collect(inputs, outputs,
                 extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class),
@@ -111,7 +111,7 @@ class ExternalIoAnalyzer {
                 p -> (directFile.contains(p) || windgateJdbc.contains(p) || internal.contains(p)) == false);
     }
 
-    private Predicate<WindGateJdbcModel> buildWindGateJdbcFilter(CompilerOptions options) {
+    private static Predicate<WindGateJdbcModel> buildWindGateJdbcFilter(CompilerOptions options) {
         NamePattern pattern = WindGateJdbcIoAnalyzer.getProfileNamePattern(options);
         LOG.debug("WindGate JDBC direct profiles: {}", pattern);
         return model -> pattern.test(model.getProfileName());
@@ -180,7 +180,7 @@ class ExternalIoAnalyzer {
         return internal;
     }
 
-    private <T extends Operator> Map<SubPlan, T> collectUnique(Plan plan, Class<T> type) {
+    private static <T extends Operator> Map<SubPlan, T> collectUnique(Plan plan, Class<T> type) {
         Map<SubPlan, T> results = new LinkedHashMap<>();
         for (SubPlan sub : plan.getElements()) {
             List<Operator> candidates = sub.getOperators().stream()
@@ -194,7 +194,7 @@ class ExternalIoAnalyzer {
         return results;
     }
 
-    private <P extends ExternalPort> Set<P> collect(ClassLoader loader, Plan plan, Class<P> portType) {
+    private static <P extends ExternalPort> Set<P> collect(Plan plan, Class<P> portType) {
         return plan.getElements().stream()
                 .flatMap(s -> s.getOperators().stream())
                 .filter(portType::isInstance)
