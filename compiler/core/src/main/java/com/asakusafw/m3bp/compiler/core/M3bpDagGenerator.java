@@ -856,7 +856,7 @@ public final class M3bpDagGenerator {
                     Collections.emptyMap(),
                     Collections.emptyMap(),
                     upstreams));
-            downstreams.forEach(barrier::addImplicitDependency);
+            downstreams.forEach(v -> v.addImplicitDependency(barrier));
         });
     }
 
