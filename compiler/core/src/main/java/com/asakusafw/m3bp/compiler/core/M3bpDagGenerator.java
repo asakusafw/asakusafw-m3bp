@@ -61,6 +61,7 @@ import com.asakusafw.dag.compiler.internalio.InternalInputAdapterGenerator;
 import com.asakusafw.dag.compiler.internalio.InternalOutputPrepareGenerator;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcInputAdapterGenerator;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcInputModel;
+import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcIoAnalyzer;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputModel;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputProcessorGenerator;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcTruncateProcessorGenerator;
@@ -129,10 +130,24 @@ import com.asakusafw.utils.graph.Graphs;
 
 /**
  * Generates DAG classes generator.
+ * @since 0.1.0
+ * @version 0.2.0
  */
 public final class M3bpDagGenerator {
 
     static final Logger LOG = LoggerFactory.getLogger(M3bpDagGenerator.class);
+
+    /**
+     * The compiler property key of whether or not the JDBC I/O barrier is enabled.
+     * @since 0.2.0
+     */
+    static final String KEY_JDBC_BARRIER = WindGateJdbcIoAnalyzer.KEY_DIRECT + ".barrier"; //$NON-NLS-1$
+
+    /**
+     * The default value of {@link #KEY_JDBC_BARRIER}.
+     * @since 0.2.0
+     */
+    static final boolean DEFAULT_JDBC_BARRIER = true;
 
     private static final String ID_DIRECT_FILE_OUTPUT_SETUP = "_directio-setup";
 
@@ -829,6 +844,10 @@ public final class M3bpDagGenerator {
     private void resolveJdbcBarriers() {
         IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> io = externalIo.getWindGateJdbc();
         if (io.inputs().isEmpty() || io.outputs().isEmpty()) {
+            return;
+        }
+        if (context.getRoot().getOptions().get(KEY_JDBC_BARRIER, DEFAULT_JDBC_BARRIER) == false) {
+            LOG.debug("JDBC barrier I/O barrier is disabled");
             return;
         }
         Map<String, Set<ResolvedVertexInfo>> inputs = externalIo.getInputMap().entrySet().stream()
