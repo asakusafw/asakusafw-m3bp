@@ -60,21 +60,21 @@ public abstract class AbstractVertexMirror implements VertexMirror {
     }
 
     @Override
-    public PortMirror addInput(String name, M3bpEdgeDescriptor descriptor) {
+    public PortMirror addInput(String name, String tag, M3bpEdgeDescriptor descriptor) {
         Arguments.requireNonNull(name);
         Arguments.requireNonNull(descriptor);
         Identifier id = new Identifier(inputs.size());
-        PortMirror port = createInput(id, name, descriptor);
+        PortMirror port = createInput(id, name, tag, descriptor);
         inputs.add(port);
         return port;
     }
 
     @Override
-    public PortMirror addOutput(String name, M3bpEdgeDescriptor descriptor) {
+    public PortMirror addOutput(String name, String tag, M3bpEdgeDescriptor descriptor) {
         Arguments.requireNonNull(name);
         Arguments.requireNonNull(descriptor);
         Identifier id = new Identifier(outputs.size());
-        PortMirror port = createOutput(id, name, descriptor);
+        PortMirror port = createOutput(id, name, tag, descriptor);
         outputs.add(port);
         return port;
     }
@@ -83,17 +83,19 @@ public abstract class AbstractVertexMirror implements VertexMirror {
      * Creates a new input port.
      * @param id the port ID
      * @param name the port name
+     * @param tag the optional port tag (nullable)
      * @param descriptor the edge descriptor
      * @return the created port
      */
-    protected abstract PortMirror createInput(Identifier id, String name, M3bpEdgeDescriptor descriptor);
+    protected abstract PortMirror createInput(Identifier id, String name, String tag, M3bpEdgeDescriptor descriptor);
 
     /**
      * Creates a new output port.
      * @param id the port ID
      * @param name the port name
+     * @param tag the optional port tag (nullable)
      * @param descriptor the edge descriptor
      * @return the created port
      */
-    protected abstract PortMirror createOutput(Identifier id, String name, M3bpEdgeDescriptor descriptor);
+    protected abstract PortMirror createOutput(Identifier id, String name, String tag, M3bpEdgeDescriptor descriptor);
 }

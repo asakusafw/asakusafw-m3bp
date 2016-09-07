@@ -62,25 +62,27 @@ public class VertexMirrorImpl extends AbstractVertexMirror implements NativeMirr
     }
 
     @Override
-    protected PortMirror createInput(Identifier portId, String portName, M3bpEdgeDescriptor portDescriptor) {
+    protected PortMirror createInput(
+            Identifier portId, String portName, String portTag, M3bpEdgeDescriptor portDescriptor) {
         Pointer ref = new Pointer(createInput0(
                 getPointer().getAddress(),
                 portId.getValue(),
                 portName,
                 portDescriptor.getMovement().getId(),
                 portDescriptor.getValueComparatorName()));
-        PortMirror port = new PortMirrorImpl(ref, portId, portName, this, portDescriptor);
+        PortMirror port = new PortMirrorImpl(ref, portId, portName, portTag, this, portDescriptor);
         return port;
     }
 
     @Override
-    protected PortMirror createOutput(Identifier portId, String portName, M3bpEdgeDescriptor portDescriptor) {
+    protected PortMirror createOutput(
+            Identifier portId, String portName, String portTag, M3bpEdgeDescriptor portDescriptor) {
         Pointer ref = new Pointer(createOutput0(
                 getPointer().getAddress(),
                 portId.getValue(),
                 portName,
                 portDescriptor.getMovement() == Movement.SCATTER_GATHER));
-        PortMirror port = new PortMirrorImpl(ref, portId, portName, this, portDescriptor);
+        PortMirror port = new PortMirrorImpl(ref, portId, portName, portTag, this, portDescriptor);
         return port;
     }
 

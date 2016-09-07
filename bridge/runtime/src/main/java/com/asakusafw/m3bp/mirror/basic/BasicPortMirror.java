@@ -23,6 +23,8 @@ import com.asakusafw.m3bp.mirror.VertexMirror;
 
 /**
  * A basic implementation of {@link PortMirror}.
+ * @since 0.1.0
+ * @version 0.2.0
  */
 public class BasicPortMirror extends AbstractPortMirror {
 
@@ -31,6 +33,8 @@ public class BasicPortMirror extends AbstractPortMirror {
     private final Identifier id;
 
     private final String name;
+
+    private final String tag;
 
     private final M3bpEdgeDescriptor descriptor;
 
@@ -42,6 +46,18 @@ public class BasicPortMirror extends AbstractPortMirror {
      * @param descriptor the descriptor
      */
     public BasicPortMirror(VertexMirror owner, Identifier id, String name, M3bpEdgeDescriptor descriptor) {
+        this(owner, id, name, null, descriptor);
+    }
+
+    /**
+     * Creates a new instance.
+     * @param owner the owner
+     * @param id the port ID
+     * @param name the port name
+     * @param tag the optional port tag (nullable)
+     * @param descriptor the descriptor
+     */
+    public BasicPortMirror(VertexMirror owner, Identifier id, String name, String tag, M3bpEdgeDescriptor descriptor) {
         Arguments.requireNonNull(owner);
         Arguments.requireNonNull(id);
         Arguments.requireNonNull(name);
@@ -49,6 +65,7 @@ public class BasicPortMirror extends AbstractPortMirror {
         this.owner = owner;
         this.id = id;
         this.name = name;
+        this.tag = tag;
         this.descriptor = descriptor;
     }
 
@@ -65,6 +82,11 @@ public class BasicPortMirror extends AbstractPortMirror {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getTag() {
+        return tag;
     }
 
     @Override

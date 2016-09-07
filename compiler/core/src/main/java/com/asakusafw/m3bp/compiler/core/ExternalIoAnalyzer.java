@@ -16,13 +16,10 @@
 package com.asakusafw.m3bp.compiler.core;
 
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,7 +36,6 @@ import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputModel;
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.dag.utils.common.Optionals;
-import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.common.NamePattern;
 import com.asakusafw.lang.compiler.extension.directio.DirectFileInputModel;
@@ -69,13 +65,13 @@ class ExternalIoAnalyzer {
 
     private final Map<SubPlan, ExternalOutput> outputMap;
 
-    private final IoMap<DirectFileInputModel, DirectFileOutputModel> directFile;
+    private final ExternalPortMap<DirectFileInputModel, DirectFileOutputModel> directFile;
 
-    private final IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> windgateJdbc;
+    private final ExternalPortMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> windgateJdbc;
 
-    private final IoMap<String, String> internal;
+    private final ExternalPortMap<String, String> internal;
 
-    private final IoMap<?, ?> generic;
+    private final ExternalPortMap<?, ?> generic;
 
     /**
      * Creates a new instance.
@@ -93,20 +89,20 @@ class ExternalIoAnalyzer {
         Set<ExternalInput> inputs = collect(plan, ExternalInput.class);
         Set<ExternalOutput> outputs = collect(plan, ExternalOutput.class);
         Predicate<WindGateJdbcModel> windgateJdbcFilter = buildWindGateJdbcFilter(options);
-        this.directFile = IoMap.collect(inputs, outputs,
+        this.directFile = ExternalPortMap.collect(inputs, outputs,
                 extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class),
                 extractor(loader, DirectFileIoConstants.MODULE_NAME, DirectFileOutputModel.class));
-        this.windgateJdbc = IoMap.collect(inputs, outputs,
+        this.windgateJdbc = ExternalPortMap.collect(inputs, outputs,
                 port -> Optionals.of(port.getInfo())
                     .flatMap(info -> WindGateJdbcIoAnalyzer.analyze(loader, info))
                     .filter(windgateJdbcFilter),
                 port -> Optionals.of(port.getInfo())
                     .flatMap(info -> WindGateJdbcIoAnalyzer.analyze(loader, info))
                     .filter(windgateJdbcFilter));
-        this.internal = IoMap.collect(inputs, outputs,
+        this.internal = ExternalPortMap.collect(inputs, outputs,
                 extractor(loader, InternalIoConstants.MODULE_NAME, String.class),
                 extractor(loader, InternalIoConstants.MODULE_NAME, String.class));
-        this.generic = IoMap.select(inputs, outputs,
+        this.generic = ExternalPortMap.select(inputs, outputs,
                 p -> (directFile.contains(p) || windgateJdbc.contains(p) || internal.contains(p)) == false,
                 p -> (directFile.contains(p) || windgateJdbc.contains(p) || internal.contains(p)) == false);
     }
@@ -152,7 +148,7 @@ class ExternalIoAnalyzer {
      * Returns the generic I/O port map.
      * @return I/O port map
      */
-    public IoMap<?, ?> getGeneric() {
+    public ExternalPortMap<?, ?> getGeneric() {
         return generic;
     }
 
@@ -160,7 +156,7 @@ class ExternalIoAnalyzer {
      * Returns the direct file I/O port map.
      * @return I/O port map
      */
-    public IoMap<DirectFileInputModel, DirectFileOutputModel> getDirectFile() {
+    public ExternalPortMap<DirectFileInputModel, DirectFileOutputModel> getDirectFile() {
         return directFile;
     }
 
@@ -168,7 +164,7 @@ class ExternalIoAnalyzer {
      * Returns the WindGate JDBC I/O port map.
      * @return the WindGate JDBC I/O port map
      */
-    public IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> getWindGateJdbc() {
+    public ExternalPortMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> getWindGateJdbc() {
         return windgateJdbc;
     }
 
@@ -176,7 +172,7 @@ class ExternalIoAnalyzer {
      * Returns the internal I/O port map.
      * @return I/O port map
      */
-    public IoMap<String, String> getInternal() {
+    public ExternalPortMap<String, String> getInternal() {
         return internal;
     }
 
@@ -224,111 +220,5 @@ class ExternalIoAnalyzer {
             }
             return Optionals.empty();
         };
-    }
-
-    /**
-     * External I/O map.
-     * @param <TInput> the input model type
-     * @param <TOutput> the output model type
-     * @since 0.2.0
-     */
-    public static final class IoMap<TInput, TOutput> {
-
-        private final Map<ExternalInput, TInput> inputs;
-
-        private final Map<ExternalOutput, TOutput> outputs;
-
-        private IoMap(Map<ExternalInput, TInput> inputs, Map<ExternalOutput, TOutput> outputs) {
-            this.inputs = Collections.unmodifiableMap(inputs);
-            this.outputs = Collections.unmodifiableMap(outputs);
-        }
-
-        static <TInput, TOutput> IoMap<TInput, TOutput> collect(
-                Collection<ExternalInput> in,
-                Collection<ExternalOutput> out,
-                Function<? super ExternalInput, ? extends Optional<? extends TInput>> inputResolver,
-                Function<? super ExternalOutput, ? extends Optional<? extends TOutput>> outputResolver) {
-            return new IoMap<>(
-                    in.stream()
-                        .map(p -> new Tuple<>(p, inputResolver.apply(p)))
-                        .filter(t -> t.right().isPresent())
-                        .map(t -> new Tuple<>(t.left(), t.right().get()))
-                        .collect(Collectors.toMap(Tuple::left, Tuple::right)),
-                    out.stream()
-                        .map(p -> new Tuple<>(p, outputResolver.apply(p)))
-                        .filter(t -> t.right().isPresent())
-                        .map(t -> new Tuple<>(t.left(), t.right().get()))
-                        .collect(Collectors.toMap(Tuple::left, Tuple::right)));
-        }
-
-        static IoMap<?, ?> select(
-                Collection<ExternalInput> in,
-                Collection<ExternalOutput> out,
-                Predicate<? super ExternalInput> inputFilter,
-                Predicate<? super ExternalOutput> outputFilter) {
-            return new IoMap<>(
-                    in.stream()
-                        .filter(inputFilter)
-                        .collect(Collectors.toMap(Function.identity(), Function.identity())),
-                    out.stream()
-                        .filter(outputFilter)
-                        .collect(Collectors.toMap(Function.identity(), Function.identity())));
-        }
-
-        /**
-         * Returns whether or not this map contains the target input.
-         * @param port the target port
-         * @return {@code true} if this map contains the target port, otherwise {@code false}
-         */
-        public boolean contains(ExternalInput port) {
-            return inputs.containsKey(port);
-        }
-
-        /**
-         * Returns whether or not this map contains the target output.
-         * @param port the target port
-         * @return {@code true} if this map contains the target port, otherwise {@code false}
-         */
-        public boolean contains(ExternalOutput port) {
-            return outputs.containsKey(port);
-        }
-
-        /**
-         * Returns the input ports in this map.
-         * @return the input ports
-         */
-        public Set<ExternalInput> inputs() {
-            return inputs.keySet();
-        }
-
-        /**
-         * Returns the output ports in this map.
-         * @return the output ports
-         */
-        public Set<ExternalOutput> outputs() {
-            return outputs.keySet();
-        }
-
-        /**
-         * Returns the model object for the target input.
-         * @param port the target port.
-         * @return the related model
-         * @throws NoSuchElementException if it does not exist
-         */
-        public TInput get(ExternalInput port) {
-            return Optionals.get(inputs, port)
-                    .orElseThrow(() -> new NoSuchElementException(port.toString()));
-        }
-
-        /**
-         * Returns the model object for the target output.
-         * @param port the target port.
-         * @return the related model
-         * @throws NoSuchElementException if it does not exist
-         */
-        public TOutput get(ExternalOutput port) {
-            return Optionals.get(outputs, port)
-                    .orElseThrow(() -> new NoSuchElementException(port.toString()));
-        }
     }
 }

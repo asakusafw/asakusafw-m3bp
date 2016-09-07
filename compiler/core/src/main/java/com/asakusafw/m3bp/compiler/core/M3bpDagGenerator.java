@@ -50,6 +50,7 @@ import com.asakusafw.dag.compiler.codegen.OperationAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.AggregateNodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.NodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.OperatorNodeInfo;
+import com.asakusafw.dag.compiler.codegen.UnionRecordSerDeSupplierGenerator;
 import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.codegen.VertexAdapterGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileInputAdapterGenerator;
@@ -64,7 +65,6 @@ import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcInputModel;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcIoAnalyzer;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputModel;
 import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcOutputProcessorGenerator;
-import com.asakusafw.dag.compiler.jdbc.windgate.WindGateJdbcTruncateProcessorGenerator;
 import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.compiler.model.build.GraphInfoBuilder;
 import com.asakusafw.dag.compiler.model.build.ResolvedInputInfo;
@@ -93,6 +93,7 @@ import com.asakusafw.dag.runtime.internalio.InternalOutputPrepare;
 import com.asakusafw.dag.runtime.jdbc.operation.JdbcOutputProcessor;
 import com.asakusafw.dag.runtime.skeleton.VoidVertexProcessor;
 import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.dag.utils.common.Lang;
 import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.api.JobflowProcessor;
@@ -119,7 +120,6 @@ import com.asakusafw.lang.compiler.model.graph.Operators;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.Planning;
 import com.asakusafw.lang.compiler.planning.SubPlan;
-import com.asakusafw.m3bp.compiler.core.ExternalIoAnalyzer.IoMap;
 import com.asakusafw.m3bp.compiler.core.adapter.ClassGeneratorContextAdapter;
 import com.asakusafw.m3bp.compiler.core.adapter.OperatorNodeGeneratorContextAdapter;
 import com.asakusafw.m3bp.descriptor.Descriptors;
@@ -154,6 +154,8 @@ public final class M3bpDagGenerator {
     private static final String ID_DIRECT_FILE_OUTPUT_COMMIT = "_directio-commit";
 
     private static final String ID_JDBC_BARRIER_PREFIX = "_jdbc-barrier-";
+
+    private static final String ID_JDBC_OUTPUT_PREFIX = "_jdbc-output-";
 
     private static final TypeDescription TYPE_RESULT = Descriptions.typeOf(Result.class);
 
@@ -351,7 +353,8 @@ public final class M3bpDagGenerator {
             Invariants.require(externalIo.getGeneric().contains(input));
             ExternalInputReference ref = context.getRoot().addExternalInput(vertex.getId(), input.getInfo());
             return resolveInternalInput(vertex, input, ref.getPaths());
-        }    }
+        }
+    }
 
     private ClassDescription resolveInternalInput(VertexSpec vertex, ExternalInput input, Collection<String> paths) {
         InternalInputAdapterGenerator.Spec spec =
@@ -568,19 +571,20 @@ public final class M3bpDagGenerator {
             InputSpec spec = InputSpec.get(port);
             InputType type = spec.getInputType();
             if (type == InputType.EXTRACT) {
-                ClassDescription serde = getValueSerDe(spec.getDataType());
+                ClassDescription serde = ValueSerDeGenerator.get(generatorContext, spec.getDataType());
                 ResolvedInputInfo info = new ResolvedInputInfo(
                         spec.getId(),
                         Descriptors.newOneToOneEdge(supplier(serde)));
                 results.put(port, info);
             } else if (type == InputType.BROADCAST) {
-                ClassDescription serde = getValueSerDe(spec.getDataType());
+                ClassDescription serde = ValueSerDeGenerator.get(generatorContext, spec.getDataType());
                 ResolvedInputInfo info = new ResolvedInputInfo(
                         spec.getId(),
                         Descriptors.newBroadcastEdge(supplier(serde)));
                 results.put(port, info);
             } else if (type == InputType.CO_GROUP) {
-                ClassDescription serde = getKeyValueSerDe(spec.getDataType(), spec.getPartitionInfo());
+                ClassDescription serde = KeyValueSerDeGenerator.get(generatorContext,
+                        spec.getDataType(), spec.getPartitionInfo());
                 String comparator = getComparator(spec.getDataType(), spec.getPartitionInfo().getOrdering());
                 ClassDescription mapperType = null;
                 ClassDescription copierType = null;
@@ -612,7 +616,8 @@ public final class M3bpDagGenerator {
             Set<ResolvedInputInfo> downstreams = port.getOpposites().stream()
                     .map(p -> Invariants.requireNonNull(builder.get(p)))
                     .collect(Collectors.toSet());
-            ResolvedOutputInfo info = new ResolvedOutputInfo(spec.getId(), downstreams);
+            String tag = getTag(port);
+            ResolvedOutputInfo info = new ResolvedOutputInfo(spec.getId(), tag, downstreams);
             results.put(port, info);
         }
         return results;
@@ -628,16 +633,15 @@ public final class M3bpDagGenerator {
                 }
                 String path = externalIo.getInternal().get(output);
                 resolveInternalOutput(vertex, output, path);
-            } else if (externalIo.getWindGateJdbc().contains(output)) {
-                WindGateJdbcOutputModel model = externalIo.getWindGateJdbc().get(output);
-                resolveWindGateJdbcOutput(vertex, output, model);
             } else if (externalIo.getGeneric().contains(output)) {
                 resolveGenericOutput(vertex, output);
             } else {
-                Invariants.require(externalIo.getDirectFile().contains(output));
+                Invariants.require(externalIo.getDirectFile().contains(output)
+                        || externalIo.getWindGateJdbc().contains(output));
             }
         }
         resolveDirectFileOutputs();
+        resolveWindGateJdbcOutputs();
     }
 
     private void resolveGenericOutput(VertexSpec vertex, ExternalOutput port) {
@@ -655,14 +659,6 @@ public final class M3bpDagGenerator {
     private void resolveInternalOutput(VertexSpec vertex, ExternalOutput port, String path) {
         LOG.debug("resolving internal output vertex: {} ({})", vertex.getId(), vertex.getLabel()); //$NON-NLS-1$
         registerInternalOutput(vertex, port, path);
-    }
-
-    private void resolveWindGateJdbcOutput(VertexSpec vertex, ExternalOutput output, WindGateJdbcOutputModel model) {
-        if (isEmptyOutput(vertex)) {
-            registerWindGateJdbcTruncate(vertex, output, model);
-        } else {
-            registerWindGateJdbcOutput(vertex, output, model);
-        }
     }
 
     private void resolveDirectFileOutputs() {
@@ -690,7 +686,7 @@ public final class M3bpDagGenerator {
     private ResolvedVertexInfo registerInternalOutput(VertexSpec vertex, ExternalOutput output, String path) {
         List<InternalOutputPrepareGenerator.Spec> specs = new ArrayList<>();
         specs.add(new InternalOutputPrepareGenerator.Spec(output.getName(), path, output.getDataType()));
-        ClassDescription serde = getValueSerDe(output.getDataType());
+        ClassDescription serde = ValueSerDeGenerator.get(generatorContext, output.getDataType());
         ClassDescription vertexClass = generate(q(vertex, "output.internal"), c -> { //$NON-NLS-1$
             return new InternalOutputPrepareGenerator().generate(generatorContext, specs, c);
         });
@@ -707,7 +703,7 @@ public final class M3bpDagGenerator {
     }
 
     private ResolvedVertexInfo registerDirectOutputSetup() {
-        IoMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
+        ExternalPortMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
         List<DirectFileOutputSetupGenerator.Spec> specs = ports.outputs().stream()
                 .map(p -> new Tuple<>(p.getName(), ports.get(p)))
                 .map(t -> new DirectFileOutputSetupGenerator.Spec(
@@ -758,7 +754,8 @@ public final class M3bpDagGenerator {
             String comparator = getComparator(ref.getDeclaration(), orderings);
             edge = Descriptors.newScatterGatherEdge(supplier(serde), comparator);
         } else {
-            edge = Descriptors.newOneToOneEdge(supplier(getValueSerDe(output.getDataType())));
+            ClassDescription serde = ValueSerDeGenerator.get(generatorContext, output.getDataType());
+            edge = Descriptors.newOneToOneEdge(supplier(serde));
         }
         ClassDescription vertexClass = generate(q(vertex, "output.directio"), c -> { //$NON-NLS-1$
             return new DirectFileOutputPrepareGenerator().generate(generatorContext, specs, c);
@@ -777,7 +774,7 @@ public final class M3bpDagGenerator {
     }
 
     private ResolvedVertexInfo registerDirectOutputCommit(Collection<? extends ResolvedVertexInfo> prepares) {
-        IoMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
+        ExternalPortMap<DirectFileInputModel, DirectFileOutputModel> ports = externalIo.getDirectFile();
         List<DirectFileOutputCommitGenerator.Spec> specs = ports.outputs().stream()
                 .map(p -> new Tuple<>(p.getName(), ports.get(p)))
                 .map(t -> new DirectFileOutputCommitGenerator.Spec(t.left(), t.right().getBasePath()))
@@ -799,42 +796,67 @@ public final class M3bpDagGenerator {
         return bless(vertex);
     }
 
-    private void registerWindGateJdbcTruncate(
-            VertexSpec vertex, ExternalOutput output, WindGateJdbcOutputModel model) {
-        WindGateJdbcTruncateProcessorGenerator.Spec spec = new WindGateJdbcTruncateProcessorGenerator.Spec(
-                output.getName(),
-                model);
-        ClassDescription vertexClass = generate(q(vertex, "output.windgate"), c -> { //$NON-NLS-1$
-            return WindGateJdbcTruncateProcessorGenerator.generate(
-                    generatorContext, Collections.singletonList(spec), c);
+    private void resolveWindGateJdbcOutputs() {
+        if (externalIo.getWindGateJdbc().outputs().isEmpty()) {
+            return;
+        }
+        Map<String, List<Tuple<SubPlan, ExternalOutput>>> profiles = externalIo.getOutputMap().entrySet().stream()
+                .map(Tuple::of)
+                .filter(t -> externalIo.getWindGateJdbc().contains(t.right()))
+                .map(t -> new Tuple<>(t.left(), t.right()))
+                .collect(Collectors.groupingBy(
+                        t -> externalIo.getWindGateJdbc().get(t.right()).getProfileName(),
+                        Collectors.toList()));
+        profiles.forEach((k, v) -> {
+            v.sort((a, b) -> a.right().getName().compareTo(b.right().getName()));
+            registerWindGateOutputs(k, Lang.project(v, t -> VertexSpec.get(t.left())));
         });
-        ResolvedVertexInfo info = new ResolvedVertexInfo(
-                vertex.getId(),
-                Descriptors.newVertex(supplier(vertexClass)),
-                Collections.emptyMap(),
-                Collections.emptyMap());
-        bless(vertex, info, vertexClass);
     }
 
-    private void registerWindGateJdbcOutput(
-            VertexSpec vertex, ExternalOutput output, WindGateJdbcOutputModel model) {
-        WindGateJdbcOutputProcessorGenerator.Spec spec = new WindGateJdbcOutputProcessorGenerator.Spec(
-                output.getName(),
-                model);
-        ClassDescription vertexClass = generate(q(vertex, "output.windgate"), c -> { //$NON-NLS-1$
-            return WindGateJdbcOutputProcessorGenerator.generate(generatorContext, spec, c);
+    private void registerWindGateOutputs(String profileName, List<VertexSpec> vertices) {
+        assert vertices.isEmpty() == false;
+        ClassDescription serdeSupplier = generate("jdbc.output", c -> {
+            List<UnionRecordSerDeSupplierGenerator.Upstream> specs = vertices.stream()
+                    .sequential()
+                    .map(v -> Invariants.requireNonNull(externalIo.getOutputSource(v.getOrigin())))
+                    .filter(p -> p.getOpposites().isEmpty() == false)
+                    .map(downstream -> {
+                        TypeDescription dataType = downstream.getOperator().getDataType();
+                        ClassDescription element = ValueSerDeGenerator.get(generatorContext, dataType);
+                        List<String> tags = downstream.getOpposites().stream()
+                                .map(M3bpDagGenerator::getTag)
+                                .collect(Collectors.toList());
+                        return new UnionRecordSerDeSupplierGenerator.Upstream(tags, element);
+                    })
+                    .collect(Collectors.toList());
+            return UnionRecordSerDeSupplierGenerator.generate(generatorContext,
+                    specs, UnionRecordSerDeSupplierGenerator.Downstream.of(null), c);
         });
-        ClassDescription serde = getValueSerDe(output.getDataType());
-        SubPlan.Input entry = externalIo.getOutputSource(vertex.getOrigin());
+        ClassDescription vertexClass = generate("jdbc.windgate", c -> {
+            List<WindGateJdbcOutputProcessorGenerator.Spec> specs = vertices.stream()
+                    .map(v -> {
+                        SubPlan.Input source = Invariants.requireNonNull(externalIo.getOutputSource(v.getOrigin()));
+                        ExternalOutput port = Invariants.requireNonNull(externalIo.getOutputMap().get(v.getOrigin()));
+                        WindGateJdbcOutputModel model = externalIo.getWindGateJdbc().get(port);
+                        return new WindGateJdbcOutputProcessorGenerator.Spec(port.getName(), model)
+                                .withOutput(source.getOpposites().isEmpty() == false);
+                    })
+                    .collect(Collectors.toList());
+            return WindGateJdbcOutputProcessorGenerator.generate(generatorContext, specs);
+        });
         ResolvedInputInfo input = new ResolvedInputInfo(
                 JdbcOutputProcessor.INPUT_NAME,
-                Descriptors.newOneToOneEdge(supplier(serde)));
+                Descriptors.newOneToOneEdge(supplier(serdeSupplier)));
         ResolvedVertexInfo info = new ResolvedVertexInfo(
-                vertex.getId(),
+                getJdbcOutputName(profileName),
                 Descriptors.newVertex(supplier(vertexClass)),
-                Collections.singletonMap(entry, input),
+                vertices.stream()
+                    .map(VertexSpec::getOrigin)
+                    .map(s -> Invariants.requireNonNull(externalIo.getOutputSource(s)))
+                    .filter(p -> p.getOpposites().isEmpty() == false)
+                    .collect(Collectors.toMap(p -> p, p -> input)),
                 Collections.emptyMap());
-        bless(vertex, info, vertexClass);
+        bless(info);
     }
 
     private void resolveImplicitDependencies() {
@@ -842,11 +864,11 @@ public final class M3bpDagGenerator {
     }
 
     private void resolveJdbcBarriers() {
-        IoMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> io = externalIo.getWindGateJdbc();
+        ExternalPortMap<WindGateJdbcInputModel, WindGateJdbcOutputModel> io = externalIo.getWindGateJdbc();
         if (io.inputs().isEmpty() || io.outputs().isEmpty()) {
             return;
         }
-        if (context.getRoot().getOptions().get(KEY_JDBC_BARRIER, DEFAULT_JDBC_BARRIER) == false) {
+        if (isJdbcBarrierEnabled() == false) {
             LOG.debug("JDBC barrier I/O barrier is disabled");
             return;
         }
@@ -856,26 +878,26 @@ public final class M3bpDagGenerator {
                 .filter(t -> t.right() != null)
                 .map(t -> new Tuple<>(io.get(t.left()).getProfileName(), t.right()))
                 .collect(Collectors.groupingBy(Tuple::left, Collectors.mapping(Tuple::right, Collectors.toSet())));
-        Map<String, Set<ResolvedVertexInfo>> outputs = externalIo.getOutputMap().entrySet().stream()
-                .map(e -> new Tuple<>(e.getValue(), builder.get(e.getKey())))
-                .filter(t -> io.contains(t.left()))
+        Map<String, ResolvedVertexInfo> outputs = io.outputs().stream()
+                .map(io::get)
+                .map(WindGateJdbcOutputModel::getProfileName)
+                .map(s -> new Tuple<>(s, builder.get(getJdbcOutputName(s))))
                 .filter(t -> t.right() != null)
-                .map(t -> new Tuple<>(io.get(t.left()).getProfileName(), t.right()))
-                .collect(Collectors.groupingBy(Tuple::left, Collectors.mapping(Tuple::right, Collectors.toSet())));
+                .collect(Collectors.toMap(Tuple::left, Tuple::right));
         Set<String> common = new TreeSet<>();
         common.addAll(inputs.keySet());
         common.retainAll(outputs.keySet());
         common.forEach(profileName -> {
             LOG.debug("insert JDBC I/O barrier: {}", profileName);
             Set<ResolvedVertexInfo> upstreams = Invariants.requireNonNull(inputs.get(profileName));
-            Set<ResolvedVertexInfo> downstreams = Invariants.requireNonNull(outputs.get(profileName));
+            ResolvedVertexInfo downstream = Invariants.requireNonNull(outputs.get(profileName));
             ResolvedVertexInfo barrier = bless(new ResolvedVertexInfo(
                     ID_JDBC_BARRIER_PREFIX + profileName,
                     Descriptors.newVertex(VoidVertexProcessor.class),
                     Collections.emptyMap(),
                     Collections.emptyMap(),
                     upstreams));
-            downstreams.forEach(v -> v.addImplicitDependency(barrier));
+            downstream.addImplicitDependency(barrier);
         });
     }
 
@@ -896,42 +918,48 @@ public final class M3bpDagGenerator {
         return context.add(generator.apply(name));
     }
 
-    private ClassDescription getValueSerDe(TypeDescription dataType) {
-        return ValueSerDeGenerator.get(generatorContext, dataType);
-    }
-
-    private ClassDescription getKeyValueSerDe(TypeDescription dataType, Group group) {
-        return KeyValueSerDeGenerator.get(generatorContext, dataType, group);
-    }
-
     private String getComparator(TypeDescription type, List<Group.Ordering> orderings) {
         return comparators.addComparator(type, new Group(Collections.emptyList(), orderings));
     }
 
-    private SupplierInfo supplier(ClassDescription aClass) {
+    private static SupplierInfo supplier(ClassDescription aClass) {
         return SupplierInfo.of(aClass.getBinaryName());
     }
 
-    private String q(VertexSpec vertex, String name) {
+    private static String q(VertexSpec vertex, String name) {
         return String.format("%s.%s", vertex.getId(), name);
     }
 
-    private String q(SubPlan element, String name) {
+    private static String q(SubPlan element, String name) {
         return q(VertexSpec.get(element), name);
     }
 
-    private boolean isEmptyOutput(VertexSpec vertex) {
-        if (vertex.getOperationType() != OperationType.OUTPUT) {
-            return false;
-        }
-        return vertex.getOrigin().getInputs().stream()
-            .map(InputSpec::get)
-            .anyMatch(p -> p.getInputType() != InputType.NO_DATA) == false;
+    private static String getJdbcOutputName(String profileName) {
+        return ID_JDBC_OUTPUT_PREFIX + profileName;
     }
 
     private boolean isDirectInputFilterEnabled() {
         return context.getRoot().getOptions().get(
                 DirectFileIoPortProcessor.OPTION_FILTER_ENABLED,
                 DirectFileIoPortProcessor.DEFAULT_FILTER_ENABLED);
+    }
+
+    private boolean isJdbcBarrierEnabled() {
+        return context.getRoot().getOptions().get(KEY_JDBC_BARRIER, DEFAULT_JDBC_BARRIER);
+    }
+
+    private static String getTag(SubPlan.Output port) {
+        return String.format("%s.%s",
+                VertexSpec.get(port.getOwner()).getId(),
+                OutputSpec.get(port).getId());
+    }
+
+    private static boolean isEmptyOutput(VertexSpec vertex) {
+        if (vertex.getOperationType() != OperationType.OUTPUT) {
+            return false;
+        }
+        return vertex.getOrigin().getInputs().stream()
+            .map(InputSpec::get)
+            .anyMatch(p -> p.getInputType() != InputType.NO_DATA) == false;
     }
 }

@@ -22,6 +22,8 @@ import com.asakusafw.dag.api.common.ValueSerDe;
 
 /**
  * A mirror of M3BP {@code InputPort} and {@code OutputPort}.
+ * @since 0.1.0
+ * @version 0.2.0
  */
 public interface PortMirror {
 
@@ -36,6 +38,15 @@ public interface PortMirror {
      * @return the name
      */
     String getName();
+
+    /**
+     * Returns the port tag.
+     * @return the port tag, or {@code null} if it is not defined
+     * @since 0.2.0
+     */
+    default String getTag() {
+        return null;
+    }
 
     /**
      * Returns the owner.

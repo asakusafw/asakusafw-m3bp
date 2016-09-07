@@ -339,7 +339,44 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
-     * JDBC I/O barrier.
+     * JDBC multiple output ports.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_output_multiple() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.execute(MockJdbcSupport.ddl("b"));
+        jdbc.execute(MockJdbcSupport.ddl("c"));
+        testio.input("t0", MockDataModel.class, o -> {
+            o.write(new MockDataModel(0, "Hello0"));
+        });
+        testio.input("t1", MockDataModel.class, o -> {
+            o.write(new MockDataModel(1, "Hello1"));
+        });
+        testio.input("t2", MockDataModel.class, o -> {
+            o.write(new MockDataModel(2, "Hello2"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .input("i0", TestInput.of("t0", MockDataModel.class))
+                .input("i1", TestInput.of("t1", MockDataModel.class))
+                .input("i2", TestInput.of("t2", MockDataModel.class))
+                .output("o0", jdbcOut("testing", "a")).connect("i0", "o0")
+                .output("o1", jdbcOut("testing", "b")).connect("i1", "o1")
+                .output("o2", jdbcOut("testing", "c")).connect("i2", "o2"));
+        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello0")));
+        });
+        jdbc.select(MockJdbcSupport.select("b"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(1, "Hello1")));
+        });
+        jdbc.select(MockJdbcSupport.select("c"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(2, "Hello2")));
+        });
+    }
+
+    /**
+     * w/o JDBC I/O barrier.
      * @throws Exception if failed
      */
     @Test
@@ -405,6 +442,33 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
                 .output("out", jdbcOut("testing", "a")));
         jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
             assertThat(o, hasSize(0));
+        });
+    }
+
+    /**
+     * orphaned JDBC output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_output_mixed_orphaned() throws Exception {
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.execute(MockJdbcSupport.ddl("b"));
+        jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            o.write(new MockDataModel(0, "ERROR"));
+        });
+        testio.input("t", MockDataModel.class, o -> {
+            o.write(new MockDataModel(0, "Hello, world!"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .output("orphaned", jdbcOut("testing", "a"))
+                .input("in", TestInput.of("t", MockDataModel.class))
+                .output("out", jdbcOut("testing", "b")).connect("in", "out"));
+        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        jdbc.select(MockJdbcSupport.select("b"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
         });
     }
 
