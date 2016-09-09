@@ -881,6 +881,7 @@ public final class M3bpDagGenerator {
         Map<String, ResolvedVertexInfo> outputs = io.outputs().stream()
                 .map(io::get)
                 .map(WindGateJdbcOutputModel::getProfileName)
+                .distinct()
                 .map(s -> new Tuple<>(s, builder.get(getJdbcOutputName(s))))
                 .filter(t -> t.right() != null)
                 .collect(Collectors.toMap(Tuple::left, Tuple::right));

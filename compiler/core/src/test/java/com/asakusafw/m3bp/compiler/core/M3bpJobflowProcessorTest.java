@@ -167,6 +167,20 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
+     * Orphaned output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void testio_output_orphaned() throws Exception {
+        testio.output("t", MockDataModel.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+        run(profile, executor, g -> g
+                .output("out", TestOutput.of("t", MockDataModel.class)
+                        .withGenerator(true)));
+    }
+
+    /**
      * Direct I/O input.
      * @throws Exception if failed
      */
@@ -278,6 +292,21 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
+     * orphaned Direct I/O output.
+     * @throws Exception if failed
+     */
+    @Test
+    public void directio_output_orphaned() throws Exception {
+        enableDirectIo();
+        run(profile, executor, g -> g
+                .output("out", DirectFileOutput.of("output", "*.bin", MockDataFormat.class)
+                        .withDeletePatterns("*.bin")));
+        directio.output("output", "*.bin", MockDataFormat.class, o -> {
+            assertThat(o, hasSize(0));
+        });
+    }
+
+    /**
      * JDBC input.
      * @throws Exception if failed
      */
@@ -339,6 +368,29 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
+     * w/o JDBC I/O barrier.
+     * @throws Exception if failed
+     */
+    @Test
+    public void jdbc_barrier_disabled() throws Exception {
+        profile.forCompilerOptions()
+            .withProperty(M3bpDagGenerator.KEY_JDBC_BARRIER, String.valueOf(false));
+        jdbc.execute(MockJdbcSupport.ddl("a"));
+        jdbc.execute(MockJdbcSupport.ddl("b"));
+        jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            o.write(new MockDataModel(0, "Hello, world!"));
+        });
+        enableJdbc("testing");
+        run(profile, executor, g -> g
+                .input("in", jdbcIn("testing", "a"))
+                .output("out", jdbcOut("testing", "b"))
+                .connect("in", "out"));
+        jdbc.select(MockJdbcSupport.select("b"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
+        });
+    }
+
+    /**
      * JDBC multiple output ports.
      * @throws Exception if failed
      */
@@ -376,54 +428,32 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
-     * w/o JDBC I/O barrier.
+     * JDBC I/O barrier.
      * @throws Exception if failed
      */
     @Test
-    public void jdbc_barrier_disabled() throws Exception {
-        profile.forCompilerOptions()
-            .withProperty(M3bpDagGenerator.KEY_JDBC_BARRIER, String.valueOf(false));
+    public void jdbc_barrier_multiple() throws Exception {
         jdbc.execute(MockJdbcSupport.ddl("a"));
         jdbc.execute(MockJdbcSupport.ddl("b"));
+        jdbc.execute(MockJdbcSupport.ddl("c"));
+        jdbc.execute(MockJdbcSupport.ddl("d"));
         jdbc.insert(MockJdbcSupport.insert("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
             o.write(new MockDataModel(0, "Hello, world!"));
         });
         enableJdbc("testing");
         run(profile, executor, g -> g
                 .input("in", jdbcIn("testing", "a"))
-                .output("out", jdbcOut("testing", "b"))
-                .connect("in", "out"));
-        jdbc.select(MockJdbcSupport.select("a"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+                .output("o0", jdbcOut("testing", "b")).connect("in", "o0")
+                .output("o1", jdbcOut("testing", "c")).connect("in", "o1")
+                .output("o2", jdbcOut("testing", "d")).connect("in", "o2"));
+        jdbc.select(MockJdbcSupport.select("b"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
             assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
         });
-    }
-
-    /**
-     * Orphaned output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void testio_output_orphaned() throws Exception {
-        testio.output("t", MockDataModel.class, o -> {
-            assertThat(o, hasSize(0));
+        jdbc.select(MockJdbcSupport.select("c"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
         });
-        run(profile, executor, g -> g
-                .output("out", TestOutput.of("t", MockDataModel.class)
-                        .withGenerator(true)));
-    }
-
-    /**
-     * orphaned Direct I/O output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_output_orphaned() throws Exception {
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .output("out", DirectFileOutput.of("output", "*.bin", MockDataFormat.class)
-                        .withDeletePatterns("*.bin")));
-        directio.output("output", "*.bin", MockDataFormat.class, o -> {
-            assertThat(o, hasSize(0));
+        jdbc.select(MockJdbcSupport.select("d"), MockJdbcSupport.COLUMNS, MockJdbcSupport.class, o -> {
+            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
         });
     }
 
