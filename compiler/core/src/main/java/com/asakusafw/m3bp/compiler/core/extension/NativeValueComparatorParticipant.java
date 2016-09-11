@@ -65,6 +65,8 @@ import com.asakusafw.lang.compiler.model.info.BatchInfo;
 import com.asakusafw.lang.compiler.packaging.FileContainer;
 import com.asakusafw.lang.compiler.packaging.FileContainerRepository;
 import com.asakusafw.lang.compiler.packaging.ResourceRepository;
+import com.asakusafw.m3bp.compiler.common.CommandPath;
+import com.asakusafw.m3bp.compiler.common.CommandRunner;
 
 /**
  * A compiler participant for enabling {@link NativeValueComparatorExtension}.

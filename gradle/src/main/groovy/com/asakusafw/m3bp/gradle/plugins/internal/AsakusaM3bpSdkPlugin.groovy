@@ -91,6 +91,8 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
             AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
             project.dependencies {
                 asakusaM3bpCommon "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-core:${base.featureVersion}"
+                asakusaM3bpCommon "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-directio:${base.featureVersion}"
+                asakusaM3bpCommon "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-windgate:${base.featureVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-cli:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-redirector:${base.langVersion}"
                 asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-yaess:${base.langVersion}"

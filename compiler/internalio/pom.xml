@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <name>Asakusa on M3BP Compiler Core</name>
-  <artifactId>asakusa-m3bp-compiler-core</artifactId>
+  <name>Embedded Internal I/O Support for Asakusa on M3BP Compiler</name>
+  <artifactId>asakusa-m3bp-compiler-internalio</artifactId>
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.compiler</groupId>
@@ -10,28 +10,8 @@
   </parent>
 
   <packaging>jar</packaging>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>asakusa-m3bp-compiler-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>asakusa-m3bp-compiler-codegen</artifactId>
@@ -39,30 +19,17 @@
     </dependency>
     <dependency>
       <groupId>com.asakusafw.dag.compiler</groupId>
-      <artifactId>asakusa-dag-compiler-builtin</artifactId>
+      <artifactId>asakusa-dag-compiler-internalio</artifactId>
       <version>${asakusafw-dag.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.lang.compiler</groupId>
-      <artifactId>asakusa-compiler-core</artifactId>
+      <artifactId>asakusa-compiler-internalio</artifactId>
       <version>${asakusafw-lang.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw.m3bp.bridge</groupId>
-      <artifactId>asakusa-m3bp-runtime</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw</groupId>
-      <artifactId>asakusa-runtime</artifactId>
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-dsl-vocabulary</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw</groupId>
-      <artifactId>simple-graph</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -77,14 +44,33 @@
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.asakusafw.m3bp.bridge</groupId>
-      <artifactId>asakusa-m3bp-mock</artifactId>
+      <groupId>com.asakusafw.lang.compiler</groupId>
+      <artifactId>asakusa-compiler-extension-test-moderator</artifactId>
+      <version>${asakusafw-lang.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-compiler-core</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-compiler-core</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>asakusa-m3bp-compiler-tester</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.m3bp.bridge</groupId>
+      <artifactId>asakusa-m3bp-mock</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -96,16 +82,19 @@
       <classifier>tests</classifier>
     </dependency>
     <dependency>
-      <groupId>com.asakusafw.lang.compiler</groupId>
-      <artifactId>asakusa-compiler-mapreduce-testing</artifactId>
-      <version>${asakusafw-lang.version}</version>
+      <groupId>com.asakusafw</groupId>
+      <artifactId>asakusa-runtime</artifactId>
+      <version>${asakusafw.version}</version>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-runtime</artifactId>
-      <version>${asakusafw.version}</version>
-      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw</groupId>
+      <artifactId>simple-graph</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
