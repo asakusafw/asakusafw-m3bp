@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assume;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -36,8 +35,6 @@ import org.junit.rules.ExternalResource;
 
 import com.asakusafw.dag.runtime.testing.MockDataModel;
 import com.asakusafw.dag.runtime.testing.MockKeyValueModel;
-import com.asakusafw.lang.compiler.common.Location;
-import com.asakusafw.lang.compiler.extension.directio.DirectFileIoPortProcessor;
 import com.asakusafw.lang.compiler.model.graph.CoreOperator.CoreOperatorKind;
 import com.asakusafw.lang.compiler.model.graph.Group;
 import com.asakusafw.lang.compiler.model.graph.Groups;
@@ -47,19 +44,14 @@ import com.asakusafw.lang.compiler.tester.CompilerProfile;
 import com.asakusafw.lang.compiler.tester.executor.JobflowExecutor;
 import com.asakusafw.m3bp.client.Capability;
 import com.asakusafw.m3bp.client.Constants;
+import com.asakusafw.m3bp.compiler.common.CommandPath;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;
-import com.asakusafw.m3bp.compiler.core.extension.CommandPath;
 import com.asakusafw.m3bp.compiler.core.extension.NativeValueComparatorParticipant;
-import com.asakusafw.m3bp.compiler.core.testing.DirectInput;
-import com.asakusafw.m3bp.compiler.core.testing.DirectIoTestHelper;
-import com.asakusafw.m3bp.compiler.core.testing.DirectOutput;
-import com.asakusafw.m3bp.compiler.core.testing.MockDataFormat;
 import com.asakusafw.m3bp.compiler.tester.InProcessM3bpTaskExecutor;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestInput;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestIoTaskExecutor;
 import com.asakusafw.m3bp.compiler.tester.externalio.TestOutput;
 import com.asakusafw.runtime.core.Result;
-import com.asakusafw.runtime.directio.DataFilter;
 import com.asakusafw.runtime.windows.WindowsSupport;
 import com.asakusafw.vocabulary.external.ImporterDescription.DataSize;
 import com.asakusafw.vocabulary.flow.processor.PartialAggregation;
@@ -77,8 +69,6 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
 
     static final File WORKING = new File("target/" + M3bpJobflowProcessorTest.class.getSimpleName());
 
-    static final Location LOCATION_CORE_CONFIGURATION = Location.of("core/conf/asakusa-resources.xml"); //$NON-NLS-1$
-
     /**
      * Support for Windows platform.
      */
@@ -89,7 +79,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
      * profile helper.
      */
     @Rule
-    public final ExternalResource helper = new ExternalResource() {
+    public final ExternalResource initializer = new ExternalResource() {
         @Override
         protected void before() throws Throwable {
             profile.forToolRepository()
@@ -97,7 +87,7 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
             profile.forFrameworkInstallation()
                 .add(M3bpTask.PATH_ENGINE_CONFIG, o -> {
                     Properties p = new Properties();
-                    p.put(Constants.KEY_ENGINE_MOCK, Capability.POSSIBLE.name());
+                    p.putIfAbsent(Constants.KEY_ENGINE_MOCK, Capability.POSSIBLE.name());
                     p.store(o, null);
                 });
             profile.forCompilerOptions()
@@ -117,12 +107,6 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     };
 
     final CompilerProfile profile = new CompilerProfile(getClass().getClassLoader());
-
-    /**
-     * Direct I/O helper.
-     */
-    @Rule
-    public final DirectIoTestHelper directio = new DirectIoTestHelper();
 
     final TestIoTaskExecutor testio = new TestIoTaskExecutor();
 
@@ -150,148 +134,17 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
     }
 
     /**
-     * Direct I/O input.
+     * Orphaned generic external output w/o generator constraint.
      * @throws Exception if failed
      */
     @Test
-    public void directio_input() throws Exception {
-        directio.input("input/a.bin", MockDataFormat.class, o -> {
-            o.write(new MockDataModel(0, "Hello, world!"));
-        });
-        testio.output("t", MockDataModel.class, o -> {
-            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
-        });
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class))
-                .output("out", TestOutput.of("t", MockDataModel.class))
-                .connect("in", "out"));
-    }
-
-    /**
-     * Direct I/O input w/ filter.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_input_filter() throws Exception {
-        directio.input("input/a.bin", MockDataFormat.class, o -> {
-            o.write(new MockDataModel(0, "Hello0"));
-            o.write(new MockDataModel(1, "Hello1"));
-            o.write(new MockDataModel(2, "Hello2"));
-        });
-        testio.output("t", MockDataModel.class, o -> {
-            assertThat(o, contains(
-                    new MockDataModel(0, "Hello0"),
-                    new MockDataModel(2, "Hello2")));
-        });
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
-                .output("out", TestOutput.of("t", MockDataModel.class))
-                .connect("in", "out"));
-    }
-
-    /**
-     * Direct I/O input w/ filter but the filter is disabled.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_input_filter_disabled() throws Exception {
-        profile.forCompilerOptions()
-            .withProperty(DirectFileIoPortProcessor.OPTION_FILTER_ENABLED, "false");
-        directio.input("input/a.bin", MockDataFormat.class, o -> {
-            o.write(new MockDataModel(0, "Hello0"));
-            o.write(new MockDataModel(1, "Hello1"));
-            o.write(new MockDataModel(2, "Hello2"));
-        });
-        testio.output("t", MockDataModel.class, o -> {
-            assertThat(o, contains(
-                    new MockDataModel(0, "Hello0"),
-                    new MockDataModel(1, "Hello1"),
-                    new MockDataModel(2, "Hello2")));
-        });
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .input("in", DirectInput.of("input", "*.bin", MockDataFormat.class).withFilter(MockFilter.class))
-                .output("out", TestOutput.of("t", MockDataModel.class))
-                .connect("in", "out"));
-    }
-
-    /**
-     * Direct I/O flat output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_output_flat() throws Exception {
-        testio.input("t", MockDataModel.class, o -> {
-            o.write(new MockDataModel(0, "Hello, world!"));
-        });
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .input("in", TestInput.of("t", MockDataModel.class))
-                .output("out", DirectOutput.of("output", "*.bin", MockDataFormat.class))
-                .connect("in", "out"));
-        directio.output("output", "*.bin", MockDataFormat.class, o -> {
-            assertThat(o, contains(new MockDataModel(0, "Hello, world!")));
-        });
-    }
-
-    /**
-     * Direct I/O group output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_output_group() throws Exception {
-        testio.input("t", MockDataModel.class, o -> {
-            o.write(new MockDataModel(0, "Hello0"));
-            o.write(new MockDataModel(1, "Hello1a"));
-            o.write(new MockDataModel(1, "Hello1b"));
-        });
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .input("in", TestInput.of("t", MockDataModel.class))
-                .output("out", DirectOutput.of("output", "{key}.bin", MockDataFormat.class).withOrder("-value"))
-                .connect("in", "out"));
-        directio.output("output", "0.bin", MockDataFormat.class, o -> {
-            assertThat(o, contains(new MockDataModel(0, "Hello0")));
-        });
-        directio.output("output", "1.bin", MockDataFormat.class, o -> {
-            assertThat(o, contains(new MockDataModel(1, "Hello1b"), new MockDataModel(1, "Hello1a")));
-        });
-    }
-
-    /**
-     * Orphaned output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void testio_output_orphaned() throws Exception {
+    public void output_orphaned() throws Exception {
         testio.output("t", MockDataModel.class, o -> {
             assertThat(o, hasSize(0));
         });
         run(profile, executor, g -> g
                 .output("out", TestOutput.of("t", MockDataModel.class)
                         .withGenerator(true)));
-    }
-
-    /**
-     * Direct I/O flat output.
-     * @throws Exception if failed
-     */
-    @Test
-    public void directio_output_orphaned() throws Exception {
-        enableDirectIo();
-        run(profile, executor, g -> g
-                .output("out", DirectOutput.of("output", "*.bin", MockDataFormat.class)
-                        .withDeletePatterns("*.bin")));
-        directio.output("output", "*.bin", MockDataFormat.class, o -> {
-            assertThat(o, hasSize(0));
-        });
-    }
-
-    private void enableDirectIo() {
-        Configuration configuration = directio.getContext().newConfiguration();
-        profile.forFrameworkInstallation().add(LOCATION_CORE_CONFIGURATION, o -> configuration.writeXml(o));
     }
 
     /**
@@ -924,15 +777,6 @@ public class M3bpJobflowProcessorTest extends M3bpCompilerTesterRoot {
             kv.setKey(model.getKey());
             kv.setValue(model.getValue());
             return kv;
-        }
-    }
-
-    @SuppressWarnings("javadoc")
-    public static class MockFilter extends DataFilter<MockDataModel> {
-
-        @Override
-        public boolean acceptsData(MockDataModel data) {
-            return data.getKey() != 1;
         }
     }
 }

@@ -19,11 +19,13 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asakusafw.dag.api.common.KeyValueSerDe;
+import com.asakusafw.dag.api.common.TaggedSupplier;
 import com.asakusafw.dag.api.common.ValueSerDe;
 import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
@@ -51,7 +53,7 @@ public abstract class AbstractPortMirror implements PortMirror {
         Arguments.requireNonNull(loader);
         Invariants.require(hasKey() == false);
         Invariants.require(hasValue());
-        return (ValueSerDe) getDescriptor().getSerDe().newInstance(loader).get();
+        return (ValueSerDe) getSerDe(loader);
     }
 
     @Override
@@ -60,6 +62,15 @@ public abstract class AbstractPortMirror implements PortMirror {
         Invariants.require(hasKey());
         Invariants.require(hasValue());
         return (KeyValueSerDe) getDescriptor().getSerDe().newInstance(loader).get();
+    }
+
+    private Object getSerDe(ClassLoader loader) {
+        Supplier<?> supplier = getDescriptor().getSerDe().newInstance(loader);
+        if (supplier instanceof TaggedSupplier<?>) {
+            return ((TaggedSupplier<?>) supplier).get(getTag());
+        } else {
+            return supplier.get();
+        }
     }
 
     @Override

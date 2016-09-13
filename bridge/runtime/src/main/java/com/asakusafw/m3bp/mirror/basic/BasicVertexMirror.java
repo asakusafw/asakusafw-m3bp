@@ -54,12 +54,14 @@ public class BasicVertexMirror extends AbstractVertexMirror {
     }
 
     @Override
-    protected PortMirror createInput(Identifier portId, String portName, M3bpEdgeDescriptor portDescriptor) {
-        return new BasicPortMirror(this, portId, portName, portDescriptor);
+    protected PortMirror createInput(
+            Identifier portId, String portName, String portTag, M3bpEdgeDescriptor portDescriptor) {
+        return new BasicPortMirror(this, portId, portName, portTag, portDescriptor);
     }
 
     @Override
-    protected PortMirror createOutput(Identifier portId, String portName, M3bpEdgeDescriptor portDescriptor) {
-        return new BasicPortMirror(this, portId, portName, portDescriptor);
+    protected PortMirror createOutput(
+            Identifier portId, String portName, String portTag, M3bpEdgeDescriptor portDescriptor) {
+        return new BasicPortMirror(this, portId, portName, portTag, portDescriptor);
     }
 }

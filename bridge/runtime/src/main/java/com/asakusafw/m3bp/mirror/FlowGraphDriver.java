@@ -68,7 +68,7 @@ final class FlowGraphDriver {
                         Invariants.require(desc.size() == 1, () -> MessageFormat.format(
                                 "ambiguous edges: {0} ({1})",
                                 p.getId(), desc));
-                        return v.addInput(p.getName(), desc.stream().findFirst().get());
+                        return v.addInput(p.getName(), p.getTag(), desc.stream().findFirst().get());
                     })));
         });
         return results;
@@ -87,7 +87,7 @@ final class FlowGraphDriver {
                         Invariants.require(desc.size() == 1, () -> MessageFormat.format(
                                 "ambiguous edges: {0} ({1})",
                                 p.getId(), desc));
-                        return v.addOutput(p.getName(), desc.stream().findFirst().get());
+                        return v.addOutput(p.getName(), p.getTag(), desc.stream().findFirst().get());
                     })));
         });
         return results;

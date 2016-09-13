@@ -10,6 +10,21 @@
   </parent>
 
   <packaging>jar</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
@@ -18,18 +33,13 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-compiler-codegen</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.asakusafw.dag.compiler</groupId>
       <artifactId>asakusa-dag-compiler-builtin</artifactId>
-      <version>${asakusafw-dag.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw.dag.compiler</groupId>
-      <artifactId>asakusa-dag-compiler-internalio</artifactId>
-      <version>${asakusafw-dag.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw.dag.compiler</groupId>
-      <artifactId>asakusa-dag-compiler-directio</artifactId>
       <version>${asakusafw-dag.version}</version>
     </dependency>
     <dependency>
@@ -38,23 +48,13 @@
       <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.asakusafw.lang.compiler</groupId>
-      <artifactId>asakusa-compiler-internalio</artifactId>
-      <version>${asakusafw-lang.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw.lang.compiler</groupId>
-      <artifactId>asakusa-compiler-extension-directio</artifactId>
-      <version>${asakusafw-lang.version}</version>
+      <groupId>com.asakusafw.m3bp.bridge</groupId>
+      <artifactId>asakusa-m3bp-runtime</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw.m3bp.bridge</groupId>
-      <artifactId>asakusa-m3bp-runtime</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
@@ -62,15 +62,7 @@
     </dependency>
     <dependency>
       <groupId>com.asakusafw</groupId>
-      <artifactId>asakusa-directio-vocabulary</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.asakusafw</groupId>
       <artifactId>simple-graph</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -110,15 +102,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-runtime</artifactId>
       <version>${asakusafw.version}</version>
       <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

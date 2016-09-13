@@ -80,6 +80,11 @@
     </dependency>
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-jdbc</artifactId>
+      <version>${asakusafw-dag.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-extension-counter</artifactId>
       <version>${asakusafw-dag.version}</version>
     </dependency>

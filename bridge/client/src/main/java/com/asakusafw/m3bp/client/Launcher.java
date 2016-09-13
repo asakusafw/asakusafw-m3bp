@@ -20,6 +20,7 @@ import static com.asakusafw.m3bp.client.Constants.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -41,6 +42,10 @@ import com.asakusafw.runtime.core.context.RuntimeContext;
 public class Launcher {
 
     static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
+
+    private static final Pattern SENSITIVE_KEY = Pattern.compile("pass", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+
+    private static final String SENSITIVE_VALUE_MASK = "****"; //$NON-NLS-1$
 
     /**
      * Exit status: execution was successfully completed.
@@ -122,20 +127,26 @@ public class Launcher {
         BasicProcessorContext context = new BasicProcessorContext(applicationLoader);
         configuration.getEngineProperties().forEach((k, v) -> {
             if (k.startsWith(KEY_HADOOP_PREFIX) == false) {
-                LOG.debug("Engine configuration: {}={}", k, v);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Engine configuration: {}={}", k, shadow(k, v));
+                }
                 context.withProperty(k, v);
             }
         });
 
         Configuration hadoop = new Configuration();
         configuration.getHadoopProperties().forEach((k, v) -> {
-            LOG.debug("Hadoop configuration: {}={}", k, v);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Hadoop configuration: {}={}", k, shadow(k, v));
+            }
             hadoop.set(k, v);
         });
         configuration.getEngineProperties().forEach((k, v) -> {
             if (k.startsWith(KEY_HADOOP_PREFIX)) {
                 String key = k.substring(KEY_HADOOP_PREFIX.length());
-                LOG.debug("Hadoop configuration: {}={}", key, v);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Hadoop configuration: {}={}", key, shadow(key, v));
+                }
                 hadoop.set(key, v);
             }
         });
@@ -143,6 +154,13 @@ public class Launcher {
         context.withResource(StageInfo.class, configuration.getStageInfo());
         context.withResource(Configuration.class, hadoop);
         return context;
+    }
+
+    private String shadow(String key, String value) {
+        if (SENSITIVE_KEY.matcher(key).find()) {
+            return SENSITIVE_VALUE_MASK;
+        }
+        return value;
     }
 
     private InterruptibleIo applyExtensions(BasicProcessorContext context) throws IOException, InterruptedException {

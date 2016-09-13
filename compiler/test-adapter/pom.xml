@@ -18,6 +18,11 @@
       <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>asakusa-m3bp-compiler-internalio</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.asakusafw</groupId>
       <artifactId>asakusa-test-compiler</artifactId>
     </dependency>

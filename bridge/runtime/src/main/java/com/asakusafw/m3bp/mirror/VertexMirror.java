@@ -23,6 +23,8 @@ import com.asakusafw.m3bp.descriptor.M3bpEdgeDescriptor;
 
 /**
  * A mirror of M3BP {@code Vertex}.
+ * @since 0.1.0
+ * @version 0.2.0
  */
 public interface VertexMirror {
 
@@ -76,20 +78,24 @@ public interface VertexMirror {
     VertexProcessor newProcessor(ClassLoader loader);
 
     /**
-     * Returns the number of max concurrency.
-     * @return the number of max concurrency, or {@code -1} if it is not defined
-     */
-    default int getMaxConcurrency() {
-        return -1;
-    }
-
-    /**
      * Adds an input port.
      * @param name the port name
      * @param descriptor the edge descriptor which corresponding to the port
      * @return the created port
      */
-    PortMirror addInput(String name, M3bpEdgeDescriptor descriptor);
+    default PortMirror addInput(String name, M3bpEdgeDescriptor descriptor) {
+        return addInput(name, null, descriptor);
+    }
+
+    /**
+     * Adds an input port.
+     * @param name the port name
+     * @param tag the optional port tag (nullable)
+     * @param descriptor the edge descriptor which corresponding to the port
+     * @return the created port
+     * @since 0.2.0
+     */
+    PortMirror addInput(String name, String tag, M3bpEdgeDescriptor descriptor);
 
     /**
      * Adds an output port.
@@ -97,5 +103,17 @@ public interface VertexMirror {
      * @param descriptor the edge descriptor which corresponding to the port
      * @return the created port
      */
-    PortMirror addOutput(String name, M3bpEdgeDescriptor descriptor);
+    default PortMirror addOutput(String name, M3bpEdgeDescriptor descriptor) {
+        return addOutput(name, null, descriptor);
+    }
+
+    /**
+     * Adds an output port.
+     * @param name the port name
+     * @param tag the optional port tag (nullable)
+     * @param descriptor the edge descriptor which corresponding to the port
+     * @return the created port
+     * @since 0.2.0
+     */
+    PortMirror addOutput(String name, String tag, M3bpEdgeDescriptor descriptor);
 }

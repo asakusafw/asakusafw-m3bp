@@ -27,7 +27,6 @@ import com.asakusafw.dag.api.processor.ProcessorContext.Editor;
 import com.asakusafw.dag.api.processor.extension.ProcessorContextExtension;
 import com.asakusafw.dag.utils.common.InterruptibleIo;
 import com.asakusafw.dag.utils.common.InterruptibleIo.Closer;
-import com.asakusafw.dag.utils.common.InterruptibleIo.Initializer;
 
 /**
  * Enables custom implementations of Asakusa Framework APIs.
@@ -38,9 +37,9 @@ public class M3bpCustomSupportExtension implements ProcessorContextExtension {
 
     @Override
     public InterruptibleIo install(ProcessorContext context, Editor editor) throws IOException, InterruptedException {
-        try (Initializer<Closer> initializer = new Initializer<>(new Closer())) {
-            register(initializeBatchContext(context), initializer.get());
-            return initializer.done();
+        try (Closer closer = new Closer()) {
+            register(initializeBatchContext(context), closer);
+            return closer.move();
         }
     }
 

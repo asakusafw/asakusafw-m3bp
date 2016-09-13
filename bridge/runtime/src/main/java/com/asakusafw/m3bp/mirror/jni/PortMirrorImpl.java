@@ -34,13 +34,15 @@ public class PortMirrorImpl extends AbstractPortMirror implements NativeMirror {
 
     private final String name;
 
+    private final String tag;
+
     private final VertexMirrorImpl owner;
 
     private final M3bpEdgeDescriptor descriptor;
 
     PortMirrorImpl(
             Pointer reference,
-            Identifier id, String name,
+            Identifier id, String name, String tag,
             VertexMirrorImpl owner, M3bpEdgeDescriptor descriptor) {
         Arguments.requireNonNull(reference);
         Arguments.requireNonNull(id);
@@ -49,6 +51,7 @@ public class PortMirrorImpl extends AbstractPortMirror implements NativeMirror {
         Arguments.requireNonNull(descriptor);
         this.reference = reference;
         this.id = id;
+        this.tag = tag;
         this.name = name;
         this.owner = owner;
         this.descriptor = descriptor;
@@ -67,6 +70,11 @@ public class PortMirrorImpl extends AbstractPortMirror implements NativeMirror {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getTag() {
+        return tag;
     }
 
     @Override

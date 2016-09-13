@@ -13,7 +13,11 @@
 
   <modules>
     <module>common</module>
+    <module>codegen</module>
     <module>core</module>
+    <module>internalio</module>
+    <module>directio</module>
+    <module>windgate</module>
     <module>test-adapter</module>
     <module>tester</module>
     <module>inspection</module>

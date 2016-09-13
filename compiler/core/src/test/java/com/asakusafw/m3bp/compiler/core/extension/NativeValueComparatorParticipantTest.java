@@ -43,6 +43,7 @@ import com.asakusafw.lang.compiler.model.description.Descriptions;
 import com.asakusafw.lang.compiler.model.graph.Group;
 import com.asakusafw.lang.compiler.model.graph.Groups;
 import com.asakusafw.lang.compiler.packaging.FileContainer;
+import com.asakusafw.m3bp.compiler.common.CommandPath;
 import com.asakusafw.m3bp.mirror.jna.BufferComparator;
 import com.asakusafw.m3bp.mirror.jna.NativeFunctionLoader;
 import com.asakusafw.runtime.value.IntOption;

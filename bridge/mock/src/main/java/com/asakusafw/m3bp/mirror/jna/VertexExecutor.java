@@ -121,7 +121,7 @@ class VertexExecutor implements RunnableWithException<Exception> {
             }
             LOG.debug("initializing vertex: {}", vertex.getName()); //$NON-NLS-1$
             BlockingQueue<TaskProcessorContext> tasks = doInitialize(processor);
-            int concurrency = computeConcurrency(tasks.size());
+            int concurrency = computeConcurrency(processor, tasks.size());
             LOG.debug("submitting tasks: vertex={}, count={}, concurrency={}",
                     vertex.getName(), tasks.size(), concurrency);
             LinkedList<Future<?>> futures = Lang.let(new LinkedList<>(), it -> Lang.repeat(concurrency, () -> {
@@ -213,7 +213,7 @@ class VertexExecutor implements RunnableWithException<Exception> {
         }
     }
 
-    private int computeConcurrency(int numberOfTasks) {
+    private int computeConcurrency(VertexProcessor processor, int numberOfTasks) {
         if (numberOfTasks <= 0) {
             return 0;
         }
@@ -221,8 +221,8 @@ class VertexExecutor implements RunnableWithException<Exception> {
         if (maxConcurrency >= 1) {
             max = Math.min(max, maxConcurrency);
         }
-        if (vertex.getMaxConcurrency() >= 1) {
-            max = Math.min(max, vertex.getMaxConcurrency());
+        if (processor.getMaxConcurrency() >= 1) {
+            max = Math.min(max, processor.getMaxConcurrency());
         }
         return max;
     }
