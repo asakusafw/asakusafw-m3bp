@@ -109,8 +109,9 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
         this.context = context.getGeneratorContext();
 
         Predicate<WindGateJdbcModel> filter = buildWindGateJdbcFilter(options);
-        this.inputModels = collectInputs(plan, filter);
-        this.outputModels = collectOutputs(plan, filter);
+        ClassLoader classLoader = context.getGeneratorContext().getClassLoader();
+        this.inputModels = collectInputs(classLoader, plan, filter);
+        this.outputModels = collectOutputs(classLoader, plan, filter);
         this.inputOwners = collectOwners(plan, inputModels.keySet());
         this.outputOwners = collectOwners(plan, outputModels.keySet());
     }
@@ -122,21 +123,21 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
     }
 
     private static Map<ExternalInput, WindGateJdbcInputModel> collectInputs(
-            Plan plan, Predicate<WindGateJdbcModel> filter) {
+            ClassLoader classLoader, Plan plan, Predicate<WindGateJdbcModel> filter) {
         return collectModels(
                 plan,
                 ExternalInput.class,
                 filter,
-                p -> WindGateJdbcIoAnalyzer.analyze(WindGateJdbcModel.class.getClassLoader(), p.getInfo()));
+                p -> WindGateJdbcIoAnalyzer.analyze(classLoader, p.getInfo()));
     }
 
     private static Map<ExternalOutput, WindGateJdbcOutputModel> collectOutputs(
-            Plan plan, Predicate<WindGateJdbcModel> filter) {
+            ClassLoader classLoader, Plan plan, Predicate<WindGateJdbcModel> filter) {
         return collectModels(
                 plan,
                 ExternalOutput.class,
                 filter,
-                p -> WindGateJdbcIoAnalyzer.analyze(WindGateJdbcModel.class.getClassLoader(), p.getInfo()));
+                p -> WindGateJdbcIoAnalyzer.analyze(classLoader, p.getInfo()));
     }
 
     private static <TPort extends ExternalPort, TModel> Map<TPort, TModel> collectModels(
