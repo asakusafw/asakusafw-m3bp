@@ -70,14 +70,12 @@ apply plugin: 'asakusafw-m3bp'
 
 ```
 
-## How to build document
-* See documantation [`README`](docs/README.md).
-
 ## Referred Projects
 * [M<sup>3</sup> for Batch Processing](https://github.com/fixstars/m3bp)
 * [Asakusa Framework Core](https://github.com/asakusafw/asakusafw)
 * [Asakusa Framework Language Toolset](https://github.com/asakusafw/asakusafw-compiler)
 * [Asakusa Framework DAG Toolset](https://github.com/asakusafw/asakusafw-dag)
+* [Asakusa Framework Documentation](https://github.com/asakusafw/asakusafw-documentation)
 
 ## Resources
 * [Asakusa on M<sup>3</sup>BP Documentation (ja)](http://docs.asakusafw.com/asakusa-on-m3bp/)
