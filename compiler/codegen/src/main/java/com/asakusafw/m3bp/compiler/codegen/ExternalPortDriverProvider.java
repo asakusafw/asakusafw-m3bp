@@ -16,7 +16,6 @@
 package com.asakusafw.m3bp.compiler.codegen;
 
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.planning.Plan;
 
@@ -43,33 +42,49 @@ public interface ExternalPortDriverProvider {
 
         private final ClassGeneratorContext generatorContext;
 
-        private final NativeValueComparatorExtension comparatorGenerator;
+        private final DagDescriptorFactory descriptors;
 
         private final Plan sourcePlan;
 
         public Context(
                 CompilerOptions options,
                 ClassGeneratorContext generatorContext,
-                NativeValueComparatorExtension comparatorGenerator,
+                DagDescriptorFactory descriptors,
                 Plan sourcePlan) {
             this.options = options;
             this.generatorContext = generatorContext;
-            this.comparatorGenerator = comparatorGenerator;
+            this.descriptors = descriptors;
             this.sourcePlan = sourcePlan;
         }
 
+        /**
+         * Returns the current compiler options.
+         * @return the current compiler options
+         */
         public CompilerOptions getOptions() {
             return options;
         }
 
+        /**
+         * Returns the current class generator context.
+         * @return the current class generator context
+         */
         public ClassGeneratorContext getGeneratorContext() {
             return generatorContext;
         }
 
-        public NativeValueComparatorExtension getComparatorGenerator() {
-            return comparatorGenerator;
+        /**
+         * Returns the descriptor factory.
+         * @return the descriptor factory
+         */
+        public DagDescriptorFactory getDescriptorFactory() {
+            return descriptors;
         }
 
+        /**
+         * Returns the source plan.
+         * @return the source plan
+         */
         public Plan getSourcePlan() {
             return sourcePlan;
         }

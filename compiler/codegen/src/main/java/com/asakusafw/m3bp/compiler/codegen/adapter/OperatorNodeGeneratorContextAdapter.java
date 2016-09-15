@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.m3bp.compiler.core.adapter;
+package com.asakusafw.m3bp.compiler.codegen.adapter;
 
 import java.util.Collection;
 import java.util.Map;

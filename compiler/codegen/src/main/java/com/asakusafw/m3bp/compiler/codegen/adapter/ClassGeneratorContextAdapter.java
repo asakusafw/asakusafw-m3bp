@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.m3bp.compiler.core.adapter;
+package com.asakusafw.m3bp.compiler.codegen.adapter;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,38 +29,42 @@ import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.dag.utils.common.Optionals;
 import com.asakusafw.lang.compiler.api.DataModelLoader;
+import com.asakusafw.lang.compiler.api.JobflowProcessor;
+import com.asakusafw.lang.compiler.common.Diagnostic;
+import com.asakusafw.lang.compiler.common.DiagnosticException;
 import com.asakusafw.lang.compiler.model.description.ClassDescription;
-import com.asakusafw.m3bp.compiler.common.M3bpPackage;
-import com.asakusafw.m3bp.compiler.core.M3bpCompilerContext;
 
 /**
  * An adapter implementation of {@link ClassGeneratorContext}.
  */
 public class ClassGeneratorContextAdapter implements ClassGeneratorContext {
 
-    private final M3bpCompilerContext delegate;
+    private final JobflowProcessor.Context delegate;
 
-    private final ClassNameMap namer = new ClassNameMap(M3bpPackage.CLASS_PREFIX);
+    private final ClassNameMap namer;
 
     private final Map<Object, ClassDescription> cache = new HashMap<>();
 
     /**
      * Creates a new instance.
      * @param delegate the parent context
+     * @param classNamePrefix the prefix of fully qualified class names to generate
      */
-    public ClassGeneratorContextAdapter(M3bpCompilerContext delegate) {
+    public ClassGeneratorContextAdapter(JobflowProcessor.Context delegate, String classNamePrefix) {
         Arguments.requireNonNull(delegate);
+        Arguments.requireNonNull(classNamePrefix);
         this.delegate = delegate;
+        this.namer = new ClassNameMap(classNamePrefix);
     }
 
     @Override
     public ClassLoader getClassLoader() {
-        return delegate.getRoot().getClassLoader();
+        return delegate.getClassLoader();
     }
 
     @Override
     public DataModelLoader getDataModelLoader() {
-        return delegate.getRoot().getDataModelLoader();
+        return delegate.getDataModelLoader();
     }
 
     @Override
@@ -67,7 +74,16 @@ public class ClassGeneratorContextAdapter implements ClassGeneratorContext {
 
     @Override
     public ClassDescription addClassFile(ClassData data) {
-        return delegate.add(data);
+        if (data.hasContents()) {
+            try (OutputStream output = delegate.addClassFile(data.getDescription())) {
+                data.dump(output);
+            } catch (IOException e) {
+                throw new DiagnosticException(Diagnostic.Level.ERROR, MessageFormat.format(
+                        "error occurred while generating a class file: {0}",
+                        data.getDescription().getBinaryName()), e);
+            }
+        }
+        return data.getDescription();
     }
 
     @Override

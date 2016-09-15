@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
 import com.asakusafw.dag.compiler.codegen.UnionRecordSerDeSupplierGenerator;
 import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
@@ -45,6 +44,7 @@ import com.asakusafw.dag.compiler.model.build.GraphInfoBuilder;
 import com.asakusafw.dag.compiler.model.build.ResolvedInputInfo;
 import com.asakusafw.dag.compiler.model.build.ResolvedVertexInfo;
 import com.asakusafw.dag.compiler.model.plan.VertexSpec;
+import com.asakusafw.dag.runtime.io.UnionRecord;
 import com.asakusafw.dag.runtime.jdbc.operation.JdbcOutputProcessor;
 import com.asakusafw.dag.runtime.skeleton.VoidVertexProcessor;
 import com.asakusafw.dag.utils.common.Arguments;
@@ -60,9 +60,9 @@ import com.asakusafw.lang.compiler.model.graph.ExternalInput;
 import com.asakusafw.lang.compiler.model.graph.ExternalOutput;
 import com.asakusafw.lang.compiler.model.graph.ExternalPort;
 import com.asakusafw.lang.compiler.planning.Plan;
+import com.asakusafw.m3bp.compiler.codegen.DagDescriptorFactory;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriver;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriverProvider;
-import com.asakusafw.m3bp.descriptor.Descriptors;
 
 /**
  * An implementation of {@link ExternalPortDriver} for WindGate JDBC (direct mode) ports.
@@ -94,6 +94,8 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
 
     private final ClassGeneratorContext context;
 
+    private final DagDescriptorFactory descriptors;
+
     private final Map<ExternalInput, WindGateJdbcInputModel> inputModels;
 
     private final Map<ExternalOutput, WindGateJdbcOutputModel> outputModels;
@@ -107,6 +109,7 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
         this.plan = context.getSourcePlan();
         this.options = context.getOptions();
         this.context = context.getGeneratorContext();
+        this.descriptors = context.getDescriptorFactory();
 
         Predicate<WindGateJdbcModel> filter = buildWindGateJdbcFilter(options);
         ClassLoader classLoader = context.getGeneratorContext().getClassLoader();
@@ -225,10 +228,10 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
         });
         ResolvedInputInfo input = new ResolvedInputInfo(
                 JdbcOutputProcessor.INPUT_NAME,
-                Descriptors.newOneToOneEdge(SupplierInfo.of(serdeSupplier.getBinaryName())));
+                descriptors.newOneToOneEdge(Descriptions.classOf(UnionRecord.class), serdeSupplier));
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 getOutputId(profileName),
-                Descriptors.newVertex(SupplierInfo.of(proc.getBinaryName())),
+                descriptors.newVertex(proc),
                 ports.stream()
                     .map(outputOwners::get)
                     .filter(v -> isEmptyOutput(v) == false)
@@ -267,7 +270,7 @@ public class WindGateJdbcPortDriver implements ExternalPortDriver {
             ResolvedVertexInfo downstream = Invariants.requireNonNull(outputs.get(profileName));
             ResolvedVertexInfo barrier = new ResolvedVertexInfo(
                     getBarrierId(profileName),
-                    Descriptors.newVertex(VoidVertexProcessor.class),
+                    descriptors.newVertex(Descriptions.classOf(VoidVertexProcessor.class)),
                     Collections.emptyMap(),
                     Collections.emptyMap(),
                     upstreams);

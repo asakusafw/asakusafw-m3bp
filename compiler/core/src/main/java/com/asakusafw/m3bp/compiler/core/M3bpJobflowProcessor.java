@@ -16,6 +16,8 @@
 package com.asakusafw.m3bp.compiler.core;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -24,17 +26,27 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.compiler.codegen.ApplicationGenerator;
 import com.asakusafw.dag.compiler.codegen.CleanupStageClientGenerator;
+import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
+import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.compiler.planner.DagPlanning;
+import com.asakusafw.dag.utils.common.Action;
+import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.lang.compiler.api.Exclusive;
 import com.asakusafw.lang.compiler.api.JobflowProcessor;
 import com.asakusafw.lang.compiler.api.reference.CommandToken;
 import com.asakusafw.lang.compiler.api.reference.TaskReference;
+import com.asakusafw.lang.compiler.common.Diagnostic;
+import com.asakusafw.lang.compiler.common.DiagnosticException;
+import com.asakusafw.lang.compiler.common.Location;
 import com.asakusafw.lang.compiler.hadoop.HadoopCommandRequired;
 import com.asakusafw.lang.compiler.inspection.InspectionExtension;
 import com.asakusafw.lang.compiler.model.description.ClassDescription;
 import com.asakusafw.lang.compiler.model.graph.Jobflow;
+import com.asakusafw.lang.compiler.model.info.JobflowInfo;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.PlanDetail;
+import com.asakusafw.m3bp.compiler.codegen.DagGenerator;
+import com.asakusafw.m3bp.compiler.codegen.adapter.ClassGeneratorContextAdapter;
 import com.asakusafw.m3bp.compiler.common.M3bpPackage;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;
 
@@ -44,7 +56,7 @@ import com.asakusafw.m3bp.compiler.common.M3bpTask;
 @Exclusive
 public class M3bpJobflowProcessor implements JobflowProcessor {
 
-    static final Logger LOG = LoggerFactory.getLogger(M3bpDagGenerator.class);
+    static final Logger LOG = LoggerFactory.getLogger(M3bpJobflowProcessor.class);
 
     /**
      * The compiler option key prefix.
@@ -62,13 +74,12 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
                 LOG.info("code generation was skipped: {} ({}=true)", source.getFlowId(), KEY_CODEGEN);
                 return;
             }
-            M3bpCompilerContext c = new M3bpCompilerContext.Basic(context, source);
             LOG.debug("generating vertices: {}", source.getFlowId());
-            GraphInfo graph = M3bpDagGenerator.generate(c, plan);
+            GraphInfo graph = generateGraph(context, source, plan);
             LOG.debug("generating application entry: {}", source.getFlowId());
-            addApplication(c, graph);
+            addApplication(context, source, graph);
             LOG.debug("generating cleanup : {}", source.getFlowId());
-            addCleanup(c);
+            addCleanup(context, source);
         } finally {
             LOG.debug("generating inspection info: {} ({})",
                     source.getFlowId(), M3bpPackage.PATH_PLAN_INSPECTION);
@@ -81,12 +92,20 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
         return detail.getPlan();
     }
 
-    private void addApplication(M3bpCompilerContext context, GraphInfo graph) {
-        context.add(M3bpPackage.PATH_GRAPH_INFO, output -> GraphInfo.save(output, graph));
-        ClassDescription application = context.add(new ApplicationGenerator().generate(
+    private GraphInfo generateGraph(JobflowProcessor.Context context, JobflowInfo info, Plan plan) {
+        ClassGeneratorContextAdapter cgContext = new ClassGeneratorContextAdapter(context, M3bpPackage.CLASS_PREFIX);
+        NativeValueComparatorExtension comparators = Invariants.requireNonNull(
+                context.getExtension(NativeValueComparatorExtension.class));
+        M3bpDescriptorFactory descriptors = new M3bpDescriptorFactory(cgContext, comparators);
+        return DagGenerator.generate(context, cgContext, descriptors, info, plan);
+    }
+
+    private void addApplication(JobflowProcessor.Context context, JobflowInfo info, GraphInfo graph) {
+        add(context, M3bpPackage.PATH_GRAPH_INFO, output -> GraphInfo.save(output, graph));
+        ClassDescription application = add(context, new ApplicationGenerator().generate(
                 M3bpPackage.PATH_GRAPH_INFO,
                 new ClassDescription(M3bpPackage.CLASS_APPLICATION)));
-        TaskReference task = context.getRoot().addTask(
+        TaskReference task = context.addTask(
                 M3bpTask.MODULE_NAME,
                 M3bpTask.PROFILE_NAME,
                 M3bpTask.PATH_COMMAND,
@@ -101,11 +120,34 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
         HadoopCommandRequired.put(task, false);
     }
 
-    private void addCleanup(M3bpCompilerContext context) {
-        context.add(new CleanupStageClientGenerator().generate(
-                context.getRoot().getBatchId(),
-                context.getInfo().getFlowId(),
-                context.getRoot().getOptions().getRuntimeWorkingDirectory(),
+    private void addCleanup(JobflowProcessor.Context context, JobflowInfo info) {
+        add(context, new CleanupStageClientGenerator().generate(
+                context.getBatchId(),
+                info.getFlowId(),
+                context.getOptions().getRuntimeWorkingDirectory(),
                 CleanupStageClientGenerator.DEFAULT_CLASS));
+    }
+
+    private void add(JobflowProcessor.Context context, Location location, Action<OutputStream, IOException> action) {
+        try (OutputStream output = context.addResourceFile(location)) {
+            action.perform(output);
+        } catch (IOException e) {
+            throw new DiagnosticException(Diagnostic.Level.ERROR, MessageFormat.format(
+                    "error occurred while adding a resource: {0}",
+                    location), e);
+        }
+    }
+
+    private ClassDescription add(JobflowProcessor.Context context, ClassData data) {
+        if (data.hasContents()) {
+            try (OutputStream output = context.addClassFile(data.getDescription())) {
+                data.dump(output);
+            } catch (IOException e) {
+                throw new DiagnosticException(Diagnostic.Level.ERROR, MessageFormat.format(
+                        "error occurred while generating a class file: {0}",
+                        data.getDescription().getBinaryName()), e);
+            }
+        }
+        return data.getDescription();
     }
 }

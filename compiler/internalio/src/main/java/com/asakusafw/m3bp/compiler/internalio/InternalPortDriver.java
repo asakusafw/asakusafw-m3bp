@@ -33,6 +33,7 @@ import com.asakusafw.lang.compiler.model.description.ClassDescription;
 import com.asakusafw.lang.compiler.model.graph.ExternalInput;
 import com.asakusafw.lang.compiler.model.graph.ExternalOutput;
 import com.asakusafw.lang.compiler.planning.Plan;
+import com.asakusafw.m3bp.compiler.codegen.DagDescriptorFactory;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriver;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriverProvider;
 
@@ -46,6 +47,8 @@ public class InternalPortDriver implements ExternalPortDriver {
 
     private final ClassGeneratorContext context;
 
+    private final DagDescriptorFactory descriptors;
+
     private final Map<ExternalInput, String> inputModels;
 
     private final Map<ExternalOutput, String> outputModels;
@@ -57,6 +60,8 @@ public class InternalPortDriver implements ExternalPortDriver {
     InternalPortDriver(ExternalPortDriverProvider.Context context) {
         Arguments.requireNonNull(context);
         this.context = context.getGeneratorContext();
+        this.descriptors = context.getDescriptorFactory();
+
         Plan plan = context.getSourcePlan();
         this.inputModels = collectModels(
                 collectOperators(plan, ExternalInput.class),
@@ -94,7 +99,7 @@ public class InternalPortDriver implements ExternalPortDriver {
                 continue;
             }
             String path = Invariants.requireNonNull(outputModels.get(port));
-            registerInternalOutput(context, target, vertex, port, path);
+            registerInternalOutput(context, descriptors, target, vertex, port, path);
         }
     }
 }
