@@ -28,11 +28,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
-import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileInputAdapterGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileOutputCommitGenerator;
 import com.asakusafw.dag.compiler.directio.DirectFileOutputPrepareGenerator;
@@ -59,9 +56,9 @@ import com.asakusafw.lang.compiler.model.graph.ExternalOutput;
 import com.asakusafw.lang.compiler.model.graph.Group;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.SubPlan;
+import com.asakusafw.m3bp.compiler.codegen.DagDescriptorFactory;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriver;
 import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriverProvider;
-import com.asakusafw.m3bp.descriptor.Descriptors;
 
 /**
  * An implementation of {@link ExternalPortDriver} for Direct file I/O ports.
@@ -81,7 +78,7 @@ public class DirectFilePortDriver implements ExternalPortDriver {
 
     private final ClassGeneratorContext context;
 
-    private final NativeValueComparatorExtension nativeCompartors;
+    private final DagDescriptorFactory descriptors;
 
     private final Map<ExternalInput, DirectFileInputModel> inputModels;
 
@@ -96,7 +93,7 @@ public class DirectFilePortDriver implements ExternalPortDriver {
         this.plan = context.getSourcePlan();
         this.options = context.getOptions();
         this.context = context.getGeneratorContext();
-        this.nativeCompartors = context.getComparatorGenerator();
+        this.descriptors = context.getDescriptorFactory();
         this.inputModels = collectModels(
                 collectOperators(plan, ExternalInput.class),
                 DirectFileIoConstants.MODULE_NAME, DirectFileInputModel.class);
@@ -179,7 +176,7 @@ public class DirectFilePortDriver implements ExternalPortDriver {
         });
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 ID_OUTPUT_SETUP,
-                Descriptors.newVertex(SupplierInfo.of(proc.getBinaryName())),
+                descriptors.newVertex(proc),
                 Collections.emptyMap(),
                 Collections.emptyMap());
         return register(builder, plan, info, proc);
@@ -210,12 +207,12 @@ public class DirectFilePortDriver implements ExternalPortDriver {
                             o.getTarget().getName(),
                             o.isAscend() ? Group.Direction.ASCENDANT : Group.Direction.DESCENDANT))
                     .collect(Collectors.toList());
-            String comparator = nativeCompartors.addComparator(
-                    output.getDataType(), new Group(Collections.emptyList(), orderings));
-            edge = Descriptors.newScatterGatherEdge(SupplierInfo.of(serde.getBinaryName()), comparator);
+            edge = descriptors.newScatterGatherEdge(
+                    output.getDataType(),
+                    serde,
+                    new Group(Collections.emptyList(), orderings));
         } else {
-            ClassDescription serde = ValueSerDeGenerator.get(context, output.getDataType());
-            edge = Descriptors.newOneToOneEdge(SupplierInfo.of(serde.getBinaryName()));
+            edge = descriptors.newOneToOneEdge(output.getDataType());
         }
         ClassDescription vertexClass = generate(context, vertex, "output.directio", c -> { //$NON-NLS-1$
             return new DirectFileOutputPrepareGenerator().generate(context, specs, c);
@@ -226,7 +223,7 @@ public class DirectFilePortDriver implements ExternalPortDriver {
                 edge);
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 vertex.getId(),
-                Descriptors.newVertex(SupplierInfo.of(vertexClass.getBinaryName())),
+                descriptors.newVertex(vertexClass),
                 Collections.singletonMap(entry, input),
                 Collections.emptyMap(),
                 Collections.singleton(setup));
@@ -250,7 +247,7 @@ public class DirectFilePortDriver implements ExternalPortDriver {
         });
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 ID_OUTPUT_COMMIT,
-                Descriptors.newVertex(SupplierInfo.of(proc.getBinaryName())),
+                descriptors.newVertex(proc),
                 Collections.emptyMap(),
                 Collections.emptyMap(),
                 prepares);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.asakusafw.m3bp.compiler.core;
+package com.asakusafw.m3bp.compiler.codegen;
 
 import static com.asakusafw.m3bp.compiler.codegen.DagUtil.*;
 
@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.compiler.codegen.BufferOperatorGenerator;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
@@ -42,13 +41,10 @@ import com.asakusafw.dag.compiler.codegen.EdgeDataTableAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.EdgeOutputAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.ExtractAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.ExtractInputAdapterGenerator;
-import com.asakusafw.dag.compiler.codegen.KeyValueSerDeGenerator;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
 import com.asakusafw.dag.compiler.codegen.OperationAdapterGenerator;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.AggregateNodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.NodeInfo;
 import com.asakusafw.dag.compiler.codegen.OperatorNodeGenerator.OperatorNodeInfo;
-import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.codegen.VertexAdapterGenerator;
 import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.compiler.model.build.GraphInfoBuilder;
@@ -91,29 +87,23 @@ import com.asakusafw.lang.compiler.model.graph.OperatorOutput;
 import com.asakusafw.lang.compiler.model.graph.OperatorPort;
 import com.asakusafw.lang.compiler.model.graph.OperatorProperty;
 import com.asakusafw.lang.compiler.model.graph.Operators;
+import com.asakusafw.lang.compiler.model.info.JobflowInfo;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.Planning;
 import com.asakusafw.lang.compiler.planning.SubPlan;
-import com.asakusafw.m3bp.compiler.codegen.CompositeExternalPortDriver;
-import com.asakusafw.m3bp.compiler.codegen.DagUtil;
-import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriver;
-import com.asakusafw.m3bp.compiler.codegen.ExternalPortDriverProvider;
-import com.asakusafw.m3bp.compiler.core.adapter.ClassGeneratorContextAdapter;
-import com.asakusafw.m3bp.compiler.core.adapter.OperatorNodeGeneratorContextAdapter;
-import com.asakusafw.m3bp.descriptor.Descriptors;
+import com.asakusafw.m3bp.compiler.codegen.adapter.OperatorNodeGeneratorContextAdapter;
 import com.asakusafw.runtime.core.Result;
 import com.asakusafw.runtime.flow.VoidResult;
 import com.asakusafw.utils.graph.Graph;
 import com.asakusafw.utils.graph.Graphs;
 
 /**
- * Generates DAG classes generator.
- * @since 0.1.0
- * @version 0.2.0
+ * Generates DAG classes.
+ * @since 0.2.0
  */
-public final class M3bpDagGenerator {
+public final class DagGenerator {
 
-    static final Logger LOG = LoggerFactory.getLogger(M3bpDagGenerator.class);
+    static final Logger LOG = LoggerFactory.getLogger(DagGenerator.class);
 
     private static final TypeDescription TYPE_RESULT = Descriptions.typeOf(Result.class);
 
@@ -129,36 +119,44 @@ public final class M3bpDagGenerator {
 
     private final ClassGeneratorContext generatorContext;
 
+    private final DagDescriptorFactory descriptors;
+
     private final CompositeOperatorNodeGenerator genericOperators;
 
     private final ExternalPortDriver externalPortDriver;
 
-    private final NativeValueComparatorExtension comparators;
-
-    private M3bpDagGenerator(M3bpCompilerContext context, Plan plan) {
+    private DagGenerator(
+            JobflowProcessor.Context processorContext,
+            ClassGeneratorContext generatorContext,
+            DagDescriptorFactory descriptors,
+            Plan plan) {
         this.plan = plan;
-        this.processorContext = context.getRoot();
-        this.generatorContext = new ClassGeneratorContextAdapter(context);
+        this.processorContext = processorContext;
+        this.generatorContext = generatorContext;
+        this.descriptors = descriptors;
 
         JobflowProcessor.Context root = processorContext;
         this.genericOperators = CompositeOperatorNodeGenerator.load(root.getClassLoader());
-        this.comparators = Invariants.requireNonNull(
-                processorContext.getExtension(NativeValueComparatorExtension.class));
-        this.externalPortDriver = CompositeExternalPortDriver.load(new ExternalPortDriverProvider.Context(
-                root.getOptions(),
-                generatorContext,
-                comparators,
-                plan));
+        this.externalPortDriver = CompositeExternalPortDriver.load(
+                new ExternalPortDriverProvider.Context(root.getOptions(), generatorContext, descriptors, plan));
     }
 
     /**
      * Generates {@link GraphInfo} and its related classes.
-     * @param context the current compiler context
+     * @param processorContext the current jobflow processor context
+     * @param generatorContext the current class generator context
+     * @param descriptors the DAG descriptor factory
+     * @param info the target jobflow info
      * @param plan the target plan
      * @return the generated {@link GraphInfo}
      */
-    public static GraphInfo generate(M3bpCompilerContext context, Plan plan) {
-        return new M3bpDagGenerator(context, plan).generate();
+    public static GraphInfo generate(
+            JobflowProcessor.Context processorContext,
+            ClassGeneratorContext generatorContext,
+            DagDescriptorFactory descriptors,
+            JobflowInfo info,
+            Plan plan) {
+        return new DagGenerator(processorContext, generatorContext, descriptors, plan).generate();
     }
 
     private GraphInfo generate() {
@@ -170,7 +168,7 @@ public final class M3bpDagGenerator {
         resolveOutputs();
         resolveOperations();
         resolvePlan();
-        return builder.build(Descriptors::newVoidEdge);
+        return builder.build(descriptors::newVoidEdge);
     }
 
     private void resolveOperations() {
@@ -206,7 +204,7 @@ public final class M3bpDagGenerator {
         Map<SubPlan.Output, ResolvedOutputInfo> outputs = collectOutputs(vertex);
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 vertex.getId(),
-                Descriptors.newVertex(SupplierInfo.of(vertexClass.getBinaryName())),
+                descriptors.newVertex(vertexClass),
                 inputs,
                 outputs);
         register(builder, vertex, info, vertexClass);
@@ -488,21 +486,16 @@ public final class M3bpDagGenerator {
             InputSpec spec = InputSpec.get(port);
             InputType type = spec.getInputType();
             if (type == InputType.EXTRACT) {
-                ClassDescription serde = ValueSerDeGenerator.get(generatorContext, spec.getDataType());
                 ResolvedInputInfo info = new ResolvedInputInfo(
                         spec.getId(),
-                        Descriptors.newOneToOneEdge(SupplierInfo.of(serde.getBinaryName())));
+                        descriptors.newOneToOneEdge(spec.getDataType()));
                 results.put(port, info);
             } else if (type == InputType.BROADCAST) {
-                ClassDescription serde = ValueSerDeGenerator.get(generatorContext, spec.getDataType());
                 ResolvedInputInfo info = new ResolvedInputInfo(
                         spec.getId(),
-                        Descriptors.newBroadcastEdge(SupplierInfo.of(serde.getBinaryName())));
+                        descriptors.newBroadcastEdge(spec.getDataType()));
                 results.put(port, info);
             } else if (type == InputType.CO_GROUP) {
-                ClassDescription serde = KeyValueSerDeGenerator.get(generatorContext,
-                        spec.getDataType(), spec.getPartitionInfo());
-                String comparator = getComparator(spec.getDataType(), spec.getPartitionInfo().getOrdering());
                 ClassDescription mapperType = null;
                 ClassDescription copierType = null;
                 ClassDescription combinerType = null;
@@ -516,7 +509,7 @@ public final class M3bpDagGenerator {
                 }
                 ResolvedInputInfo info = new ResolvedInputInfo(
                         spec.getId(),
-                        Descriptors.newScatterGatherEdge(SupplierInfo.of(serde.getBinaryName()), comparator),
+                        descriptors.newScatterGatherEdge(spec.getDataType(), spec.getPartitionInfo()),
                         mapperType, copierType, combinerType);
                 results.put(port, info);
             }
@@ -563,16 +556,12 @@ public final class M3bpDagGenerator {
             CompilerOptions options = processorContext.getOptions();
             String path = options.getRuntimeWorkingPath(String.format("%s/part-*", port.getName())); //$NON-NLS-1$
             processorContext.addExternalOutput(port.getName(), port.getInfo(), Collections.singletonList(path));
-            registerInternalOutput(generatorContext, builder, vertex, port, path);
+            registerInternalOutput(generatorContext, descriptors, builder, vertex, port, path);
         }
     }
 
     private void resolvePlan() {
         externalPortDriver.processPlan(builder);
-    }
-
-    private String getComparator(TypeDescription type, List<Group.Ordering> orderings) {
-        return comparators.addComparator(type, new Group(Collections.emptyList(), orderings));
     }
 
     private ClassDescription generate(

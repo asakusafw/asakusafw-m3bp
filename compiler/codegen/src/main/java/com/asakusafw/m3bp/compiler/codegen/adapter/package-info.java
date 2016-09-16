@@ -16,4 +16,4 @@
 /**
  * Adapter classes.
  */
-package com.asakusafw.m3bp.compiler.core.adapter;
+package com.asakusafw.m3bp.compiler.codegen.adapter;

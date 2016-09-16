@@ -30,9 +30,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
-import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.internalio.InternalInputAdapterGenerator;
 import com.asakusafw.dag.compiler.internalio.InternalOutputPrepareGenerator;
 import com.asakusafw.dag.compiler.model.ClassData;
@@ -62,7 +60,6 @@ import com.asakusafw.lang.compiler.model.graph.Operators;
 import com.asakusafw.lang.compiler.model.info.ExternalPortInfo;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.SubPlan;
-import com.asakusafw.m3bp.descriptor.Descriptors;
 
 /**
  * Code generation utilities for Asakusa on M3BP compiler.
@@ -310,15 +307,16 @@ public final class DagUtil {
     /**
      * Registers an internal output.
      * @param context the current context
+     * @param descriptors the descriptor factory
      * @param target the target DAG builder
      * @param vertex the target vertex
      * @param port the target port
      * @param path the output path
      */
     public static void registerInternalOutput(
-            ClassGeneratorContext context, GraphInfoBuilder target,
+            ClassGeneratorContext context, DagDescriptorFactory descriptors,
+            GraphInfoBuilder target,
             VertexSpec vertex, ExternalOutput port, String path) {
-        ClassDescription serde = ValueSerDeGenerator.get(context, port.getDataType());
         ClassDescription vertexClass = generate(context, vertex, "output.internal", c -> { //$NON-NLS-1$
             List<InternalOutputPrepareGenerator.Spec> specs = Collections.singletonList(
                     new InternalOutputPrepareGenerator.Spec(port.getName(), path, port.getDataType()));
@@ -327,10 +325,10 @@ public final class DagUtil {
         SubPlan.Input entry = getOutputSource(vertex);
         ResolvedInputInfo input = new ResolvedInputInfo(
                 InternalOutputPrepare.INPUT_NAME,
-                Descriptors.newOneToOneEdge(SupplierInfo.of(serde.getBinaryName())));
+                descriptors.newOneToOneEdge(port.getDataType()));
         ResolvedVertexInfo info = new ResolvedVertexInfo(
                 vertex.getId(),
-                Descriptors.newVertex(SupplierInfo.of(vertexClass.getBinaryName())),
+                descriptors.newVertex(vertexClass),
                 Collections.singletonMap(entry, input),
                 Collections.emptyMap());
         register(target, vertex, info, vertexClass);
