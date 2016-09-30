@@ -46,6 +46,8 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         this.project = project
+        project.apply plugin: AsakusafwBasePlugin
+
         this.extension = project.extensions.create('asakusaM3bpBase', AsakusaM3bpBaseExtension)
         configureExtension()
         configureTasks()
@@ -121,13 +123,5 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
         project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
             logger.lifecycle "Asakusa on M3BP: ${extension.featureVersion}"
         }
-    }
-
-    /**
-     * Returns the extension.
-     * @return the extension
-     */
-    AsakusaM3bpBaseExtension getExtension() {
-        return extension
     }
 }

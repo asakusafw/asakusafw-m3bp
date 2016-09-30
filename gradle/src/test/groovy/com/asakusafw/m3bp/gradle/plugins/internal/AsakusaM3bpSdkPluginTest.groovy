@@ -87,6 +87,15 @@ class AsakusaM3bpSdkPluginTest {
     }
 
     /**
+     * test for version.
+     */
+    @Test
+    void extension_version() {
+        project.asakusaM3bpBase.featureVersion = '__VERSION__'
+        assert project.asakusafw.m3bp.version == '__VERSION__'
+    }
+
+    /**
      * test for {@code tasks.m3bpCompileBatchapps}.
      */
     @Test
