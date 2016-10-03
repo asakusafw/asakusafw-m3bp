@@ -17,7 +17,7 @@ package com.asakusafw.m3bp.mirror.jni;
 
 import java.text.MessageFormat;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.descriptor.M3bpEdgeDescriptor;
 import com.asakusafw.m3bp.mirror.Identifier;
 import com.asakusafw.m3bp.mirror.PortMirror;

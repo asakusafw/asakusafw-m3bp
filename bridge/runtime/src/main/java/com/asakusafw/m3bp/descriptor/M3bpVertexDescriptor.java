@@ -21,7 +21,7 @@ import java.util.Objects;
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.VertexDescriptor;
 import com.asakusafw.dag.api.processor.VertexProcessor;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 
 /**
  * An implementation of {@link VertexDescriptor} for M3BP.

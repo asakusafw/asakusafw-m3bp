@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.asakusafw.dag.utils.common.Arguments;
 import com.asakusafw.lang.inspection.InspectionNode;
+import com.asakusafw.lang.utils.common.Arguments;
 
 /**
  * Represents output ports.

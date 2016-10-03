@@ -15,7 +15,7 @@
  */
 package com.asakusafw.m3bp.mirror;
 
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Optionals;
 
 /**
  * Mock {@link InputReaderMirror}.

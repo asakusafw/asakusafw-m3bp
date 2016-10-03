@@ -17,7 +17,7 @@ package com.asakusafw.m3bp.mirror.jna;
 
 import java.nio.ByteBuffer;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 

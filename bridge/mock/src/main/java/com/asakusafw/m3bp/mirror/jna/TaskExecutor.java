@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.api.processor.TaskProcessor;
 import com.asakusafw.dag.api.processor.TaskProcessorContext;
 import com.asakusafw.dag.api.processor.VertexProcessor;
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.InterruptibleIo.Closer;
-import com.asakusafw.dag.utils.common.RunnableWithException;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.InterruptibleIo.Closer;
+import com.asakusafw.lang.utils.common.RunnableWithException;
 
 /**
  * Executes tasks.

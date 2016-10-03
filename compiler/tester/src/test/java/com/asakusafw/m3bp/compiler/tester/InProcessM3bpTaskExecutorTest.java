@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.asakusafw.dag.api.model.GraphInfo;
-import com.asakusafw.dag.utils.common.Action;
 import com.asakusafw.lang.compiler.api.reference.CommandTaskReference;
 import com.asakusafw.lang.compiler.api.reference.CommandToken;
 import com.asakusafw.lang.compiler.common.Location;
@@ -46,6 +45,7 @@ import com.asakusafw.lang.compiler.tester.TesterContext;
 import com.asakusafw.lang.compiler.tester.executor.TaskExecutor;
 import com.asakusafw.lang.compiler.tester.executor.TaskExecutor.Context;
 import com.asakusafw.lang.compiler.tester.executor.TaskExecutors;
+import com.asakusafw.lang.utils.common.Action;
 import com.asakusafw.m3bp.client.Capability;
 import com.asakusafw.m3bp.client.Constants;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;

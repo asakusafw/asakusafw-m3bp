@@ -18,8 +18,8 @@ package com.asakusafw.m3bp.mirror.jna;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.asakusafw.dag.utils.common.Lang;
-import com.asakusafw.dag.utils.common.Suppliers;
+import com.asakusafw.lang.utils.common.Lang;
+import com.asakusafw.lang.utils.common.Suppliers;
 
 /**
  * one-to-one and broadcast edge processor.

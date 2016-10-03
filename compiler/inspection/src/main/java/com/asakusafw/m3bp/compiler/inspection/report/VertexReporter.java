@@ -17,8 +17,8 @@ package com.asakusafw.m3bp.compiler.inspection.report;
 
 import java.io.IOException;
 
-import com.asakusafw.dag.utils.common.Io;
-import com.asakusafw.dag.utils.common.RunnableWithException;
+import com.asakusafw.lang.utils.common.Io;
+import com.asakusafw.lang.utils.common.RunnableWithException;
 import com.asakusafw.m3bp.compiler.inspection.EdgeResolver;
 import com.asakusafw.m3bp.compiler.inspection.VertexSpecView;
 

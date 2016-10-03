@@ -25,8 +25,8 @@ import com.asakusafw.bridge.stage.StageInfo;
 import com.asakusafw.dag.api.processor.ProcessorContext;
 import com.asakusafw.dag.api.processor.ProcessorContext.Editor;
 import com.asakusafw.dag.api.processor.extension.ProcessorContextExtension;
-import com.asakusafw.dag.utils.common.InterruptibleIo;
-import com.asakusafw.dag.utils.common.InterruptibleIo.Closer;
+import com.asakusafw.lang.utils.common.InterruptibleIo;
+import com.asakusafw.lang.utils.common.InterruptibleIo.Closer;
 
 /**
  * Enables custom implementations of Asakusa Framework APIs.

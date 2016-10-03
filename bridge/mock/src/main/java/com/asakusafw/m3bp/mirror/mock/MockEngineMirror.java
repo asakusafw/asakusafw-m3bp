@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asakusafw.dag.api.processor.ProcessorContext;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 import com.asakusafw.m3bp.mirror.EngineMirror;
 import com.asakusafw.m3bp.mirror.FlowGraphMirror;

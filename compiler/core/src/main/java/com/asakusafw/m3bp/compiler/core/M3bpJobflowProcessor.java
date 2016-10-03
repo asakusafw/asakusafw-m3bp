@@ -26,11 +26,10 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.compiler.codegen.ApplicationGenerator;
 import com.asakusafw.dag.compiler.codegen.CleanupStageClientGenerator;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
+import com.asakusafw.dag.compiler.flow.DataFlowGenerator;
+import com.asakusafw.dag.compiler.flow.adapter.ClassGeneratorContextAdapter;
 import com.asakusafw.dag.compiler.model.ClassData;
 import com.asakusafw.dag.compiler.planner.DagPlanning;
-import com.asakusafw.dag.utils.common.Action;
-import com.asakusafw.dag.utils.common.Invariants;
 import com.asakusafw.lang.compiler.api.Exclusive;
 import com.asakusafw.lang.compiler.api.JobflowProcessor;
 import com.asakusafw.lang.compiler.api.reference.CommandToken;
@@ -45,10 +44,11 @@ import com.asakusafw.lang.compiler.model.graph.Jobflow;
 import com.asakusafw.lang.compiler.model.info.JobflowInfo;
 import com.asakusafw.lang.compiler.planning.Plan;
 import com.asakusafw.lang.compiler.planning.PlanDetail;
-import com.asakusafw.m3bp.compiler.codegen.DagGenerator;
-import com.asakusafw.m3bp.compiler.codegen.adapter.ClassGeneratorContextAdapter;
+import com.asakusafw.lang.utils.common.Action;
+import com.asakusafw.lang.utils.common.Invariants;
 import com.asakusafw.m3bp.compiler.common.M3bpPackage;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;
+import com.asakusafw.m3bp.compiler.comparator.NativeValueComparatorExtension;
 
 /**
  * An implementation of {@link JobflowProcessor} for M3BP.
@@ -87,24 +87,26 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
         }
     }
 
-    private Plan plan(Context context, Jobflow source) {
+    private static Plan plan(Context context, Jobflow source) {
         PlanDetail detail = DagPlanning.plan(context, source);
         return detail.getPlan();
     }
 
-    private GraphInfo generateGraph(JobflowProcessor.Context context, JobflowInfo info, Plan plan) {
+    private static GraphInfo generateGraph(JobflowProcessor.Context context, JobflowInfo info, Plan plan) {
         ClassGeneratorContextAdapter cgContext = new ClassGeneratorContextAdapter(context, M3bpPackage.CLASS_PREFIX);
         NativeValueComparatorExtension comparators = Invariants.requireNonNull(
                 context.getExtension(NativeValueComparatorExtension.class));
         M3bpDescriptorFactory descriptors = new M3bpDescriptorFactory(cgContext, comparators);
-        return DagGenerator.generate(context, cgContext, descriptors, info, plan);
+        return DataFlowGenerator.generate(context, cgContext, descriptors, info, plan);
     }
 
-    private void addApplication(JobflowProcessor.Context context, JobflowInfo info, GraphInfo graph) {
+    private static void addApplication(JobflowProcessor.Context context, JobflowInfo info, GraphInfo graph) {
+        LOG.debug("storing GraphInfo ({}): {}", info.getFlowId(), M3bpPackage.PATH_GRAPH_INFO);
         add(context, M3bpPackage.PATH_GRAPH_INFO, output -> GraphInfo.save(output, graph));
         ClassDescription application = add(context, new ApplicationGenerator().generate(
                 M3bpPackage.PATH_GRAPH_INFO,
                 new ClassDescription(M3bpPackage.CLASS_APPLICATION)));
+        LOG.debug("Generating application entry ({}): {}", info.getFlowId(), application.getClassName());
         TaskReference task = context.addTask(
                 M3bpTask.MODULE_NAME,
                 M3bpTask.PROFILE_NAME,
@@ -120,7 +122,7 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
         HadoopCommandRequired.put(task, false);
     }
 
-    private void addCleanup(JobflowProcessor.Context context, JobflowInfo info) {
+    private static void addCleanup(JobflowProcessor.Context context, JobflowInfo info) {
         add(context, new CleanupStageClientGenerator().generate(
                 context.getBatchId(),
                 info.getFlowId(),
@@ -128,7 +130,8 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
                 CleanupStageClientGenerator.DEFAULT_CLASS));
     }
 
-    private void add(JobflowProcessor.Context context, Location location, Action<OutputStream, IOException> action) {
+    private static void add(
+            JobflowProcessor.Context context, Location location, Action<OutputStream, IOException> action) {
         try (OutputStream output = context.addResourceFile(location)) {
             action.perform(output);
         } catch (IOException e) {
@@ -138,7 +141,7 @@ public class M3bpJobflowProcessor implements JobflowProcessor {
         }
     }
 
-    private ClassDescription add(JobflowProcessor.Context context, ClassData data) {
+    private static ClassDescription add(JobflowProcessor.Context context, ClassData data) {
         if (data.hasContents()) {
             try (OutputStream output = context.addClassFile(data.getDescription())) {
                 data.dump(output);

@@ -18,8 +18,8 @@ package com.asakusafw.m3bp.mirror.basic;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.asakusafw.dag.utils.buffer.nio.NioDataBuffer;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.buffer.nio.NioDataBuffer;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.PageDataInput;
 
 /**

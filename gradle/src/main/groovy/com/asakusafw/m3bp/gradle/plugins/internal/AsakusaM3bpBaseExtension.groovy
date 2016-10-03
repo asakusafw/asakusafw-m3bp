@@ -42,11 +42,6 @@ class AsakusaM3bpBaseExtension {
     String langVersion
 
     /**
-     * The DAG libraries version.
-     */
-    String dagVersion
-
-    /**
      * The Hadoop version.
      */
     String hadoopVersion

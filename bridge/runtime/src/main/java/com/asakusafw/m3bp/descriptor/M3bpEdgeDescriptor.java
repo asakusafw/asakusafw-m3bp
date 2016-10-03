@@ -22,7 +22,7 @@ import com.asakusafw.dag.api.common.KeyValueSerDe;
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.common.ValueSerDe;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.Movement;
 
 /**

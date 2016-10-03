@@ -55,8 +55,7 @@ import com.asakusafw.dag.api.processor.VertexProcessor;
 import com.asakusafw.dag.api.processor.VertexProcessorContext;
 import com.asakusafw.dag.api.processor.basic.BasicProcessorContext;
 import com.asakusafw.dag.api.processor.basic.BasicTaskSchedule;
-import com.asakusafw.dag.utils.buffer.unsafe.UnsafeUtil;
-import com.asakusafw.dag.utils.common.Lang;
+import com.asakusafw.lang.utils.common.Lang;
 import com.asakusafw.m3bp.descriptor.M3bpEdgeDescriptor;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror.BufferAccessMode;
@@ -64,6 +63,7 @@ import com.asakusafw.m3bp.mirror.EngineMirror;
 import com.asakusafw.m3bp.mirror.FlowGraphMirror;
 import com.asakusafw.m3bp.mirror.PortMirror;
 import com.asakusafw.m3bp.mirror.VertexMirror;
+import com.asakusafw.m3bp.mirror.unsafe.UnsafeUtil;
 
 /**
  * Test for {@link EngineMirrorImpl}.

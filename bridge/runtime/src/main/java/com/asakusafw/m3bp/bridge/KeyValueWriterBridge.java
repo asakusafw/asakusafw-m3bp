@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.asakusafw.dag.api.common.KeyValueSerializer;
 import com.asakusafw.dag.api.processor.ObjectWriter;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.OutputWriterMirror;
 import com.asakusafw.m3bp.mirror.PageDataOutput;
 

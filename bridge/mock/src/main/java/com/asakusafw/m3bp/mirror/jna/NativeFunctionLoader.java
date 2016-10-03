@@ -17,7 +17,7 @@ package com.asakusafw.m3bp.mirror.jna;
 
 import java.io.File;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.sun.jna.Function;
 import com.sun.jna.NativeLibrary;
 

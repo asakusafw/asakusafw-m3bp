@@ -37,14 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorGenerator;
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Invariants;
-import com.asakusafw.dag.utils.common.Io;
-import com.asakusafw.dag.utils.common.Lang;
-import com.asakusafw.dag.utils.common.Optionals;
-import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.compiler.api.CompilerOptions;
 import com.asakusafw.lang.compiler.api.DataModelLoader;
 import com.asakusafw.lang.compiler.api.reference.DataModelReference;
@@ -65,8 +57,16 @@ import com.asakusafw.lang.compiler.model.info.BatchInfo;
 import com.asakusafw.lang.compiler.packaging.FileContainer;
 import com.asakusafw.lang.compiler.packaging.FileContainerRepository;
 import com.asakusafw.lang.compiler.packaging.ResourceRepository;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Invariants;
+import com.asakusafw.lang.utils.common.Io;
+import com.asakusafw.lang.utils.common.Lang;
+import com.asakusafw.lang.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Tuple;
 import com.asakusafw.m3bp.compiler.common.CommandPath;
 import com.asakusafw.m3bp.compiler.common.CommandRunner;
+import com.asakusafw.m3bp.compiler.comparator.NativeValueComparatorExtension;
+import com.asakusafw.m3bp.compiler.comparator.NativeValueComparatorGenerator;
 
 /**
  * A compiler participant for enabling {@link NativeValueComparatorExtension}.
@@ -406,7 +406,7 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
             } catch (IOException e) {
                 throw new DiagnosticException(Diagnostic.Level.ERROR, MessageFormat.format(
                         "failed to create a file: {0}",
-                        conf.base.toFile(PATH_SOURCE)));
+                        conf.base.toFile(PATH_SOURCE)), e);
             }
         }
 

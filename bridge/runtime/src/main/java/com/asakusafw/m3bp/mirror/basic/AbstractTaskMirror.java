@@ -19,7 +19,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.Identifier;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.OutputWriterMirror;

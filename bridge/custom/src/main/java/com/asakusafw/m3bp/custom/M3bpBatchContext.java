@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.asakusafw.bridge.api.BatchContext;
 import com.asakusafw.bridge.stage.StageInfo;
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Optionals;
 import com.asakusafw.runtime.stage.StageConstants;
 
 /**
