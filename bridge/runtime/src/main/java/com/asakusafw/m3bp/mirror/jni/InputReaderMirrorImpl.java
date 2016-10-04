@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.MessageFormat;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.PageDataInput;
 import com.asakusafw.m3bp.mirror.basic.AbstractPageDataInput;

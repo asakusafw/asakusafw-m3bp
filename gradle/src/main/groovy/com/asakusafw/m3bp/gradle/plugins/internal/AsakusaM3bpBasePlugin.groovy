@@ -62,7 +62,6 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
             'core-version': 'Asakusa Core libraries',
             'sdk-version': 'Asakusa SDK',
             'lang-version': 'Asakusa DSL compiler',
-            'dag-version': 'Asakusa DAG libraries',
             'hadoop-version': 'Hadoop',
         ])
         project.logger.info "Asakusa on M3BP: ${extension.featureVersion}"

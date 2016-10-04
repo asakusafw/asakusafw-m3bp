@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.asakusafw.dag.api.common.Deserializer;
 import com.asakusafw.dag.api.processor.ObjectReader;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.PageDataInput;
 

@@ -32,8 +32,8 @@ import com.asakusafw.bridge.stage.StageInfo;
 import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.api.processor.basic.BasicProcessorContext;
 import com.asakusafw.dag.api.processor.extension.ProcessorContextExtension;
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.InterruptibleIo;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.InterruptibleIo;
 import com.asakusafw.runtime.core.context.RuntimeContext;
 
 /**

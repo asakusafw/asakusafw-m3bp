@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.asakusafw.dag.utils.common.Suppliers;
+import com.asakusafw.lang.utils.common.Suppliers;
 
 /**
  * one-to-one and broadcast edge processor.

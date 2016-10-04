@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Optionals;
 
 /**
  * Provides edge I/O objects.

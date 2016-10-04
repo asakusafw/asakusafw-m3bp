@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
-import com.asakusafw.dag.utils.buffer.unsafe.UnsafeDataBuffer;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 

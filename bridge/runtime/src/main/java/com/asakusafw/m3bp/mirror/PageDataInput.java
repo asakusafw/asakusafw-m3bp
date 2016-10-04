@@ -18,7 +18,7 @@ package com.asakusafw.m3bp.mirror;
 import java.io.DataInput;
 import java.io.IOException;
 
-import com.asakusafw.dag.utils.buffer.DataIoUtils;
+import com.asakusafw.lang.utils.buffer.DataIoUtils;
 
 /**
  * {@link DataInput} with data scope.
