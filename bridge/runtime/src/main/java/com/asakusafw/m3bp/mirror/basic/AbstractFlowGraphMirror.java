@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.descriptor.M3bpVertexDescriptor;
 import com.asakusafw.m3bp.mirror.FlowGraphMirror;
 import com.asakusafw.m3bp.mirror.Identifier;

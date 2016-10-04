@@ -20,13 +20,13 @@ import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.api.model.VertexDescriptor;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
 import com.asakusafw.dag.compiler.codegen.KeyValueSerDeGenerator;
-import com.asakusafw.dag.compiler.codegen.NativeValueComparatorExtension;
 import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.dag.compiler.flow.DagDescriptorFactory;
 import com.asakusafw.lang.compiler.model.description.ClassDescription;
 import com.asakusafw.lang.compiler.model.description.TypeDescription;
 import com.asakusafw.lang.compiler.model.graph.Group;
-import com.asakusafw.m3bp.compiler.codegen.DagDescriptorFactory;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.m3bp.compiler.comparator.NativeValueComparatorExtension;
 import com.asakusafw.m3bp.descriptor.Descriptors;
 
 /**

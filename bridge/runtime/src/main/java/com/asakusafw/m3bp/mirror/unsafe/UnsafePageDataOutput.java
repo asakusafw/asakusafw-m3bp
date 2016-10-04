@@ -18,7 +18,6 @@ package com.asakusafw.m3bp.mirror.unsafe;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import com.asakusafw.dag.utils.buffer.unsafe.UnsafeDataBuffer;
 import com.asakusafw.m3bp.mirror.PageDataOutput;
 
 /**

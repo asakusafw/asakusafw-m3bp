@@ -19,8 +19,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Optionals;
 import com.asakusafw.m3bp.mirror.ConfigurationMirror;
 
 /**

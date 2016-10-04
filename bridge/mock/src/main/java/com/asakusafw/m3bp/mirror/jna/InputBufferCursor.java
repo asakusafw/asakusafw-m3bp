@@ -17,8 +17,8 @@ package com.asakusafw.m3bp.mirror.jna;
 
 import java.util.function.Supplier;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Invariants;
 
 /**
  * A cursor which provides {@link InputBufferFragment}s.

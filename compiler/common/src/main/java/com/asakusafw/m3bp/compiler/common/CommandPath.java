@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Lang;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Lang;
 
 /**
  * Represents a command path.

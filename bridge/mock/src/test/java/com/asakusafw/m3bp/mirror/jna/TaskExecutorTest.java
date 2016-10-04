@@ -36,7 +36,7 @@ import com.asakusafw.dag.api.processor.TaskProcessor;
 import com.asakusafw.dag.api.processor.TaskProcessorContext;
 import com.asakusafw.dag.api.processor.VertexProcessor;
 import com.asakusafw.dag.api.processor.basic.BasicTaskInfo;
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Optionals;
 
 /**
  * Test for {@link TaskExecutorTest}.

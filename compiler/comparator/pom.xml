@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Asakusa on M3BP Comparator Generator</name>
+  <artifactId>asakusa-m3bp-compiler-comparator</artifactId>
+  <parent>
+    <artifactId>project</artifactId>
+    <groupId>com.asakusafw.m3bp.compiler</groupId>
+    <version>0.2.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>jar</packaging>
+  <properties>
+    <CMAKE_TOOLCHAIN_FILE />
+  </properties>
+  <profiles>
+    <profile>
+      <id>native-test</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>native-test</id>
+                <phase>test-compile</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <target xmlns:if="ant:if" xmlns:unless="ant:unless">
+                    <mkdir dir="${project.build.directory}/native/test/build" />
+                    <exec executable="cmake" dir="${project.build.directory}/native/test/build" failonerror="true">
+                      <arg value="-G" />
+                      <arg value="Unix Makefiles" />
+                      <arg value="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" unless:blank="${CMAKE_TOOLCHAIN_FILE}" />
+                      <arg value="-DCMAKE_SKIP_RPATH=ON" />
+                      <arg value="${basedir}/src/test/native" />
+                    </exec>
+                    <exec executable="make" dir="${project.build.directory}/native/test/build" failonerror="true" />
+                    <mkdir dir="${project.build.directory}/native/test/lib" />
+                    <copy todir="${project.build.directory}/native/test/lib" flatten="true">
+                      <fileset dir="${project.build.directory}/native/test/build">
+                        <include name="**/libtest-*.so" />
+                        <include name="**/libtest-*.dylib" />
+                        <include name="**/test-*.dll" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.asakusafw.dag.compiler</groupId>
+      <artifactId>asakusa-dag-compiler-codegen</artifactId>
+      <version>${asakusafw-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw</groupId>
+      <artifactId>asakusa-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.asakusafw.dag.runtime</groupId>
+      <artifactId>asakusa-dag-runtime</artifactId>
+      <version>${asakusafw-lang.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

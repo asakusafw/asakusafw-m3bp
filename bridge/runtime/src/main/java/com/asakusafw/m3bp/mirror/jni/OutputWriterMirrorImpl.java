@@ -23,7 +23,7 @@ import java.text.MessageFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.OutputWriterMirror;
 import com.asakusafw.m3bp.mirror.PageDataOutput;
 import com.asakusafw.m3bp.mirror.basic.AbstractPageDataOutput;

@@ -15,7 +15,6 @@
  */
 package com.asakusafw.m3bp.compiler.core;
 
-import com.asakusafw.dag.utils.common.Action;
 import com.asakusafw.lang.compiler.model.description.Descriptions;
 import com.asakusafw.lang.compiler.model.graph.Jobflow;
 import com.asakusafw.lang.compiler.model.info.JobflowInfo;
@@ -23,7 +22,8 @@ import com.asakusafw.lang.compiler.tester.CompilerProfile;
 import com.asakusafw.lang.compiler.tester.CompilerTester;
 import com.asakusafw.lang.compiler.tester.JobflowArtifact;
 import com.asakusafw.lang.compiler.tester.executor.JobflowExecutor;
-import com.asakusafw.m3bp.compiler.tester.util.OperatorGraphBuilder;
+import com.asakusafw.lang.compiler.tester.util.OperatorGraphBuilder;
+import com.asakusafw.lang.utils.common.Action;
 import com.asakusafw.vocabulary.flow.FlowDescription;
 
 /**

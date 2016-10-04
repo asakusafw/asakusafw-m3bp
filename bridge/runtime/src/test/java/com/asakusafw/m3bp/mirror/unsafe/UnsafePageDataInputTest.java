@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import com.asakusafw.dag.utils.buffer.unsafe.UnsafeChecker;
 import com.asakusafw.m3bp.mirror.PageDataInput;
 import com.asakusafw.m3bp.mirror.basic.Procedure;
 import com.sun.jna.Memory;

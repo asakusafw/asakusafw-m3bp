@@ -31,8 +31,8 @@ import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.api.model.PortId;
 import com.asakusafw.dag.api.model.PortInfo;
 import com.asakusafw.dag.api.model.VertexInfo;
-import com.asakusafw.dag.utils.common.Invariants;
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Invariants;
+import com.asakusafw.lang.utils.common.Optionals;
 import com.asakusafw.m3bp.descriptor.M3bpEdgeDescriptor;
 import com.asakusafw.m3bp.descriptor.M3bpVertexDescriptor;
 

@@ -24,11 +24,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Optionals;
-import com.asakusafw.dag.utils.common.Tuple;
 import com.asakusafw.lang.inspection.InspectionNode;
 import com.asakusafw.lang.inspection.InspectionNode.PortReference;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Tuple;
 
 /**
  * Represents graphs.

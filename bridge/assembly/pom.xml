@@ -71,22 +71,22 @@
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-internalio</artifactId>
-      <version>${asakusafw-dag.version}</version>
+      <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-directio</artifactId>
-      <version>${asakusafw-dag.version}</version>
+      <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-jdbc</artifactId>
-      <version>${asakusafw-dag.version}</version>
+      <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-extension-counter</artifactId>
-      <version>${asakusafw-dag.version}</version>
+      <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.bridge</groupId>

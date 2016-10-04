@@ -20,8 +20,8 @@ import static org.hamcrest.MatcherAssert.*;
 
 import org.junit.Test;
 
-import com.asakusafw.dag.utils.common.AssertUtil;
-import com.asakusafw.dag.utils.common.Suppliers;
+import com.asakusafw.lang.utils.common.AssertUtil;
+import com.asakusafw.lang.utils.common.Suppliers;
 import com.asakusafw.m3bp.mirror.PageDataInput;
 
 /**

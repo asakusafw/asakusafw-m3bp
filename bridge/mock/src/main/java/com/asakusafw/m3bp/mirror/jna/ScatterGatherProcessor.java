@@ -24,9 +24,9 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Lang;
-import com.asakusafw.dag.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Lang;
+import com.asakusafw.lang.utils.common.Optionals;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 

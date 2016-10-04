@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.dag.api.processor.ProcessorContext;
 import com.asakusafw.dag.api.processor.ProcessorContext.Editor;
 import com.asakusafw.dag.api.processor.extension.ProcessorContextExtension;
-import com.asakusafw.dag.utils.common.InterruptibleIo;
+import com.asakusafw.lang.utils.common.InterruptibleIo;
 
 /**
  * Forcibly wake-up {@link WakeUpUserGroupInformation}.

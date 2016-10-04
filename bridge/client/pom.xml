@@ -83,7 +83,7 @@
     <dependency>
       <groupId>com.asakusafw.dag.runtime</groupId>
       <artifactId>asakusa-dag-runtime</artifactId>
-      <version>${asakusafw-dag.version}</version>
+      <version>${asakusafw-lang.version}</version>
     </dependency>
     <dependency>
       <groupId>com.asakusafw.bridge</groupId>

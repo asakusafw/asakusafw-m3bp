@@ -21,7 +21,7 @@ import com.asakusafw.dag.api.common.ValueSerDe;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.api.model.VertexDescriptor;
 import com.asakusafw.dag.api.processor.VertexProcessor;
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.Movement;
 
 /**

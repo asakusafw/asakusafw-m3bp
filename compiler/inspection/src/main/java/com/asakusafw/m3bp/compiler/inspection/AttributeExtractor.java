@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Optionals;
-import com.asakusafw.dag.utils.common.Tuple;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Optionals;
+import com.asakusafw.lang.utils.common.Tuple;
 
 /**
  * Extracts attributes.

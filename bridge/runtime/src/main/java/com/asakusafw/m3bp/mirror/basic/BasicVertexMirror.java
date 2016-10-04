@@ -15,7 +15,7 @@
  */
 package com.asakusafw.m3bp.mirror.basic;
 
-import com.asakusafw.dag.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.descriptor.M3bpEdgeDescriptor;
 import com.asakusafw.m3bp.descriptor.M3bpVertexDescriptor;
 import com.asakusafw.m3bp.mirror.Identifier;

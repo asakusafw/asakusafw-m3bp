@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.asakusafw.dag.utils.common.Arguments;
-import com.asakusafw.dag.utils.common.Invariants;
+import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Invariants;
 import com.asakusafw.m3bp.compiler.inspection.EdgeResolver;
 import com.asakusafw.m3bp.compiler.inspection.InputSpecView;
 import com.asakusafw.m3bp.compiler.inspection.OutputSpecView;

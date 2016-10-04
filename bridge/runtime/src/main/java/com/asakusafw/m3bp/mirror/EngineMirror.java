@@ -18,7 +18,7 @@ package com.asakusafw.m3bp.mirror;
 import java.io.IOException;
 
 import com.asakusafw.dag.api.processor.ProcessorContext;
-import com.asakusafw.dag.utils.common.InterruptibleIo;
+import com.asakusafw.lang.utils.common.InterruptibleIo;
 
 /**
  * A mirror of M3BP engine.
