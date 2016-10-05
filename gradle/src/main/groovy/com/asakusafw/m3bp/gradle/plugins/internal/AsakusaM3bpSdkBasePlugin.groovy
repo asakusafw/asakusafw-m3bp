@@ -87,28 +87,27 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
         }
         PluginUtils.afterEvaluate(project) {
             AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
-            AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-            AsakusafwSdkExtension features = sdk.sdk
+            AsakusafwSdkExtension features = AsakusaSdkPlugin.get(project).sdk
             project.dependencies {
                 if (features.core) {
                     asakusaM3bpCommon "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-core:${base.featureVersion}"
                     asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-cli:${base.langVersion}"
                     asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-redirector:${base.langVersion}"
                     asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-yaess:${base.langVersion}"
-                    asakusaM3bpCommon "com.asakusafw:simple-graph:${sdk.asakusafwVersion}"
-                    asakusaM3bpCommon "com.asakusafw:java-dom:${sdk.asakusafwVersion}"
+                    asakusaM3bpCommon "com.asakusafw:simple-graph:${base.coreVersion}"
+                    asakusaM3bpCommon "com.asakusafw:java-dom:${base.coreVersion}"
 
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-dsl-vocabulary:${sdk.asakusafwVersion}"
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-runtime:${sdk.asakusafwVersion}"
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-yaess-core:${sdk.asakusafwVersion}"
+                    asakusaM3bpCompiler "com.asakusafw:asakusa-dsl-vocabulary:${base.coreVersion}"
+                    asakusaM3bpCompiler "com.asakusafw:asakusa-runtime:${base.coreVersion}"
+                    asakusaM3bpCompiler "com.asakusafw:asakusa-yaess-core:${base.coreVersion}"
 
                     if (features.directio) {
                         asakusaM3bpCommon "com.asakusafw.dag.compiler:asakusa-dag-compiler-extension-directio:${base.langVersion}"
-                        asakusaM3bpCompiler "com.asakusafw:asakusa-directio-vocabulary:${sdk.asakusafwVersion}"
+                        asakusaM3bpCompiler "com.asakusafw:asakusa-directio-vocabulary:${base.coreVersion}"
                     }
                     if (features.windgate) {
                         asakusaM3bpCommon "com.asakusafw.dag.compiler:asakusa-dag-compiler-extension-windgate:${base.langVersion}"
-                        asakusaM3bpCompiler "com.asakusafw:asakusa-windgate-vocabulary:${sdk.asakusafwVersion}"
+                        asakusaM3bpCompiler "com.asakusafw:asakusa-windgate-vocabulary:${base.coreVersion}"
                     }
                     if (features.hive) {
                         asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-hive:${base.langVersion}"
