@@ -39,6 +39,12 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
      */
     public static final String TASK_COMPILE = 'm3bpCompileBatchapps'
 
+    private static final Map<String, String> REDIRECT = [
+            'com.asakusafw.runtime.core.BatchContext' : 'com.asakusafw.m3bp.custom.M3bpBatchContext',
+            'com.asakusafw.runtime.core.Report' : 'com.asakusafw.bridge.api.Report',
+            'com.asakusafw.runtime.directio.api.DirectIo' : 'com.asakusafw.bridge.directio.api.DirectIo',
+    ]
+
     private Project project
 
     private AsakusafwCompilerExtension extension
@@ -48,9 +54,25 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
         this.project = project
 
         project.apply plugin: AsakusaM3bpSdkBasePlugin
-        this.extension = AsakusaM3bpSdkBasePlugin.get(project)
+        this.extension = AsakusaSdkPlugin.get(project).extensions.create('m3bp', AsakusafwCompilerExtension)
 
+        configureExtension()
         defineTasks()
+    }
+
+    private void configureExtension() {
+        AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
+        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
+        extension.conventionMapping.with {
+            outputDirectory = { project.relativePath(new File(project.buildDir, 'm3bp-batchapps')) }
+            batchIdPrefix = { (String) 'm3bp.' }
+            failOnError = { true }
+        }
+        REDIRECT.each { k, v ->
+            extension.compilerProperties.put((String) "redirector.rule.${k}", v)
+        }
+        extension.compilerProperties.put('javac.version', { sdk.javac.sourceCompatibility.toString() })
+        PluginUtils.injectVersionProperty(extension, { base.featureVersion })
     }
 
     private void defineTasks() {

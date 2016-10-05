@@ -18,28 +18,18 @@ package com.asakusafw.m3bp.gradle.plugins.internal
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
-import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwSdkExtension
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 import com.asakusafw.gradle.plugins.internal.PluginUtils
 
 /**
  * A base plug-in of {@link AsakusaM3bpSdkPlugin}.
- * This only organizes conventions and dependencies.
+ * This only organizes dependencies and testkits.
  * @since 0.3.0
  */
 class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
 
-    private static final Map<String, String> REDIRECT = [
-            'com.asakusafw.runtime.core.BatchContext' : 'com.asakusafw.m3bp.custom.M3bpBatchContext',
-            'com.asakusafw.runtime.core.Report' : 'com.asakusafw.bridge.api.Report',
-            'com.asakusafw.runtime.directio.api.DirectIo' : 'com.asakusafw.bridge.directio.api.DirectIo',
-    ]
-
     private Project project
-
-    private AsakusafwCompilerExtension extension
 
     @Override
     void apply(Project project) {
@@ -47,26 +37,14 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
 
         project.apply plugin: AsakusaSdkPlugin
         project.apply plugin: AsakusaM3bpBasePlugin
-        extension = AsakusaSdkPlugin.get(project).extensions.create('m3bp', AsakusafwCompilerExtension)
 
-        configureExtension()
+        configureTestkit()
         configureConfigurations()
     }
 
-    private void configureExtension() {
-        AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
-        AsakusafwPluginConvention sdk = AsakusaSdkPlugin.get(project)
-        extension.conventionMapping.with {
-            outputDirectory = { project.relativePath(new File(project.buildDir, 'm3bp-batchapps')) }
-            batchIdPrefix = { (String) 'm3bp.' }
-            failOnError = { true }
-        }
-        REDIRECT.each { k, v ->
-            extension.compilerProperties.put((String) "redirector.rule.${k}", v)
-        }
-        extension.compilerProperties.put('javac.version', { sdk.javac.sourceCompatibility.toString() })
-        PluginUtils.injectVersionProperty(extension, { base.featureVersion })
-        sdk.sdk.availableTestkits << new AsakusaM3bpTestkit()
+    private void configureTestkit() {
+        AsakusafwSdkExtension sdk = AsakusaSdkPlugin.get(project).sdk
+        sdk.availableTestkits << new AsakusaM3bpTestkit()
     }
 
     private void configureConfigurations() {
@@ -119,20 +97,5 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
                 }
             }
         }
-    }
-
-    /**
-     * Returns the extension object of this plug-in.
-     * The plug-in will be applied automatically.
-     * @param project the target project
-     * @return the related extension
-     */
-    static AsakusafwCompilerExtension get(Project project) {
-        project.apply plugin: AsakusaM3bpSdkBasePlugin
-        AsakusaM3bpSdkBasePlugin plugin = project.plugins.getPlugin(AsakusaM3bpSdkBasePlugin)
-        if (plugin == null) {
-            throw new IllegalStateException('AsakusaM3bpSdkBasePlugin has not been applied')
-        }
-        return plugin.extension
     }
 }
