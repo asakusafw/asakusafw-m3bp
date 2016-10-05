@@ -23,6 +23,7 @@ import org.gradle.api.Task
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerPluginConvention
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
+import com.asakusafw.gradle.plugins.internal.PluginUtils
 import com.asakusafw.m3bp.gradle.plugins.AsakusafwOrganizerM3bpExtension
 
 /**
@@ -56,6 +57,7 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
     }
 
     private void configureConvention() {
+        AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.asakusafwOrganizer
         convention.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension)
         convention.m3bp.conventionMapping.with {
@@ -64,6 +66,7 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
             useSystemNativeDependencies = { false }
             useSystemHadoop = { false }
         }
+        PluginUtils.injectVersionProperty(convention.m3bp, { base.featureVersion })
     }
 
     private void configureProfiles() {
@@ -74,6 +77,7 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
     }
 
     private void configureProfile(AsakusafwOrganizerProfile profile) {
+        AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
         AsakusafwOrganizerM3bpExtension extension = profile.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension)
         AsakusafwOrganizerM3bpExtension parent = project.asakusafwOrganizer.m3bp
         extension.conventionMapping.with {
@@ -82,6 +86,8 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
             useSystemNativeDependencies = { parent.useSystemNativeDependencies }
             useSystemHadoop = { parent.useSystemHadoop }
         }
+        PluginUtils.injectVersionProperty(extension, { base.featureVersion })
+
         AsakusaM3bpOrganizer organizer = new AsakusaM3bpOrganizer(project, profile, extension)
         organizer.configureProfile()
         organizers << organizer
