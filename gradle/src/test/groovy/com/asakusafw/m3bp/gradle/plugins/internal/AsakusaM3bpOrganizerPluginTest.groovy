@@ -78,6 +78,18 @@ class AsakusaM3bpOrganizerPluginTest {
     }
 
     /**
+     * Test for {@code project.asakusafwOrganizer.m3bp.version}.
+     */
+    @Test
+    void extension_version() {
+        project.asakusaM3bpBase.featureVersion = '__VERSION__'
+        assert project.asakusafwOrganizer.m3bp.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.dev.m3bp.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.prod.m3bp.version == '__VERSION__'
+        assert project.asakusafwOrganizer.profiles.other.m3bp.version == '__VERSION__'
+    }
+
+    /**
      * test for extension.
      */
     @Test
