@@ -31,7 +31,7 @@ import com.asakusafw.testdriver.compiler.CompilerConfiguration;
 /**
  * {@link CompilerProfileInitializer} for M3BP.
  * @since 0.1.0
- * @version 0.2.0
+ * @version 0.1.2
  */
 public class M3bpCompilerProfileInitializer implements CompilerProfileInitializer {
 
