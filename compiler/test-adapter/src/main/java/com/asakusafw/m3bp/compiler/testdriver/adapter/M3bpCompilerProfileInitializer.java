@@ -15,17 +15,23 @@
  */
 package com.asakusafw.m3bp.compiler.testdriver.adapter;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.asakusafw.lang.compiler.common.Location;
 import com.asakusafw.lang.compiler.extension.redirector.RedirectorParticipant;
 import com.asakusafw.lang.compiler.testdriver.adapter.CompilerProfileInitializer;
 import com.asakusafw.lang.compiler.tester.CompilerProfile;
+import com.asakusafw.m3bp.compiler.common.M3bpTask;
 import com.asakusafw.testdriver.compiler.CompilerConfiguration;
 
 /**
  * {@link CompilerProfileInitializer} for M3BP.
+ * @since 0.1.0
+ * @version 0.1.2
  */
 public class M3bpCompilerProfileInitializer implements CompilerProfileInitializer {
 
@@ -49,11 +55,16 @@ public class M3bpCompilerProfileInitializer implements CompilerProfileInitialize
     }
 
     @Override
+    public Collection<Location> getLauncherPaths() {
+        return Arrays.asList(M3bpTask.PATH_COMMAND);
+    }
+
+    @Override
     public void initialize(CompilerProfile profile, CompilerConfiguration configuration) {
         installOptions(REDIRECT_MAP, profile, configuration);
     }
 
-    private void installOptions(
+    private static void installOptions(
             Map<String, String> options,
             CompilerProfile profile,
             CompilerConfiguration configuration) {
