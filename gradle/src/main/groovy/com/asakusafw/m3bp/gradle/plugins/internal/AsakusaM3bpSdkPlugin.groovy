@@ -108,7 +108,6 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
             project.tasks.compileBatchapp.dependsOn task
             project.tasks.jarBatchapp.from { task.outputDirectory }
         }
-        extendVersionsTask()
         PluginUtils.afterEvaluate(project) {
             AsakusaCompileTask task = project.tasks.getByName(TASK_COMPILE)
             Map<String, String> map = [:]
@@ -120,12 +119,6 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
                 File f = project.file(sdk.logbackConf)
                 task.systemProperties.put('logback.configurationFile', f.absolutePath)
             }
-        }
-    }
-
-    private void extendVersionsTask() {
-        project.tasks.getByName(AsakusafwBasePlugin.TASK_VERSIONS) << {
-            logger.lifecycle "M3BP: ${AsakusaM3bpBasePlugin.get(project).featureVersion}"
         }
     }
 }
