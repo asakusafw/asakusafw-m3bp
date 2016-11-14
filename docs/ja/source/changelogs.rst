@@ -2,6 +2,30 @@
 Changelogs
 ==========
 
+Release 0.1.3
+=============
+
+(in development)
+
+* [ :milestone-m3bp:`0.1.2` ]
+* [ :milestone-asakusafw-dag:`0.1.3` ]
+* [ :milestone-asakusafw-m3bp:`0.1.3` ]
+
+..  list-table:: Bundled Components
+    :widths: 7 3
+    :header-rows: 1
+
+    * - Component
+      - Version
+    * - Asakusa Framework Core
+      - 0.8.2 (|VERSION_UP|)
+    * - Asakusa Framework Language Toolset
+      - 0.3.2 (|VERSION_UP|)
+    * - Asakusa Framework DAG Toolset
+      - 0.1.3 (|VERSION_UP|)
+    * - |ENGINE|
+      - 0.1.2
+
 Release 0.1.2
 =============
 
