@@ -33,6 +33,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asakusafw.bridge.api.activate.ApiActivator;
 import com.asakusafw.bridge.broker.ResourceBroker;
 import com.asakusafw.bridge.broker.ResourceSession;
 import com.asakusafw.bridge.stage.StageInfo;
@@ -168,6 +169,7 @@ public final class GraphExecutor {
                 context.getResource(StageInfo.class).get());
         session.put(ResourceConfiguration.class,
                 new HadoopConfiguration(context.getResource(Configuration.class).get()));
+        ApiActivator.load(context.getClassLoader()).forEach(a -> session.schedule(a.activate()));
     }
 
     private static void configureInt(IntConsumer target, ProcessorContext context, String key) {
