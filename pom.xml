@@ -48,10 +48,10 @@
     <plugin.native.version>1.0-alpha-8</plugin.native.version>
 
     <!-- artifact versions -->
-    <asakusafw.version>0.8.2-SNAPSHOT</asakusafw.version>
-    <asakusafw-sdk.version>0.8.2-SNAPSHOT</asakusafw-sdk.version>
-    <asakusafw-lang.version>0.3.2-SNAPSHOT</asakusafw-lang.version>
-    <asakusafw-dag.version>0.1.3-SNAPSHOT</asakusafw-dag.version>
+    <asakusafw.version>0.8.2</asakusafw.version>
+    <asakusafw-sdk.version>0.8.2</asakusafw-sdk.version>
+    <asakusafw-lang.version>0.3.2</asakusafw-lang.version>
+    <asakusafw-dag.version>0.1.3</asakusafw-dag.version>
     <hadoop.version>2.7.2</hadoop.version>
     <commons-cli.version>1.2</commons-cli.version>
     <asm.version>5.0.4</asm.version>
