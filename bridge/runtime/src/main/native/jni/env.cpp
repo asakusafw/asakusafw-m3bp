@@ -19,7 +19,7 @@
 #include <m3bp/m3bp.hpp>
 
 static JavaVM *_java_vm;
-__thread bool _java_attached = false;
+thread_local bool _java_attached = false;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     _java_vm = vm;

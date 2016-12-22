@@ -15,7 +15,7 @@
  */
 #include "jniutil.hpp"
 
-static __thread jmethodID _object_to_string = nullptr;
+static thread_local jmethodID _object_to_string = nullptr;
 
 jlong to_pointer(void *p) {
     return (jlong) p;
