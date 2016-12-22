@@ -12,11 +12,6 @@ link_directories(${CUSTOM_LIBRARIES_DIR})
 
 file(GLOB NATIVE "jni/*.cpp" "mirror/*.cpp" "adapter/*.cpp")
 
-if (APPLE)
-    MESSAGE(STATUS "enabling MacOSX workaround: -DM3BP_NO_THREAD_LOCAL")
-    add_definitions(-DM3BP_NO_THREAD_LOCAL)
-endif()
-
 add_library(m3bpjni SHARED ${NATIVE})
 set_target_properties(m3bpjni PROPERTIES COMPILE_FLAGS "-std=c++11 -Wall")
 set_target_properties(m3bpjni PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
