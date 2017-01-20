@@ -72,14 +72,24 @@ void EngineMirror::run() {
     context.wait();
 }
 
+void EngineMirror::cleanup(JNIEnv *env) {
+    for (jobject &global_ref : m_global_refs) {
+        if (global_ref) {
+            env->DeleteGlobalRef(global_ref);
+            global_ref = nullptr;
+        }
+    }
+    m_global_refs.clear();
+}
+
 void EngineMirror::do_invoke(JNIEnv *env, VertexMirror *vertex, m3bp::Task &task, jmethodID method) {
     TaskMirror mirror(task, vertex);
     env->CallVoidMethod(m_mirror, method, to_pointer(vertex), to_pointer(&mirror));
-    check_java_exception(env);
+    check_java_exception(env, m_global_refs);
 }
 
 jint EngineMirror::do_invoke(JNIEnv *env, VertexMirror *vertex, jmethodID method) {
     jint result = env->CallIntMethod(m_mirror, method, to_pointer(vertex));
-    check_java_exception(env);
+    check_java_exception(env, m_global_refs);
     return result;
 }

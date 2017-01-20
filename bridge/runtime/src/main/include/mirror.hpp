@@ -68,6 +68,7 @@ private:
     FlowGraphMirror *m_graph;
     std::string m_library_name;
     void *m_library;
+    std::vector<jobject> m_global_refs;
     jmethodID m_global_initialize_id;
     jmethodID m_global_finalize_id;
     jmethodID m_local_initialize_id;
@@ -93,6 +94,7 @@ public:
         return m_graph;
     }
     void run();
+    void cleanup(JNIEnv *env);
 
     using ValueComparatorType = std::function<bool(const void *, const void *)>;
     ValueComparatorType load_comparator(const std::string &name);

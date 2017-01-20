@@ -19,6 +19,7 @@
 #include <jni.h>
 #include <string>
 #include <tuple>
+#include <vector>
 #include <exception>
 
 jlong to_pointer(void *);
@@ -26,6 +27,7 @@ jobject to_java_buffer(JNIEnv *env, const std::tuple<const void *, size_t> &rang
 jclass find_class(JNIEnv *env, const char *name);
 jmethodID find_method(JNIEnv *env, jclass clazz, const char *name, const char *signature);
 void check_java_exception(JNIEnv *env);
+void check_java_exception(JNIEnv *env, std::vector<jobject> &global_refs);
 void handle_native_exception(JNIEnv *env, std::exception &e);
 jobject new_global_ref(JNIEnv *env, jobject object);
 void delete_global_ref(JNIEnv *env, jobject object);
@@ -34,14 +36,13 @@ std::string java_to_string(JNIEnv *env, jobject object);
 class LocalFrame {
 private:
     JNIEnv *m_env;
+    bool m_temporary;
 public:
-    LocalFrame(JNIEnv *env, jint capacity) : m_env(env) {
-        env->PushLocalFrame(capacity);
-        check_java_exception(env);
-    }
-    ~LocalFrame() {
-        m_env->PopLocalFrame(nullptr);
-        check_java_exception(m_env);
+    LocalFrame(jint capacity);
+    LocalFrame(JNIEnv *env, jint capacity);
+    ~LocalFrame();
+    inline JNIEnv *env() const {
+        return m_env;
     }
 };
 
@@ -52,11 +53,7 @@ private:
 public:
     JavaException(jobject throwable) :
             m_throwable((jthrowable) throwable),
-            m_what("(no message)") {
-    }
-    JavaException(jobject throwable, const std::string &what) :
-            m_throwable((jthrowable) throwable),
-            m_what(what) {
+            m_what("(java exception)") {
     }
     ~JavaException() = default;
     jthrowable throwable() {

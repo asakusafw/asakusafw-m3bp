@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include "jniutil.hpp"
+#include "env.hpp"
+#include <mutex>
 
 static thread_local jmethodID _object_to_string = nullptr;
 
@@ -50,6 +52,24 @@ void check_java_exception(JNIEnv *env) {
     }
 }
 
+static std::mutex s_global_exception_mutex;
+
+void check_java_exception(JNIEnv *env, std::vector<jobject> &global_refs) {
+    jthrowable object = env->ExceptionOccurred();
+    if (object) {
+        env->ExceptionClear();
+        jthrowable global_object = (jthrowable) env->NewGlobalRef(object);
+        if (!global_object) {
+            throw new std::runtime_error("failed to create global reference of exception");
+        }
+        {
+            std::lock_guard<std::mutex> lock(s_global_exception_mutex);
+            global_refs.push_back(global_object);
+        }
+        throw JavaException(global_object);
+    }
+}
+
 void handle_native_exception(JNIEnv *env, std::exception &e) {
     const char *what = e.what();
     jclass clazz = find_class(env, "com/asakusafw/m3bp/mirror/jni/NativeException");
@@ -58,6 +78,9 @@ void handle_native_exception(JNIEnv *env, std::exception &e) {
 
 jobject new_global_ref(JNIEnv *env, jobject object) {
     jobject global = env->NewGlobalRef(object);
+    if (!global) {
+        throw new std::runtime_error("failed to create global ref");
+    }
     check_java_exception(env);
     env->DeleteLocalRef(object);
     check_java_exception(env);
@@ -89,4 +112,31 @@ std::string java_to_string(JNIEnv *env, jobject object) {
     std::string results(contents);
     env->ReleaseStringUTFChars(string, contents);
     return results;
+}
+
+LocalFrame::LocalFrame(JNIEnv *env, jint capacity) :
+        m_env(env),
+        m_temporary(false) {
+    m_env->PushLocalFrame(capacity);
+    check_java_exception(m_env);
+}
+
+LocalFrame::LocalFrame(jint capacity) {
+    JNIEnv *env = java_env();
+    if (env) {
+        m_env = env;
+        m_temporary = false;
+    } else {
+        m_env = java_attach();
+        m_temporary = true;
+    }
+    m_env->PushLocalFrame(capacity);
+    check_java_exception(m_env);
+}
+
+LocalFrame::~LocalFrame() {
+    m_env->PopLocalFrame(nullptr);
+    if (m_temporary) {
+        java_detach();
+    }
 }

@@ -26,8 +26,8 @@ ProcessorAdapter::ProcessorAdapter(VertexMirror *vertex) :
 ProcessorAdapter::~ProcessorAdapter() = default;
 
 void ProcessorAdapter::global_initialize(m3bp::Task &task) {
-    JNIEnv *env = java_env();
-    LocalFrame frame(env, 64);
+    LocalFrame frame(64);
+    JNIEnv *env = frame.env();
 
     VertexMirror *vertex = m_mirror;
     EngineMirror *engine = vertex->engine();
@@ -44,8 +44,8 @@ void ProcessorAdapter::global_initialize(m3bp::Task &task) {
 }
 
 void ProcessorAdapter::global_finalize(m3bp::Task &task) {
-    JNIEnv *env = java_env();
-    LocalFrame frame(env, 64);
+    LocalFrame frame(64);
+    JNIEnv *env = frame.env();
 
     VertexMirror *vertex = m_mirror;
     EngineMirror *engine = vertex->engine();
@@ -53,8 +53,8 @@ void ProcessorAdapter::global_finalize(m3bp::Task &task) {
 }
 
 void ProcessorAdapter::thread_local_initialize(m3bp::Task &task) {
-    JNIEnv *env = java_env();
-    LocalFrame frame(env, 64);
+    LocalFrame frame(64);
+    JNIEnv *env = frame.env();
 
     VertexMirror *vertex = m_mirror;
     EngineMirror *engine = vertex->engine();
@@ -62,8 +62,8 @@ void ProcessorAdapter::thread_local_initialize(m3bp::Task &task) {
 }
 
 void ProcessorAdapter::thread_local_finalize(m3bp::Task &task) {
-    JNIEnv *env = java_env();
-    LocalFrame frame(env, 64);
+    LocalFrame frame(64);
+    JNIEnv *env = frame.env();
 
     VertexMirror *vertex = m_mirror;
     EngineMirror *engine = vertex->engine();
@@ -71,8 +71,8 @@ void ProcessorAdapter::thread_local_finalize(m3bp::Task &task) {
 }
 
 void ProcessorAdapter::run(m3bp::Task &task) {
-    JNIEnv *env = java_env();
-    LocalFrame frame(env, 64);
+    LocalFrame frame(64);
+    JNIEnv *env = frame.env();
 
     VertexMirror *vertex = m_mirror;
     EngineMirror *engine = vertex->engine();
