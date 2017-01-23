@@ -15,6 +15,7 @@
  */
 #include "env.hpp"
 
+#include <sstream>
 #include <iostream>
 #include <m3bp/m3bp.hpp>
 
@@ -26,17 +27,13 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_8;
 }
 
-JavaVM *java_vm() {
-    return _java_vm;
-}
-
 JNIEnv *java_env() {
     JNIEnv *env;
     jint result = _java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
     if (result == JNI_OK) {
         return env;
     } else {
-        throw BridgeError("failed to obtain JVM");
+        return nullptr;
     }
 }
 
@@ -57,7 +54,9 @@ JNIEnv *java_attach() {
         _java_attached = true;
         return env;
     } else {
-        throw BridgeError("failed to attach to JVM");
+        std::stringstream stream;
+        stream << "failed to obtain JVM: JavaVM->AttachCurrentThreadAsDaemon() returns " << result;
+        throw BridgeError(stream.str());
     }
 }
 

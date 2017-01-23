@@ -19,7 +19,6 @@
 #include <jni.h>
 #include <stdexcept>
 
-JavaVM *java_vm();
 JNIEnv *java_env();
 JNIEnv *java_attach();
 void java_detach();

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(m3bpjni)
+project(m3bpjni CXX)
 
 find_package(JNI)
 

@@ -125,6 +125,7 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_close
 (JNIEnv *env, jclass clazz, jlong _self) {
     try {
         EngineMirror *self = (EngineMirror *) _self;
+        self->cleanup(env);
         delete_global_ref(env, self->mirror());
         delete self;
     } catch (JavaException &e) {
