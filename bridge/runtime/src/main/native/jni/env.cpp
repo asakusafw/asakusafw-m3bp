@@ -19,17 +19,17 @@
 #include <iostream>
 #include <m3bp/m3bp.hpp>
 
-static JavaVM *_java_vm;
-thread_local bool _java_attached = false;
+static JavaVM *s_java_vm;
+thread_local bool s_java_attached = false;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-    _java_vm = vm;
+    s_java_vm = vm;
     return JNI_VERSION_1_8;
 }
 
 JNIEnv *java_env() {
     JNIEnv *env;
-    jint result = _java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
+    jint result = s_java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
     if (result == JNI_OK) {
         return env;
     } else {
@@ -40,7 +40,7 @@ JNIEnv *java_env() {
 JNIEnv *java_attach() {
     JNIEnv *env;
     jint result;
-    result = _java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
+    result = s_java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
     if (result == JNI_OK) {
         return env;
     }
@@ -49,9 +49,9 @@ JNIEnv *java_attach() {
         .name = nullptr,
         .group = nullptr
     };
-    result = _java_vm->AttachCurrentThreadAsDaemon((void**) &env, &thread_args);
+    result = s_java_vm->AttachCurrentThreadAsDaemon((void**) &env, &thread_args);
     if (result == JNI_OK) {
-        _java_attached = true;
+        s_java_attached = true;
         return env;
     } else {
         std::stringstream stream;
@@ -61,10 +61,10 @@ JNIEnv *java_attach() {
 }
 
 void java_detach() {
-    if (!_java_attached) {
+    if (!s_java_attached) {
         return;
     } else {
-        _java_vm->DetachCurrentThread();
-        _java_attached = false;
+        s_java_vm->DetachCurrentThread();
+        s_java_attached = false;
     }
 }

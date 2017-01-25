@@ -17,8 +17,6 @@
 #include "env.hpp"
 #include <mutex>
 
-static thread_local jmethodID _object_to_string = nullptr;
-
 jlong to_pointer(void *p) {
     return (jlong) p;
 }
@@ -77,41 +75,18 @@ void handle_native_exception(JNIEnv *env, std::exception &e) {
 }
 
 jobject new_global_ref(JNIEnv *env, jobject object) {
-    jobject global = env->NewGlobalRef(object);
-    if (!global) {
-        throw new std::runtime_error("failed to create global ref");
+    jobject global_object = env->NewGlobalRef(object);
+    if (!global_object) {
+        throw new std::runtime_error("failed to create global reference");
     }
-    check_java_exception(env);
     env->DeleteLocalRef(object);
     check_java_exception(env);
-    return global;
+    return global_object;
 }
 
 void delete_global_ref(JNIEnv *env, jobject object) {
     env->DeleteGlobalRef(object);
     check_java_exception(env);
-}
-
-std::string java_to_string(JNIEnv *env, jobject object) {
-    if (!object) {
-        return std::string("null");
-    }
-    LocalFrame(env, 4);
-    if (!_object_to_string) {
-        jclass clazz = env->FindClass("java/lang/Object");
-        check_java_exception(env);
-        _object_to_string = env->GetMethodID(clazz, "toString", "()Ljava/lang/String;");
-        check_java_exception(env);
-    }
-    jstring string = (jstring) env->CallObjectMethod(object, _object_to_string);
-    check_java_exception(env);
-    if (!string) {
-        return std::string("null");
-    }
-    const char *contents = env->GetStringUTFChars(string, 0);
-    std::string results(contents);
-    env->ReleaseStringUTFChars(string, contents);
-    return results;
 }
 
 LocalFrame::LocalFrame(JNIEnv *env, jint capacity) :
