@@ -31,7 +31,6 @@ void check_java_exception(JNIEnv *env, std::vector<jobject> &global_refs);
 void handle_native_exception(JNIEnv *env, std::exception &e);
 jobject new_global_ref(JNIEnv *env, jobject object);
 void delete_global_ref(JNIEnv *env, jobject object);
-std::string java_to_string(JNIEnv *env, jobject object);
 
 class LocalFrame {
 private:
