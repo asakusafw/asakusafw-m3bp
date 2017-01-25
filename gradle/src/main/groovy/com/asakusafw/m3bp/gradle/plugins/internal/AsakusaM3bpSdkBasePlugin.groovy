@@ -90,6 +90,9 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
                     if (features.hive) {
                         asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-hive:${base.langVersion}"
                     }
+                    if (features.incubating) {
+                        asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-info:${base.langVersion}"
+                    }
                 }
                 if (features.testing) {
                     asakusaM3bpTestkit "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-test-adapter:${base.featureVersion}"
