@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asakusafw.bridge.launch.LaunchConfiguration;
 import com.asakusafw.bridge.launch.LaunchConfigurationException;
+import com.asakusafw.bridge.launch.LaunchInfo;
 import com.asakusafw.bridge.stage.StageInfo;
 import com.asakusafw.dag.api.model.GraphInfo;
 import com.asakusafw.dag.api.processor.basic.BasicProcessorContext;
@@ -62,7 +63,7 @@ public class Launcher {
      */
     public static final int EXEC_INTERRUPTED = 2;
 
-    private final LaunchConfiguration configuration;
+    private final LaunchInfo configuration;
 
     private final ClassLoader applicationLoader;
 
@@ -70,7 +71,7 @@ public class Launcher {
      * Creates a new instance.
      * @param configuration the launching configuration
      */
-    public Launcher(LaunchConfiguration configuration) {
+    public Launcher(LaunchInfo configuration) {
         this(Arguments.requireNonNull(configuration), configuration.getStageClient().getClassLoader());
     }
 
@@ -79,7 +80,7 @@ public class Launcher {
      * @param configuration the launching configuration
      * @param classLoader the application class loader
      */
-    public Launcher(LaunchConfiguration configuration, ClassLoader classLoader) {
+    public Launcher(LaunchInfo configuration, ClassLoader classLoader) {
         Arguments.requireNonNull(configuration);
         Arguments.requireNonNull(classLoader);
         this.configuration = configuration;

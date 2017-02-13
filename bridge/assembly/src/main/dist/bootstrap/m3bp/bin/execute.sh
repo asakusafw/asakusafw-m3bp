@@ -73,7 +73,14 @@ _OPT_FLOW_ID="$1"
 shift
 _OPT_EXECUTION_ID="$1"
 shift
-_OPT_BATCH_ARGUMENTS="$1"
+if [ "$1" = "-" ]
+then
+    _JAVA_MAIN=com.asakusafw.m3bp.client.M3bpDirect
+    _OPT_BATCH_ARGUMENTS=""
+else
+    _JAVA_MAIN=com.asakusafw.m3bp.client.Launcher
+    _OPT_BATCH_ARGUMENTS="$1"
+fi
 shift
 _OPT_APPLICATION="$1"
 shift
@@ -145,7 +152,7 @@ then
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:$(IFS=:; echo "${_CLASSPATH[*]}")"
     export JAVA_LIBRARY_PATH="$(IFS=:; echo "${_LIBRARYPATH[*]}")"
     "${_EXEC[@]}" \
-        "com.asakusafw.m3bp.client.Launcher" \
+        "$_JAVA_MAIN" \
         --client "$_OPT_APPLICATION" \
         --batch-id "$_OPT_BATCH_ID" \
         --flow-id "$_OPT_FLOW_ID" \
@@ -159,7 +166,7 @@ else
         $ASAKUSA_M3BP_OPTS \
         -Djava.library.path="$LD_LIBRARY_PATH" \
         -classpath "$(IFS=:; echo "${_CLASSPATH[*]}")" \
-        "com.asakusafw.m3bp.client.Launcher" \
+        "$_JAVA_MAIN" \
         --client "$_OPT_APPLICATION" \
         --batch-id "$_OPT_BATCH_ID" \
         --flow-id "$_OPT_FLOW_ID" \

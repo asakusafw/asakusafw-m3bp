@@ -17,6 +17,7 @@ package com.asakusafw.m3bp.mirror.jna;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.asakusafw.lang.utils.common.Lang;
 import com.asakusafw.lang.utils.common.Suppliers;
@@ -35,7 +36,9 @@ public class MoveEdgeProcessor implements EdgeProcessor {
 
     @Override
     public List<InputBufferCursor> process() {
-        return Lang.project(candidates, f -> new InputBufferCursor(Suppliers.supplier(f)));
+        return candidates.stream()
+                .map(f -> new InputBufferCursor(Suppliers.supplier(f)))
+                .collect(Collectors.toList());
     }
 
     static List<InputBufferFragment> extract(Iterable<? extends OutputBufferFragment> fragments) {
