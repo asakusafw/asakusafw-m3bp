@@ -27,6 +27,7 @@ import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.lang.utils.common.Invariants;
 import com.asakusafw.m3bp.compiler.inspection.EdgeResolver;
 import com.asakusafw.m3bp.compiler.inspection.InputSpecView;
+import com.asakusafw.m3bp.compiler.inspection.OperatorSpecView;
 import com.asakusafw.m3bp.compiler.inspection.OutputSpecView;
 import com.asakusafw.m3bp.compiler.inspection.PortSpecView;
 import com.asakusafw.m3bp.compiler.inspection.VertexSpecView;
@@ -60,6 +61,10 @@ public class BasicVertexReporter implements VertexReporter {
                 for (OutputSpecView port : v.getOutputs()) {
                     reportOutput(w, port, e.getOpposites(port));
                 }
+            },
+            (w, v, e) -> {
+                // operators
+                reportOperators(w, v.getOperators());
             },
     };
 
@@ -146,6 +151,18 @@ public class BasicVertexReporter implements VertexReporter {
         }
     }
 
+    private static void reportOperators(ReportWriter writer, List<OperatorSpecView> operators) throws IOException {
+        if (operators.isEmpty()) {
+            writer.append("operators: N/A");
+        } else {
+            writer.block("operators:", () -> {
+                for (OperatorSpecView operator : operators) {
+                    writer.append(operator.getTitle());
+                }
+            });
+        }
+    }
+
     private static void reportProperties(ReportWriter writer, Map<String, String> properties) throws IOException {
         if (properties.isEmpty()) {
             writer.append("properties: N/A");
@@ -160,7 +177,7 @@ public class BasicVertexReporter implements VertexReporter {
 
     private static final class Appender implements ReportWriter {
 
-        private static final String LINE_BREAK = String.format("%n");
+        private static final String LINE_BREAK = System.lineSeparator();
 
         final Appendable target;
 

@@ -16,6 +16,7 @@
 package com.asakusafw.m3bp.compiler.inspection;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,8 @@ import com.asakusafw.lang.utils.common.Arguments;
 
 /**
  * Represents vertices.
+ * @since 0.1.0
+ * @version 0.2.1
  */
 public class VertexSpecView implements ElementSpecView<InspectionNode> {
 
@@ -55,6 +58,8 @@ public class VertexSpecView implements ElementSpecView<InspectionNode> {
 
     private final List<OutputSpecView> outputs;
 
+    private final List<OperatorSpecView> operators;
+
     private final Map<String, String> properties;
 
     /**
@@ -77,10 +82,38 @@ public class VertexSpecView implements ElementSpecView<InspectionNode> {
             List<InputSpecView> inputs,
             List<OutputSpecView> outputs,
             Map<String, String> properties) {
+        this(origin, id, operationType, primaryOperator, operationOptions,
+                inputs, outputs, Collections.emptyList(), properties);
+    }
+
+    /**
+     * Creates a new instance.
+     * @param origin the original node
+     * @param id the vertex ID
+     * @param operationType the operation type
+     * @param primaryOperator the primary operator
+     * @param operationOptions the operation options
+     * @param inputs the input ports
+     * @param outputs the output ports
+     * @param operators the operators
+     * @param properties the extra properties
+     * @since 0.2.1
+     */
+    public VertexSpecView(
+            InspectionNode origin,
+            String id,
+            String operationType,
+            String primaryOperator,
+            Set<String> operationOptions,
+            List<InputSpecView> inputs,
+            List<OutputSpecView> outputs,
+            List<OperatorSpecView> operators,
+            Map<String, String> properties) {
         Arguments.requireNonNull(origin);
         Arguments.requireNonNull(id);
         Arguments.requireNonNull(inputs);
         Arguments.requireNonNull(outputs);
+        Arguments.requireNonNull(operators);
         Arguments.requireNonNull(properties);
         this.origin = origin;
         this.id = id;
@@ -89,6 +122,7 @@ public class VertexSpecView implements ElementSpecView<InspectionNode> {
         this.operationOptions = operationOptions;
         this.inputs = Arguments.freeze(inputs);
         this.outputs = Arguments.freeze(outputs);
+        this.operators = Arguments.freeze(operators);
         this.properties = Arguments.freeze(properties);
     }
 
@@ -113,6 +147,12 @@ public class VertexSpecView implements ElementSpecView<InspectionNode> {
                 node.getOutputs().values().stream()
                     .map(p -> OutputSpecView.parse(p, id))
                     .sorted((a, b) -> a.getPortId().compareTo(b.getPortId()))
+                    .collect(Collectors.toList()),
+                node.getElements().values().stream()
+                    .map(e -> OperatorSpecView.parse(e))
+                    .filter(e -> e.getOperatorKind() != OperatorSpecView.OperatorKind.MARKER)
+                    .sorted(Comparator.comparing((OperatorSpecView e) -> e.getOperatorKind().getPrintOrder())
+                            .thenComparing(OperatorSpecView::getSerialNumber))
                     .collect(Collectors.toList()),
                 extractor.extractProperties());
     }
@@ -175,6 +215,15 @@ public class VertexSpecView implements ElementSpecView<InspectionNode> {
      */
     public List<OutputSpecView> getOutputs() {
         return outputs;
+    }
+
+    /**
+     * Returns the operators.
+     * @return the operators
+     * @since 0.2.1
+     */
+    public List<OperatorSpecView> getOperators() {
+        return operators;
     }
 
     @Override
