@@ -69,6 +69,8 @@ private:
     std::string m_library_name;
     void *m_library;
     std::vector<jobject> m_global_refs;
+    jmethodID m_thread_initialize_id;
+    jmethodID m_thread_finalize_id;
     jmethodID m_global_initialize_id;
     jmethodID m_global_finalize_id;
     jmethodID m_local_initialize_id;
@@ -76,12 +78,14 @@ private:
     jmethodID m_run_id;
     jmethodID m_task_count_id;
     jmethodID m_max_concurrency_id;
+    void do_invoke(JNIEnv *env, jmethodID method);
     void do_invoke(JNIEnv *env, VertexMirror *vertex, m3bp::Task &task, jmethodID method);
     jint do_invoke(JNIEnv *env, VertexMirror *vertex, jmethodID method);
 
 public:
     EngineMirror(
         jobject object, const std::string &library_name,
+        jmethodID thread_initialize_id, jmethodID thread_finalize_id,
         jmethodID global_initialize_id, jmethodID global_finalize_id,
         jmethodID local_initialize_id, jmethodID local_finalize_id,
         jmethodID run_id,
@@ -100,6 +104,12 @@ public:
     ValueComparatorType load_comparator(const std::string &name);
     jobject mirror() {
         return m_mirror;
+    }
+    void do_thread_initialize(JNIEnv *env) {
+        do_invoke(env, m_thread_initialize_id);
+    }
+    void do_thread_finalize(JNIEnv *env) {
+        do_invoke(env, m_thread_finalize_id);
     }
     void do_global_initialize(JNIEnv *env, VertexMirror *vertex, m3bp::Task &task) {
         do_invoke(env, vertex, task, m_global_initialize_id);
