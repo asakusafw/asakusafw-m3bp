@@ -21,6 +21,7 @@
 #include "jniutil.hpp"
 
 class VertexMirror;
+class EngineMirror;
 
 class ProcessorAdapter : public m3bp::ProcessorBase {
 private:
@@ -37,8 +38,13 @@ public:
 };
 
 class ThreadObserverAdapter : public m3bp::ThreadObserverBase {
+private:
+    EngineMirror *m_engine;
+
 public:
-    ThreadObserverAdapter() : m3bp::ThreadObserverBase() {}
+    ThreadObserverAdapter(EngineMirror *engine) :
+            m3bp::ThreadObserverBase(),
+            m_engine(engine) {}
     ~ThreadObserverAdapter() = default;
     virtual void on_initialize() override;
     virtual void on_finalize() override;

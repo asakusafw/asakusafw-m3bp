@@ -21,6 +21,7 @@
 
 EngineMirror::EngineMirror(
         jobject mirror, const std::string &library_name,
+        jmethodID thread_initialize_id, jmethodID thread_finalize_id,
         jmethodID global_initialize_id, jmethodID global_finalize_id,
         jmethodID local_initialize_id, jmethodID local_finalize_id,
         jmethodID run_id,
@@ -28,6 +29,7 @@ EngineMirror::EngineMirror(
         m_mirror(mirror),
         m_library_name(library_name),
         m_library(0),
+        m_thread_initialize_id(thread_initialize_id), m_thread_finalize_id(thread_finalize_id),
         m_global_initialize_id(global_initialize_id), m_global_finalize_id(global_finalize_id),
         m_local_initialize_id(local_initialize_id), m_local_finalize_id(local_finalize_id),
         m_run_id(run_id),
@@ -67,7 +69,7 @@ void EngineMirror::run() {
     m3bp::Context context;
     context.set_flow_graph(m_graph->resolve());
     context.set_configuration(m_configuration->entity());
-    context.add_thread_observer(std::make_shared<ThreadObserverAdapter>());
+    context.add_thread_observer(std::make_shared<ThreadObserverAdapter>(this));
     context.execute();
     context.wait();
 }
@@ -80,6 +82,11 @@ void EngineMirror::cleanup(JNIEnv *env) {
         }
     }
     m_global_refs.clear();
+}
+
+void EngineMirror::do_invoke(JNIEnv *env, jmethodID method) {
+    env->CallVoidMethod(m_mirror, method);
+    check_java_exception(env, m_global_refs);
 }
 
 void EngineMirror::do_invoke(JNIEnv *env, VertexMirror *vertex, m3bp::Task &task, jmethodID method) {

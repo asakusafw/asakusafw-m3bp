@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 #include "adapter.hpp"
+#include "mirror.hpp"
 #include "env.hpp"
 
 void ThreadObserverAdapter::on_initialize() {
-    java_attach();
+    JNIEnv *env = java_attach();
+    m_engine->do_thread_initialize(env);
 }
 
 void ThreadObserverAdapter::on_finalize() {
+    JNIEnv *env = java_env();
+    if (env) {
+        m_engine->do_thread_finalize(env);
+    }
     java_detach();
 }

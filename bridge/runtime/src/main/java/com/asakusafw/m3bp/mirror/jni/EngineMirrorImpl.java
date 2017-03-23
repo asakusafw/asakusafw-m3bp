@@ -17,11 +17,14 @@ package com.asakusafw.m3bp.mirror.jni;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.ToIntFunction;
 
@@ -43,10 +46,14 @@ import com.asakusafw.m3bp.mirror.unsafe.UnsafeUtil;
 
 /**
  * JNI bridge of {@link EngineMirror}.
+ * @since 0.1.0
+ * @version 0.2.1
  */
 public class EngineMirrorImpl implements EngineMirror, NativeMirror {
 
     static final Logger LOG = LoggerFactory.getLogger(EngineMirrorImpl.class);
+
+    private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
     private static final String LIBRARY_NAME = "m3bpjni"; //$NON-NLS-1$
 
@@ -97,6 +104,8 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
 
     private final ConcurrentMap<Pointer, VertexProcessorBridge> runningBridges = new ConcurrentHashMap<>();
 
+    private final ThreadLocal<ThreadState> threadState = ThreadLocal.withInitial(() -> ThreadState.UNMANAGED);
+
     /**
      * Creates a new instance.
      * @param library the application native library file (optional)
@@ -134,12 +143,14 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
                     "other process is running: {0}", //$NON-NLS-1$
                     context));
         }
+        threadState.set(ThreadState.MAIN);
         try {
             runningBridges.clear();
             run0(getPointer().getAddress());
         } finally {
             runningBridges.clear();
             runningContext.set(null);
+            threadState.set(ThreadState.UNMANAGED);
         }
     }
 
@@ -160,6 +171,78 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
         return MessageFormat.format(
                 "EngineMirror[{0}]", //$NON-NLS-1$
                 getPointer());
+    }
+
+    /**
+     * Initializes the current worker thread.
+     * @throws IOException if I/O error was occurred during this operation
+     * @throws InterruptedException if interrupted during this operation
+     * @since 0.2.1
+     */
+    public void doThreadInitialize() throws IOException, InterruptedException {
+        if (threadState.get() != ThreadState.UNMANAGED) {
+            return;
+        }
+        Thread thread = Thread.currentThread();
+        ProcessorContext context = runningContext.get();
+        if (context == null) {
+            LOG.warn("current m3bp context has been already detached");
+            return;
+        }
+        String name = String.format("m3bp-worker-%d", THREAD_COUNTER.incrementAndGet());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("initialiing m3bp worker thread: {}", name);
+        }
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    thread.setName(name);
+                    if (thread.getContextClassLoader() == null) {
+                        thread.setContextClassLoader(context.getClassLoader());
+                    }
+                } catch (SecurityException e) {
+                    LOG.warn("error occurred while initializing worker thread: {}", thread, e);
+                }
+                return null;
+            }
+        });
+        threadState.set(ThreadState.WORKER);
+    }
+
+    /**
+     * Initializes the current worker thread.
+     * @throws IOException if I/O error was occurred during this operation
+     * @throws InterruptedException if interrupted during this operation
+     * @since 0.2.1
+     */
+    public void doThreadFinalize() throws IOException, InterruptedException {
+        if (threadState.get() != ThreadState.WORKER) {
+            return;
+        }
+        Thread thread = Thread.currentThread();
+        ProcessorContext context = runningContext.get();
+        if (context == null) {
+            LOG.warn("current m3bp context has been already detached");
+            return;
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("finalizing m3bp worker thread: {}", Thread.currentThread().getName());
+        }
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    if (thread.getContextClassLoader() == context.getClassLoader()) {
+                        thread.setContextClassLoader(null);
+                    }
+                } catch (SecurityException e) {
+                    LOG.warn("error occurred while finalizing worker thread: {}", thread, e);
+                }
+                return null;
+            }
+        });
+        threadState.set(ThreadState.UNMANAGED);
     }
 
     /**
@@ -275,8 +358,8 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
             long taskReference,
             boolean initialize,
             Callback callback) throws IOException, InterruptedException {
-        assert runningContext.get() != null;
         ProcessorContext context = runningContext.get();
+        assert context != null;
         TaskMirrorImpl task = new TaskMirrorImpl(new Pointer(taskReference), configuration);
         VertexProcessorBridge bridge = getBridge(new Pointer(vertexReference), initialize);
         try {
@@ -322,4 +405,10 @@ public class EngineMirrorImpl implements EngineMirror, NativeMirror {
     private static native void close0(long self);
 
     private static native void initializeNativeLogger0(int id);
+
+    private enum ThreadState {
+        UNMANAGED,
+        MAIN,
+        WORKER,
+    }
 }

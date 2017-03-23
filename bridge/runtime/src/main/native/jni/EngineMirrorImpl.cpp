@@ -42,6 +42,8 @@ jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_initialize0
 
         EngineMirror *self = new EngineMirror(
             mirror, library_name,
+            find_method(env, clazz, "doThreadInitialize", "()V"),
+            find_method(env, clazz, "doThreadFinalize", "()V"),
             find_method(env, clazz, "doGlobalInitialize", "(JJ)V"),
             find_method(env, clazz, "doGlobalFinalize", "(JJ)V"),
             find_method(env, clazz, "doLocalInitialize", "(JJ)V"),
