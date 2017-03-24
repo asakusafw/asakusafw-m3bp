@@ -41,124 +41,28 @@ JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorI
 
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl
- * Method:    getBaseOffset0
- * Signature: (JZ)J
+ * Method:    getInputBufferFragment0
+ * Signature: (JZ[J)V
  */
-JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_getBaseOffset0
-(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key) {
+JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_getInputBufferFragment0
+(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key, jlongArray results) {
     try {
+        jlong array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_VALUES_SIZE];
         InputReaderMirror *self = (InputReaderMirror *) _self;
+        std::tuple<const void *, const void *, m3bp::size_type> buffer;
         if (is_key) {
-            return self->key_base_offset();
+            buffer = self->key_buffer();
         } else {
-            return self->value_base_offset();
+            buffer = self->value_buffer();
         }
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_INDEX_BUFFER_PTR] = (jlong) std::get<0>(buffer);
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_INDEX_OFFSET_TABLE_PTR] = (jlong) std::get<1>(buffer);
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_INDEX_RECORD_COUNT] = (jlong) std::get<2>(buffer);
+        env->SetLongArrayRegion(results, 0, com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_VALUES_SIZE, &array[0]);
     } catch (JavaException &e) {
         e.rethrow(env);
-        return 0;
     } catch (std::exception &e) {
         handle_native_exception(env, e);
-        return 0;
-    }
-}
-
-/*
- * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl
- * Method:    compareBuffers0
- * Signature: (Ljava/nio/ByteBuffer;IILjava/nio/ByteBuffer;II)I
- */
-JNIEXPORT jint JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_compareBuffers0
-(JNIEnv *env, jclass clazz, jobject buf0, jint off0, jint len0, jobject buf1, jint off1, jint len1) {
-    try {
-        uint8_t *p0 = (uint8_t *) env->GetDirectBufferAddress(buf0);
-        uint8_t *p1 = (uint8_t *) env->GetDirectBufferAddress(buf1);
-        size_t len = std::min(len0, len1);
-        int diff = memcmp(p0 + off0, p1 + off1, len);
-        if (diff) {
-            return diff;
-        }
-        if (len0 == len1) {
-            return 0;
-        } else if (len0 < len1) {
-            return -1;
-        } else {
-            return +1;
-        }
-    } catch (JavaException &e) {
-        e.rethrow(env);
-        return 0;
-    } catch (std::exception &e) {
-        handle_native_exception(env, e);
-        return 0;
-    }
-}
-
-/*
-* Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl
-* Method:    getContentsBuffer0
-* Signature: (JZ)Ljava/nio/ByteBuffer;
-*/
-JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_getContentsBuffer0
-(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key) {
-    try {
-        InputReaderMirror *self = (InputReaderMirror *) _self;
-        if (is_key) {
-            return to_java_buffer(env, self->key_contents());
-        } else {
-            return to_java_buffer(env, self->value_contents());
-        }
-    } catch (JavaException &e) {
-        e.rethrow(env);
-        return nullptr;
-    } catch (std::exception &e) {
-        handle_native_exception(env, e);
-        return nullptr;
-    }
-}
-
-/*
-* Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl
-* Method:    getEntryOffsetsBuffer0
-* Signature: (JZ)Ljava/nio/ByteBuffer;
-*/
-JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_getEntryOffsetsBuffer0
-(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key) {
-    try {
-        InputReaderMirror *self = (InputReaderMirror *) _self;
-        if (is_key) {
-            return to_java_buffer(env, self->key_offsets());
-        } else {
-            return to_java_buffer(env, self->value_offsets());
-        }
-    } catch (JavaException &e) {
-        e.rethrow(env);
-        return nullptr;
-    } catch (std::exception &e) {
-        handle_native_exception(env, e);
-        return nullptr;
-    }
-}
-
-/*
- * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl
- * Method:    advance0
- * Signature: (JZ)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorImpl_advance0
-(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key) {
-    try {
-        InputReaderMirror *self = (InputReaderMirror *) _self;
-        if (is_key) {
-            return self->advance_key_buffer();
-        } else {
-            return self->advance_value_buffer();
-        }
-    } catch (JavaException &e) {
-        e.rethrow(env);
-        return false;
-    } catch (std::exception &e) {
-        handle_native_exception(env, e);
-        return false;
     }
 }
 

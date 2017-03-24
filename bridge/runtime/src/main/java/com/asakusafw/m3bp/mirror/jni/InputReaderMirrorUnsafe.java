@@ -96,10 +96,6 @@ public class InputReaderMirrorUnsafe implements InputReaderMirror, NativeMirror 
         return new Input(bufferPtr, offsetTableBegin, offsetTableEnd);
     }
 
-    static int compareBuffers(long aPtr, long bPtr, long length) {
-        return compareBuffers0(aPtr, bPtr, length);
-    }
-
     @Override
     public String toString() {
         return MessageFormat.format(
@@ -108,8 +104,6 @@ public class InputReaderMirrorUnsafe implements InputReaderMirror, NativeMirror 
     }
 
     private static native boolean hasKey0(long self);
-
-    private static native int compareBuffers0(long aPtr, long bPtr, long length);
 
     private static native void getInputBufferFragment0(long address, boolean isKey, long[] target);
 
@@ -123,7 +117,7 @@ public class InputReaderMirrorUnsafe implements InputReaderMirror, NativeMirror 
 
         @Override
         protected int compareRegion(long aPtr, long bPtr, long length) {
-            return InputReaderMirrorUnsafe.compareBuffers(aPtr, bPtr, length);
+            return NativeBufferUtil.compare(aPtr, bPtr, length);
         }
     }
 }

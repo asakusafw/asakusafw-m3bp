@@ -216,18 +216,14 @@ private:
     m3bp::InputReader m_entity;
     bool m_has_key;
     m3bp::InputBuffer m_buffer;
-    m3bp::size_type m_next_key_count;
-    m3bp::size_type m_next_value_count;
-    m3bp::size_type m_key_base_offset;
-    m3bp::size_type m_value_base_offset;
-    std::tuple<const void *, m3bp::size_type> m_key_contents;
-    std::tuple<const void *, m3bp::size_type> m_key_offsets;
-    std::tuple<const void *, m3bp::size_type> m_value_contents;
-    std::tuple<const void *, m3bp::size_type> m_value_offsets;
 
 public:
-    InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port);
-    ~InputReaderMirror();
+    InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port) :
+            m_entity(task->input(id)),
+            m_has_key(port->entity().movement() == m3bp::Movement::SCATTER_GATHER),
+            m_buffer(m_entity.raw_buffer()) {
+    }
+    ~InputReaderMirror() = default;
     bool has_key() {
         return m_has_key;
     }
@@ -236,26 +232,6 @@ public:
     }
     std::tuple<const void *, const void *, m3bp::size_type> value_buffer() {
         return std::make_tuple(m_buffer.value_buffer(), m_buffer.value_offset_table(), m_buffer.record_count());
-    }
-    bool advance_key_buffer();
-    bool advance_value_buffer();
-    m3bp::size_type key_base_offset() {
-        return m_key_base_offset;
-    }
-    std::tuple<const void *, m3bp::size_type> key_contents() {
-        return m_key_contents;
-    }
-    std::tuple<const void *, m3bp::size_type> key_offsets() {
-        return m_key_offsets;
-    }
-    m3bp::size_type value_base_offset() {
-        return m_value_base_offset;
-    }
-    std::tuple<const void *, m3bp::size_type> value_contents() {
-        return m_value_contents;
-    }
-    std::tuple<const void *, m3bp::size_type> value_offsets() {
-        return m_value_offsets;
     }
 };
 

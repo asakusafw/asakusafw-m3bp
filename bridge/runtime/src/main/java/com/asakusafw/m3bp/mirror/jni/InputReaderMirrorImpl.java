@@ -16,19 +16,33 @@
 package com.asakusafw.m3bp.mirror.jni;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.text.MessageFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.m3bp.mirror.InputReaderMirror;
 import com.asakusafw.m3bp.mirror.PageDataInput;
-import com.asakusafw.m3bp.mirror.basic.AbstractPageDataInput;
 
 /**
  * JNI bridge of {@link InputReaderMirror}.
+ * @since 0.1.0
+ * @version 0.2.1
  */
 public class InputReaderMirrorImpl implements InputReaderMirror, NativeMirror {
+
+    static final Logger LOG = LoggerFactory.getLogger(InputReaderMirrorImpl.class);
+
+    private static final int VALUES_SIZE = 3;
+
+    private static final int INDEX_BUFFER_PTR = 0;
+
+    private static final int INDEX_OFFSET_TABLE_PTR = 1;
+
+    private static final int INDEX_RECORD_COUNT = 2;
+
+    private final long[] values = new long[VALUES_SIZE];
 
     final Pointer reference;
 
@@ -75,34 +89,12 @@ public class InputReaderMirrorImpl implements InputReaderMirror, NativeMirror {
     }
 
     private Input initialize(boolean isKey) {
-        Input input = new Input(isKey);
-        reset(input, isKey);
-        return input;
-    }
-
-    boolean advance(Input input, boolean isKey) {
-        boolean advanced = advance0(getPointer().getAddress(), isKey);
-        if (advanced == false) {
-            return false;
-        }
-        reset(input, isKey);
-        return true;
-    }
-
-    static int compareBuffers(ByteBuffer a, ByteBuffer b) {
-        return compareBuffers0(
-                a, a.position(), a.remaining(),
-                b, b.position(), b.remaining());
-    }
-
-    private void reset(Input input, boolean isKey) {
-        long self = getPointer().getAddress();
-        long base = getBaseOffset0(self, isKey);
-        ByteBuffer contents = getContentsBuffer0(self, isKey).order(ByteOrder.nativeOrder());
-        ByteBuffer offsets = getEntryOffsetsBuffer0(self, isKey).order(ByteOrder.nativeOrder());
-        assert contents != null;
-        assert offsets != null;
-        input.reset(base, contents, offsets);
+        getInputBufferFragment0(reference.getAddress(), isKey, values);
+        long bufferPtr = values[INDEX_BUFFER_PTR];
+        long offsetTableBegin = values[INDEX_OFFSET_TABLE_PTR];
+        long recordCount = values[INDEX_RECORD_COUNT];
+        long offsetTableEnd = offsetTableBegin + (recordCount == 0 ? 0 : (recordCount + 1) * Long.BYTES);
+        return new Input(bufferPtr, offsetTableBegin, offsetTableEnd);
     }
 
     @Override
@@ -114,38 +106,13 @@ public class InputReaderMirrorImpl implements InputReaderMirror, NativeMirror {
 
     private static native boolean hasKey0(long self);
 
-    private static native long getBaseOffset0(long self, boolean isKey);
-
-    private static native int compareBuffers0(
-            ByteBuffer buf0, int off0, int len0,
-            ByteBuffer buf1, int off1, int len1);
-
-    private static native ByteBuffer getContentsBuffer0(long self, boolean isKey);
-
-    private static native ByteBuffer getEntryOffsetsBuffer0(long self, boolean isKey);
-
-    private static native boolean advance0(long address, boolean isKey);
+    private static native void getInputBufferFragment0(long address, boolean isKey, long[] target);
 
     private static native void close0(long address);
 
-    private class Input extends AbstractPageDataInput {
-
-        private final boolean keyBuffer;
-
-        Input(boolean keyBuffer) {
-            this.keyBuffer = keyBuffer;
-        }
-
-        @Override
-        protected boolean doAdvance() {
-            return InputReaderMirrorImpl.this.advance(this, keyBuffer);
-        }
-
-        @Override
-        public int comparePage(PageDataInput target) {
-            ByteBuffer a = getContentsBuffer();
-            ByteBuffer b = ((Input) target).getContentsBuffer();
-            return compareBuffers(a, b);
+    private static final class Input extends NativePageDataInput {
+        Input(long dataPtr, long entryOffsetsPtr, long entryOffsetsEnd) {
+            super(dataPtr, new NativeDataInput(entryOffsetsPtr, entryOffsetsEnd - entryOffsetsPtr));
         }
     }
 }

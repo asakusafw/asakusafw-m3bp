@@ -40,19 +40,6 @@ JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorU
 
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe
- * Method:    compareBuffers0
- * Signature: (JJJ)I
- */
-JNIEXPORT jint JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_compareBuffers0
-(JNIEnv *, jclass, jlong _a, jlong _b, jlong _length) {
-    void *a = (void *) _a;
-    void *b = (void *) _b;
-    size_t len = (size_t) _length;
-    return (jint) memcmp(a, b, len);
-}
-
-/*
- * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe
  * Method:    getInputBufferFragment0
  * Signature: (JZ[J)V
  */
