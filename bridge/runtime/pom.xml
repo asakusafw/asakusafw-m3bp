@@ -45,6 +45,7 @@
                     <javahClassName>com.asakusafw.m3bp.mirror.jni.OutputWriterMirrorImpl</javahClassName>
                     <javahClassName>com.asakusafw.m3bp.mirror.jni.InputReaderMirrorUnsafe</javahClassName>
                     <javahClassName>com.asakusafw.m3bp.mirror.jni.OutputWriterMirrorUnsafe</javahClassName>
+                    <javahClassName>com.asakusafw.m3bp.mirror.jni.NativeBufferUtil</javahClassName>
                   </javahClassNames>
                   <javahOutputDirectory>${project.build.directory}/native/include</javahOutputDirectory>
                 </configuration>

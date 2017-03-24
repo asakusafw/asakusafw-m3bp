@@ -17,7 +17,6 @@
 
 #include <sstream>
 #include <iostream>
-#include <m3bp/m3bp.hpp>
 
 static JavaVM *s_java_vm;
 thread_local bool s_java_attached = false;
