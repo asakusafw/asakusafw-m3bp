@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 #include "com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe.h"
-#include <cstdint>
-#include <cstring>
 #include "mirror.hpp"
 #include "jniutil.hpp"
 

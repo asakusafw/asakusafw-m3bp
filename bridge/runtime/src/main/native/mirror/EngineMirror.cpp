@@ -18,6 +18,7 @@
 #include "adapter.hpp"
 #include <memory>
 #include <stdexcept>
+#include <dlfcn.h>
 
 EngineMirror::EngineMirror(
         jobject mirror, const std::string &library_name,

@@ -21,7 +21,6 @@
 #include <string>
 #include <memory>
 #include <m3bp/m3bp.hpp>
-#include <dlfcn.h>
 
 class EngineMirror;
 class ConfigurationMirror;
@@ -218,12 +217,8 @@ private:
     m3bp::InputBuffer m_buffer;
 
 public:
-    InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port) :
-            m_entity(task->input(id)),
-            m_has_key(port->entity().movement() == m3bp::Movement::SCATTER_GATHER),
-            m_buffer(m_entity.raw_buffer()) {
-    }
-    ~InputReaderMirror() = default;
+    InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port);
+    ~InputReaderMirror();
     bool has_key() {
         return m_has_key;
     }
