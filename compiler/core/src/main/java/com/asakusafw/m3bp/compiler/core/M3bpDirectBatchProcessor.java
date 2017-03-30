@@ -41,10 +41,19 @@ public class M3bpDirectBatchProcessor implements BatchProcessor {
 
     static final Logger LOG = LoggerFactory.getLogger(M3bpDirectBatchProcessor.class);
 
+    static final String KEY_ENABLED = M3bpJobflowProcessor.KEY_PREFIX + "launch.direct"; //$NON-NLS-1$
+
+    static final boolean DEFAULT_ENABLED = false;
+
     private static final int ARG_APPLICATION_INDEX = 4;
 
     @Override
     public void process(Context context, BatchReference source) throws IOException {
+        boolean enabled = context.getOptions().get(KEY_ENABLED, DEFAULT_ENABLED);
+        LOG.debug("m3bp direct launching: {}", enabled); //$NON-NLS-1$
+        if (enabled == false) {
+            return;
+        }
         for (JobflowReference jobflow : source.getJobflows()) {
             CommandTaskReference command = DirectLauncherScriptGenerator.findTask(jobflow)
                     .filter(task -> task.getCommand().equals(M3bpTask.PATH_COMMAND))
