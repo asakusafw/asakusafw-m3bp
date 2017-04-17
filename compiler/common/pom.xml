@@ -6,7 +6,7 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp.compiler</groupId>
-    <version>0.2.1-RC4</version>
+    <version>0.2.1-SNAPSHOT</version>
   </parent>
 
   <packaging>jar</packaging>
