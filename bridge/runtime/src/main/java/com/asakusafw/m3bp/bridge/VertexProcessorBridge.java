@@ -18,8 +18,9 @@ package com.asakusafw.m3bp.bridge;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -209,7 +210,7 @@ public class VertexProcessorBridge {
 
         private final ThreadLocal<TaskProcessor> taskProcessor = new ThreadLocal<>();
 
-        private final Optional<LinkedList<TaskInfo>> tasks;
+        private final Optional<Queue<TaskInfo>> taskQueue;
 
         private final int numberOfTasks;
 
@@ -230,15 +231,15 @@ public class VertexProcessorBridge {
                         vertexMirror.getName(),
                         vertexLabel));
             }
-            this.tasks = doInitialize(c, vertexProcessor);
-            this.numberOfTasks = tasks.map(Collection::size).orElse(-1);
+            this.taskQueue = doInitialize(c, vertexProcessor);
+            this.numberOfTasks = taskQueue.map(Collection::size).orElse(-1);
         }
 
-        private static Optional<LinkedList<TaskInfo>> doInitialize(
+        private static Optional<Queue<TaskInfo>> doInitialize(
                 VertexProcessorContext context, VertexProcessor processor) throws IOException, InterruptedException {
             Optional<? extends TaskSchedule> schedule = processor.initialize(context);
             if (schedule.isPresent()) {
-                return Optionals.of(new LinkedList<>(schedule.get().getTasks()));
+                return Optionals.of(new ConcurrentLinkedQueue<>(schedule.get().getTasks()));
             } else {
                 return Optionals.empty();
             }
@@ -277,21 +278,18 @@ public class VertexProcessorBridge {
                     vertexMirror.getName(),
                     Thread.currentThread().getName()));
             TaskInfo info = null;
-            if (tasks.isPresent()) {
-                LinkedList<TaskInfo> list = tasks.get();
-                synchronized (list) {
-                    Invariants.require(list.isEmpty() == false, () -> MessageFormat.format(
-                            "no available tasks: {0}", //$NON-NLS-1$
-                            vertexMirror.getName()));
-                    info = list.removeFirst();
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace(MessageFormat.format(
-                                "custom task: {3} - {0}:{1} ({2})", //$NON-NLS-1$
-                                vertexMirror,
-                                vertexLabel,
-                                task,
-                                info));
-                    }
+            if (taskQueue.isPresent()) {
+                info = taskQueue.get().poll();
+                Invariants.requireNonNull(info, () -> MessageFormat.format(
+                        "no available tasks: {0}", //$NON-NLS-1$
+                        vertexMirror.getName()));
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(MessageFormat.format(
+                            "custom task: {3} - {0}:{1} ({2})", //$NON-NLS-1$
+                            vertexMirror,
+                            vertexLabel,
+                            task,
+                            info));
                 }
             }
             TaskProcessorContext c = decorator.bless(new TaskContext(context, vertexMirror, task, info));
@@ -310,7 +308,7 @@ public class VertexProcessorBridge {
         public void close() throws IOException, InterruptedException {
             vertexProcessor.close();
             if (LOG.isWarnEnabled()) {
-                int rest = tasks.map(Collection::size).orElse(0);
+                int rest = taskQueue.map(Collection::size).orElse(0);
                 if (rest > 0) {
                     LOG.warn(MessageFormat.format(
                             "vertex has incompleted tasks: {0} ({1}), rest={2}",
