@@ -18,7 +18,6 @@ package com.asakusafw.m3bp.gradle.plugins.internal
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
 import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
@@ -89,7 +88,7 @@ class AsakusaM3bpSdkPlugin implements Plugin<Project> {
             task.toolClasspath << { project.configurations.asakusaM3bpCompiler }
             task.toolClasspath << { project.sourceSets.main.compileClasspath - project.configurations.compile }
 
-            task.explore << { [project.sourceSets.main.output.classesDir].findAll { it.exists() } }
+            task.explore << { PluginUtils.getClassesDirs(project, project.sourceSets.main.output).findAll { it.exists() } }
             task.embed << { [project.sourceSets.main.output.resourcesDir].findAll { it.exists() } }
             task.attach << { project.configurations.embedded }
 
