@@ -49,13 +49,13 @@ import com.asakusafw.lang.utils.common.Optionals;
 import com.asakusafw.m3bp.descriptor.Descriptors;
 
 /**
- * Test for {@link Launcher}.
+ * Test for {@link M3bpLauncher}.
  */
 public class LauncherTest {
 
     static final File NATIVE_DIR = new File("target/native/test/lib");
 
-    static final String LIBRARY_NAME = "testing-" + Launcher.class.getSimpleName();
+    static final String LIBRARY_NAME = "testing-" + M3bpLauncher.class.getSimpleName();
 
     /**
      * Detects native library file or skip tests.
@@ -128,7 +128,7 @@ public class LauncherTest {
     }
 
     /**
-     * standalone vertex.
+     * stand-alone vertex.
      */
     public static class Single implements VertexProcessor {
 
@@ -157,7 +157,7 @@ public class LauncherTest {
 
     private int exec(GraphInfo graph) {
         App.target = graph;
-        Launcher launcher = new Launcher(new LaunchConfiguration(
+        M3bpLauncher launcher = new M3bpLauncher(new LaunchConfiguration(
                 App.class,
                 new StageInfo("testing", "b", "f", null, "e", arguments),
                 hadoop,

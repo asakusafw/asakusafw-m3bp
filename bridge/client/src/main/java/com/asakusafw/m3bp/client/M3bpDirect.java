@@ -17,17 +17,19 @@ package com.asakusafw.m3bp.client;
 
 import java.util.Arrays;
 
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.asakusafw.bridge.launch.LaunchConfigurationException;
 import com.asakusafw.dag.iterative.DirectLaunchConfiguration;
 import com.asakusafw.runtime.core.context.RuntimeContext;
+import com.asakusafw.vanilla.client.LaunchUtil;
 
 /**
  * Direct program entry of Asakusa on M3BP.
  * @since 0.2.1
- * @see Launcher
+ * @see M3bpLauncher
  */
 public final class M3bpDirect {
 
@@ -59,22 +61,24 @@ public final class M3bpDirect {
      * @param args launching configurations
      * @return the exit code
      * @throws LaunchConfigurationException if launching configuration is something wrong
-     * @see Launcher#EXEC_SUCCESS
-     * @see Launcher#EXEC_ERROR
-     * @see Launcher#EXEC_INTERRUPTED
+     * @see LaunchUtil#EXEC_SUCCESS
+     * @see LaunchUtil#EXEC_ERROR
+     * @see LaunchUtil#EXEC_INTERRUPTED
      */
     public static int exec(ClassLoader loader, String... args) throws LaunchConfigurationException {
         DirectLaunchConfiguration conf = DirectLaunchConfiguration.parse(loader, Arrays.asList(args));
+        Configuration hadoop = new Configuration();
+        hadoop.setClassLoader(loader);
         int numberOfRounds = conf.getStageInfo().getRoundCount();
         int currentRound = 0;
         DirectLaunchConfiguration.Cursor cursor = conf.newCursor();
         while (cursor.next()) {
             LOG.info("Round: {}/{}", ++currentRound, numberOfRounds);
-            int result = new Launcher(cursor.get(), loader).exec();
-            if (result != Launcher.EXEC_SUCCESS) {
+            int result = new M3bpLauncher(cursor.get(), hadoop).exec();
+            if (result != LaunchUtil.EXEC_SUCCESS) {
                 return result;
             }
         }
-        return Launcher.EXEC_SUCCESS;
+        return LaunchUtil.EXEC_SUCCESS;
     }
 }

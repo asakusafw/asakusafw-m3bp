@@ -20,7 +20,6 @@ import static com.asakusafw.m3bp.client.Constants.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -29,49 +28,36 @@ import org.slf4j.LoggerFactory;
 import com.asakusafw.bridge.launch.LaunchConfiguration;
 import com.asakusafw.bridge.launch.LaunchConfigurationException;
 import com.asakusafw.bridge.launch.LaunchInfo;
-import com.asakusafw.bridge.stage.StageInfo;
 import com.asakusafw.dag.api.model.GraphInfo;
+import com.asakusafw.dag.api.processor.ProcessorContext;
 import com.asakusafw.dag.api.processor.basic.BasicProcessorContext;
 import com.asakusafw.dag.api.processor.extension.ProcessorContextExtension;
 import com.asakusafw.lang.utils.common.Arguments;
 import com.asakusafw.lang.utils.common.InterruptibleIo;
 import com.asakusafw.runtime.core.context.RuntimeContext;
+import com.asakusafw.vanilla.client.LaunchUtil;
+import com.asakusafw.vanilla.client.VanillaLauncher;
 
 /**
  * M3BP application entry.
+ * @since 0.1.0
+ * @version 0.2.2
  */
-public class Launcher {
+public class M3bpLauncher {
 
-    static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
-
-    private static final Pattern SENSITIVE_KEY = Pattern.compile("pass", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
-
-    private static final String SENSITIVE_VALUE_MASK = "****"; //$NON-NLS-1$
-
-    /**
-     * Exit status: execution was successfully completed.
-     */
-    public static final int EXEC_SUCCESS = 0;
-
-    /**
-     * Exit status: execution was finished with error.
-     */
-    public static final int EXEC_ERROR = 1;
-
-    /**
-     * Exit status: execution was interrupted.
-     */
-    public static final int EXEC_INTERRUPTED = 2;
+    static final Logger LOG = LoggerFactory.getLogger(M3bpLauncher.class);
 
     private final LaunchInfo configuration;
 
     private final ClassLoader applicationLoader;
 
+    private final Configuration hadoop;
+
     /**
      * Creates a new instance.
      * @param configuration the launching configuration
      */
-    public Launcher(LaunchInfo configuration) {
+    public M3bpLauncher(LaunchInfo configuration) {
         this(Arguments.requireNonNull(configuration), configuration.getStageClient().getClassLoader());
     }
 
@@ -80,93 +66,77 @@ public class Launcher {
      * @param configuration the launching configuration
      * @param classLoader the application class loader
      */
-    public Launcher(LaunchInfo configuration, ClassLoader classLoader) {
+    public M3bpLauncher(LaunchInfo configuration, ClassLoader classLoader) {
         Arguments.requireNonNull(configuration);
         Arguments.requireNonNull(classLoader);
         this.configuration = configuration;
         this.applicationLoader = classLoader;
+        this.hadoop = new Configuration();
+        this.hadoop.setClassLoader(classLoader);
+    }
+
+    M3bpLauncher(LaunchInfo configuration, Configuration hadoop) {
+        Arguments.requireNonNull(configuration);
+        Arguments.requireNonNull(hadoop);
+        this.configuration = configuration;
+        this.hadoop = hadoop;
+        this.applicationLoader = hadoop.getClassLoader();
     }
 
     /**
      * Executes DAG.
      * @return the exit status
-     * @see #EXEC_SUCCESS
-     * @see #EXEC_ERROR
-     * @see #EXEC_INTERRUPTED
+     * @see LaunchUtil#EXEC_SUCCESS
+     * @see LaunchUtil#EXEC_ERROR
+     * @see LaunchUtil#EXEC_INTERRUPTED
      */
     public int exec() {
-        BasicProcessorContext context = newContext();
-        GraphInfo graph = GraphExecutor.extract(configuration.getStageClient());
+        BasicProcessorContext context =
+                LaunchUtil.createProcessorContext(applicationLoader, configuration, hadoop);
+        GraphInfo graph = LaunchUtil.extract(configuration.getStageClient());
         try (InterruptibleIo extension = applyExtensions(context)) {
             long start = System.currentTimeMillis();
             LOG.info(MessageFormat.format(
                     "DAG starting: {0}, vertices={1}",
                     configuration.getStageInfo(),
                     graph.getVertices().size()));
-            GraphExecutor.execute(context, graph);
+            if (isVanilla(context)) {
+                LOG.info("using Vanilla engine");
+                VanillaLauncher.execute(context, graph);
+            } else {
+                GraphExecutor.execute(context, graph);
+            }
             long finish = System.currentTimeMillis();
             LOG.info(MessageFormat.format(
                     "DAG finished: {0}, vertices={1}, elapsed={2}ms",
                     configuration.getStageInfo(),
                     graph.getVertices().size(),
                     finish - start));
-            return EXEC_SUCCESS;
+            return LaunchUtil.EXEC_SUCCESS;
         } catch (IOException e) {
             LOG.error(MessageFormat.format(
                     "DAG failed: {0}",
                     configuration.getStageInfo()), e);
-            return EXEC_ERROR;
+            return LaunchUtil.EXEC_ERROR;
         } catch (InterruptedException e) {
             LOG.warn(MessageFormat.format(
                     "DAG interrupted: {0}",
                     configuration.getStageInfo()), e);
-            return EXEC_INTERRUPTED;
+            return LaunchUtil.EXEC_INTERRUPTED;
         }
     }
 
-    private BasicProcessorContext newContext() {
-        BasicProcessorContext context = new BasicProcessorContext(applicationLoader);
-        configuration.getEngineProperties().forEach((k, v) -> {
-            if (k.startsWith(KEY_HADOOP_PREFIX) == false) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Engine configuration: {}={}", k, shadow(k, v));
-                }
-                context.withProperty(k, v);
-            }
-        });
-
-        Configuration hadoop = new Configuration();
-        configuration.getHadoopProperties().forEach((k, v) -> {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Hadoop configuration: {}={}", k, shadow(k, v));
-            }
-            hadoop.set(k, v);
-        });
-        configuration.getEngineProperties().forEach((k, v) -> {
-            if (k.startsWith(KEY_HADOOP_PREFIX)) {
-                String key = k.substring(KEY_HADOOP_PREFIX.length());
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Hadoop configuration: {}={}", key, shadow(key, v));
-                }
-                hadoop.set(key, v);
-            }
-        });
-
-        context.withResource(StageInfo.class, configuration.getStageInfo());
-        context.withResource(Configuration.class, hadoop);
-        return context;
-    }
-
-    private String shadow(String key, String value) {
-        if (SENSITIVE_KEY.matcher(key).find()) {
-            return SENSITIVE_VALUE_MASK;
-        }
-        return value;
-    }
-
-    private InterruptibleIo applyExtensions(BasicProcessorContext context) throws IOException, InterruptedException {
+    private static InterruptibleIo applyExtensions(
+            BasicProcessorContext context) throws IOException, InterruptedException {
         ProcessorContextExtension extension = ProcessorContextExtension.load(context.getClassLoader());
         return extension.install(context, context.getEditor());
+    }
+
+    private static boolean isVanilla(ProcessorContext context) {
+        return context.getProperty(KEY_ENGINE_VANILLA)
+                .map(String::trim)
+                .map(it -> Boolean.parseBoolean(it.trim()))
+                .orElse(false);
     }
 
     /**
@@ -175,7 +145,7 @@ public class Launcher {
      * @throws LaunchConfigurationException if launching configuration is something wrong
      */
     public static void main(String... args) throws LaunchConfigurationException {
-        int status = exec(Launcher.class.getClassLoader(), args);
+        int status = exec(M3bpLauncher.class.getClassLoader(), args);
         if (status != 0) {
             System.exit(status);
         }
@@ -193,7 +163,7 @@ public class Launcher {
         RuntimeContext.get().verifyApplication(loader);
 
         LaunchConfiguration conf = LaunchConfiguration.parse(loader, Arrays.asList(args));
-        Launcher launcher = new Launcher(conf, loader);
+        M3bpLauncher launcher = new M3bpLauncher(conf, loader);
         return launcher.exec();
     }
 }
