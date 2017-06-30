@@ -290,7 +290,7 @@ public class EngineMirrorImplTest {
             configurator.accept(mirror.getConfiguration());
             FlowGraphMirror graph = mirror.getGraph();
 
-            M3bpEdgeDescriptor edge = newScatterGatherEdge(IntModSerDe.class, null);
+            M3bpEdgeDescriptor edge = newScatterGatherEdge(IntModSerDe.class, null, null);
             VertexMirror producer = graph.addVertex("producer", newVertex(ValueProducerProcessor.class));
             PortMirror up = producer.addOutput("out", edge);
             VertexMirror consumer = graph.addVertex("consumer", newVertex(GroupConsumerProcessor.class));
@@ -324,7 +324,8 @@ public class EngineMirrorImplTest {
             configurator.accept(mirror.getConfiguration());
             FlowGraphMirror graph = mirror.getGraph();
 
-            M3bpEdgeDescriptor edge = newScatterGatherEdge(IntModSerDe.class, "lt_int32_t");
+            M3bpEdgeDescriptor edge = newScatterGatherEdge(
+                    IntModSerDe.class, IntModSerDe.class, "lt_int32_t");
             VertexMirror producer = graph.addVertex("producer", newVertex(ValueProducerProcessor.class));
             PortMirror up = producer.addOutput("out", edge);
             VertexMirror consumer = graph.addVertex("consumer", newVertex(GroupConsumerProcessor.class));

@@ -55,7 +55,7 @@ public abstract class AbstractVertexMirror implements VertexMirror {
 
     @Override
     public VertexProcessor newProcessor(ClassLoader loader) {
-        SupplierInfo supplier = getDescriptor().getVertexProcessor();
+        SupplierInfo supplier = getDescriptor().getProcessor();
         return (VertexProcessor) supplier.newInstance(loader).get();
     }
 

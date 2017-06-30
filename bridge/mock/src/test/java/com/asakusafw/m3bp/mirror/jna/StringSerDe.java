@@ -19,6 +19,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import com.asakusafw.dag.api.common.DataComparator;
 import com.asakusafw.dag.api.common.KeyValueSerDe;
 import com.asakusafw.dag.api.common.ValueSerDe;
 import com.sun.jna.Pointer;
@@ -26,7 +27,7 @@ import com.sun.jna.Pointer;
 /**
  * ser/de {@code String} values.
  */
-public class StringSerDe implements ValueSerDe, KeyValueSerDe, BufferComparator {
+public class StringSerDe implements ValueSerDe, KeyValueSerDe, BufferComparator, DataComparator {
 
     @Override
     public void serialize(Object object, DataOutput output) throws IOException, InterruptedException {
@@ -63,6 +64,17 @@ public class StringSerDe implements ValueSerDe, KeyValueSerDe, BufferComparator 
     @Override
     public Object deserializePair(DataInput keyInput, DataInput valueInput) throws IOException, InterruptedException {
         return deserialize(valueInput);
+    }
+
+    @Override
+    public int compare(DataInput a, DataInput b) throws IOException {
+        try {
+            String aObj = (String) deserialize(a);
+            String bObj = (String) deserialize(b);
+            return aObj.compareTo(bObj);
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override

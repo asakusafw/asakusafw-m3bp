@@ -15,6 +15,8 @@
  */
 package com.asakusafw.m3bp.mirror;
 
+import com.asakusafw.dag.api.model.basic.BasicEdgeDescriptor;
+
 /**
  * Represents the data exchange kind.
  */
@@ -53,5 +55,25 @@ public enum Movement {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Returns the value of this enum.
+     * @param descriptor the source descriptor
+     * @return the value
+     */
+    public static Movement of(BasicEdgeDescriptor.Movement descriptor) {
+        switch (descriptor) {
+        case NOTHING:
+            return Movement.NOTHING;
+        case ONE_TO_ONE:
+            return Movement.ONE_TO_ONE;
+        case BROADCAST:
+            return Movement.BROADCAST;
+        case SCATTER_GATHER:
+            return Movement.SCATTER_GATHER;
+        default:
+            throw new AssertionError(descriptor);
+        }
     }
 }

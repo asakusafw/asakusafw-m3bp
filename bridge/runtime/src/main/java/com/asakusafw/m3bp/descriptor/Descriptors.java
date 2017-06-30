@@ -15,14 +15,16 @@
  */
 package com.asakusafw.m3bp.descriptor;
 
+import com.asakusafw.dag.api.common.DataComparator;
 import com.asakusafw.dag.api.common.KeyValueSerDe;
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.common.ValueSerDe;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.api.model.VertexDescriptor;
+import com.asakusafw.dag.api.model.basic.BasicEdgeDescriptor.Movement;
 import com.asakusafw.dag.api.processor.VertexProcessor;
 import com.asakusafw.lang.utils.common.Arguments;
-import com.asakusafw.m3bp.mirror.Movement;
+import com.asakusafw.lang.utils.common.Optionals;
 
 /**
  * Provides descriptors for operations on M3BP.
@@ -58,7 +60,7 @@ public final class Descriptors {
      * @return the created descriptor
      */
     public static M3bpEdgeDescriptor newVoidEdge() {
-        return new M3bpEdgeDescriptor(Movement.NOTHING, null, null);
+        return new M3bpEdgeDescriptor(Movement.NOTHING, null, null, null);
     }
 
     /**
@@ -78,7 +80,7 @@ public final class Descriptors {
      */
     public static M3bpEdgeDescriptor newOneToOneEdge(SupplierInfo serde) {
         Arguments.requireNonNull(serde);
-        return new M3bpEdgeDescriptor(Movement.ONE_TO_ONE, serde, null);
+        return new M3bpEdgeDescriptor(Movement.ONE_TO_ONE, serde, null, null);
     }
 
     /**
@@ -98,30 +100,40 @@ public final class Descriptors {
      */
     public static M3bpEdgeDescriptor newBroadcastEdge(SupplierInfo serde) {
         Arguments.requireNonNull(serde);
-        return new M3bpEdgeDescriptor(Movement.BROADCAST, serde, null);
+        return new M3bpEdgeDescriptor(Movement.BROADCAST, serde, null, null);
     }
 
     /**
      * Creates a new scatter-gather {@link EdgeDescriptor}.
      * @param serde the ser/de class
-     * @param comparatorName the value comparator function name
+     * @param comparator the Java value comparator class
+     * @param comparatorName the native value comparator function name
      * @return the created descriptor
      */
     public static M3bpEdgeDescriptor newScatterGatherEdge(
-            Class<? extends KeyValueSerDe> serde, String comparatorName) {
+            Class<? extends KeyValueSerDe> serde,
+            Class<? extends DataComparator> comparator,
+            String comparatorName) {
         Arguments.requireNonNull(serde);
-        return newScatterGatherEdge(SupplierInfo.of(serde.getName()), comparatorName);
+        return newScatterGatherEdge(
+                SupplierInfo.of(serde.getName()),
+                Optionals.of(comparator)
+                    .map(Class::getName)
+                    .map(SupplierInfo::of)
+                    .orElse(null),
+                comparatorName);
     }
 
     /**
      * Creates a new scatter-gather {@link EdgeDescriptor}.
      * @param serde the ser/de class
-     * @param comparatorName the value comparator function name
+     * @param comparator the Java value comparator class
+     * @param comparatorName the native value comparator function name
      * @return the created descriptor
      */
     public static M3bpEdgeDescriptor newScatterGatherEdge(
-            SupplierInfo serde, String comparatorName) {
+            SupplierInfo serde, SupplierInfo comparator, String comparatorName) {
         Arguments.requireNonNull(serde);
-        return new M3bpEdgeDescriptor(Movement.SCATTER_GATHER, serde, comparatorName);
+        return new M3bpEdgeDescriptor(Movement.SCATTER_GATHER, serde, comparator, comparatorName);
     }
 }

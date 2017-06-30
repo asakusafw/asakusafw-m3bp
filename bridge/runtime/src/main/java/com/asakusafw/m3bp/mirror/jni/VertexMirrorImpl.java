@@ -68,7 +68,7 @@ public class VertexMirrorImpl extends AbstractVertexMirror implements NativeMirr
                 getPointer().getAddress(),
                 portId.getValue(),
                 portName,
-                portDescriptor.getMovement().getId(),
+                Movement.of(portDescriptor.getMovement()).getId(),
                 portDescriptor.getValueComparatorName()));
         PortMirror port = new PortMirrorImpl(ref, portId, portName, portTag, this, portDescriptor);
         return port;
@@ -81,7 +81,7 @@ public class VertexMirrorImpl extends AbstractVertexMirror implements NativeMirr
                 getPointer().getAddress(),
                 portId.getValue(),
                 portName,
-                portDescriptor.getMovement() == Movement.SCATTER_GATHER));
+                Movement.of(portDescriptor.getMovement()) == Movement.SCATTER_GATHER));
         PortMirror port = new PortMirrorImpl(ref, portId, portName, portTag, this, portDescriptor);
         return port;
     }

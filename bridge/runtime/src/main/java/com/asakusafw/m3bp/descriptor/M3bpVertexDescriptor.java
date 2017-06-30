@@ -15,70 +15,23 @@
  */
 package com.asakusafw.m3bp.descriptor;
 
-import java.text.MessageFormat;
-import java.util.Objects;
-
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.VertexDescriptor;
+import com.asakusafw.dag.api.model.basic.BasicVertexDescriptor;
 import com.asakusafw.dag.api.processor.VertexProcessor;
-import com.asakusafw.lang.utils.common.Arguments;
 
 /**
  * An implementation of {@link VertexDescriptor} for M3BP.
  */
-public class M3bpVertexDescriptor implements VertexDescriptor {
+public class M3bpVertexDescriptor extends BasicVertexDescriptor {
 
-    private static final long serialVersionUID = 1L;
-
-    private final SupplierInfo vertexProcessor;
+    private static final long serialVersionUID = 2L;
 
     /**
      * Creates a new instance.
      * @param vertexProcessor a {@link VertexProcessor} provider
      */
     public M3bpVertexDescriptor(SupplierInfo vertexProcessor) {
-        Arguments.requireNonNull(vertexProcessor);
-        this.vertexProcessor = vertexProcessor;
-    }
-
-    /**
-     * Returns supplier information of target {@link VertexProcessor}.
-     * @return the vertex processor provider
-     */
-    public SupplierInfo getVertexProcessor() {
-        return vertexProcessor;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Objects.hashCode(vertexProcessor);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        M3bpVertexDescriptor other = (M3bpVertexDescriptor) obj;
-        if (!Objects.equals(vertexProcessor, other.vertexProcessor)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return MessageFormat.format(
-                "Vertex({0})", //$NON-NLS-1$
-                vertexProcessor);
+        super(vertexProcessor);
     }
 }

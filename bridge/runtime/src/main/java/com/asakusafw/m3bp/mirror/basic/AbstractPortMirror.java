@@ -80,7 +80,7 @@ public abstract class AbstractPortMirror implements PortMirror {
 
     @Override
     public Movement getMovement() {
-        return getDescriptor().getMovement();
+        return Movement.of(getDescriptor().getMovement());
     }
 
     @Override

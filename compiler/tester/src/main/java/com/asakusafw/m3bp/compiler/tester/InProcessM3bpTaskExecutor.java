@@ -36,7 +36,7 @@ import com.asakusafw.lang.compiler.tester.executor.TaskExecutor;
 import com.asakusafw.lang.compiler.tester.executor.TaskExecutors;
 import com.asakusafw.lang.utils.common.Invariants;
 import com.asakusafw.lang.utils.common.Lang;
-import com.asakusafw.m3bp.client.Launcher;
+import com.asakusafw.m3bp.client.M3bpLauncher;
 import com.asakusafw.m3bp.compiler.common.M3bpTask;
 
 /**
@@ -71,7 +71,7 @@ public class InProcessM3bpTaskExecutor implements TaskExecutor {
         File jobflow = TaskExecutors.getJobflowLibrary(context);
         try (URLClassLoader loader = getLaunchClassLoader(context, jobflow)) {
             try {
-                int code = Launcher.exec(loader, arguments.stream().toArray(String[]::new));
+                int code = M3bpLauncher.exec(loader, arguments.stream().toArray(String[]::new));
                 if (code != 0) {
                     throw new IOException(MessageFormat.format(
                             "unexpected exit status: task={0}, status={1}",

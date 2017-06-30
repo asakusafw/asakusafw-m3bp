@@ -19,12 +19,13 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import com.asakusafw.dag.api.common.DataComparator;
 import com.asakusafw.dag.api.common.KeyValueSerDe;
 
 /**
  * {@link KeyValueSerDe}.
  */
-public class IntModSerDe implements KeyValueSerDe {
+public class IntModSerDe implements KeyValueSerDe, DataComparator {
 
     private final int modulo = 10;
 
@@ -42,5 +43,12 @@ public class IntModSerDe implements KeyValueSerDe {
     public Object deserializePair(DataInput keyInput, DataInput valueInput) throws IOException, InterruptedException {
         keyInput.skipBytes(Integer.BYTES);
         return valueInput.readInt();
+    }
+
+    @Override
+    public int compare(DataInput a, DataInput b) throws IOException {
+        int vA = a.readInt();
+        int vB = b.readInt();
+        return Integer.compare(vA, vB);
     }
 }

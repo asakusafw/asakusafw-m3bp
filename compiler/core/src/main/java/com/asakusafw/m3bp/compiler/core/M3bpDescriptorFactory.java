@@ -19,6 +19,7 @@ import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
 import com.asakusafw.dag.api.model.VertexDescriptor;
 import com.asakusafw.dag.compiler.codegen.ClassGeneratorContext;
+import com.asakusafw.dag.compiler.codegen.DataComparatorGenerator;
 import com.asakusafw.dag.compiler.codegen.KeyValueSerDeGenerator;
 import com.asakusafw.dag.compiler.codegen.ValueSerDeGenerator;
 import com.asakusafw.dag.compiler.flow.DagDescriptorFactory;
@@ -26,6 +27,7 @@ import com.asakusafw.lang.compiler.model.description.ClassDescription;
 import com.asakusafw.lang.compiler.model.description.TypeDescription;
 import com.asakusafw.lang.compiler.model.graph.Group;
 import com.asakusafw.lang.utils.common.Arguments;
+import com.asakusafw.lang.utils.common.Optionals;
 import com.asakusafw.m3bp.compiler.comparator.NativeValueComparatorExtension;
 import com.asakusafw.m3bp.descriptor.Descriptors;
 
@@ -79,8 +81,13 @@ public class M3bpDescriptorFactory implements DagDescriptorFactory {
     public EdgeDescriptor newScatterGatherEdge(TypeDescription dataType, ClassDescription serde, Group group) {
         Arguments.requireNonNull(dataType);
         Arguments.requireNonNull(group);
+        SupplierInfo comparatorInfo = Optionals.of(group.getOrdering())
+                .filter(o -> o.isEmpty() == false)
+                .map(o -> DataComparatorGenerator.get(context, dataType, o))
+                .map(M3bpDescriptorFactory::toSupplier)
+                .orElse(null);
         String comparatorName = nativeComparators.addComparator(dataType, group);
-        return Descriptors.newScatterGatherEdge(toSupplier(serde), comparatorName);
+        return Descriptors.newScatterGatherEdge(toSupplier(serde), comparatorInfo, comparatorName);
     }
 
     @Override
