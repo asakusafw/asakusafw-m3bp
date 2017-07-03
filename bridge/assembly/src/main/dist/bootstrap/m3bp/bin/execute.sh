@@ -78,7 +78,7 @@ then
     _JAVA_MAIN=com.asakusafw.m3bp.client.M3bpDirect
     _OPT_BATCH_ARGUMENTS=""
 else
-    _JAVA_MAIN=com.asakusafw.m3bp.client.Launcher
+    _JAVA_MAIN=com.asakusafw.m3bp.client.M3bpLauncher
     _OPT_BATCH_ARGUMENTS="$1"
 fi
 shift

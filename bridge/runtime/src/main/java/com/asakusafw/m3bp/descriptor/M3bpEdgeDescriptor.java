@@ -15,26 +15,21 @@
  */
 package com.asakusafw.m3bp.descriptor;
 
-import java.text.MessageFormat;
 import java.util.Objects;
 
 import com.asakusafw.dag.api.common.KeyValueSerDe;
 import com.asakusafw.dag.api.common.SupplierInfo;
 import com.asakusafw.dag.api.common.ValueSerDe;
 import com.asakusafw.dag.api.model.EdgeDescriptor;
+import com.asakusafw.dag.api.model.basic.BasicEdgeDescriptor;
 import com.asakusafw.lang.utils.common.Arguments;
-import com.asakusafw.m3bp.mirror.Movement;
 
 /**
  * An implementation of {@link EdgeDescriptor} for M3BP.
  */
-public class M3bpEdgeDescriptor implements EdgeDescriptor {
+public class M3bpEdgeDescriptor extends BasicEdgeDescriptor {
 
-    private static final long serialVersionUID = 1L;
-
-    private final Movement movement;
-
-    private final SupplierInfo serde;
+    private static final long serialVersionUID = 2L;
 
     private final String valueComparatorName;
 
@@ -42,48 +37,15 @@ public class M3bpEdgeDescriptor implements EdgeDescriptor {
      * Creates a new instance.
      * @param movement the movement type
      * @param serde the supplier of {@link ValueSerDe} or {@link KeyValueSerDe}
-     * @param valueComparatorName the value comparator function name
+     * @param comparator the pure-Java value comparator (nullable)
+     * @param valueComparatorName the value comparator function name (nullable)
      */
     public M3bpEdgeDescriptor(
-            Movement movement,
-            SupplierInfo serde,
-            String valueComparatorName) {
-        Arguments.requireNonNull(movement);
-        switch (movement) {
-        case ONE_TO_ONE:
-        case BROADCAST:
-            Arguments.require(serde != null);
-            Arguments.require(valueComparatorName == null);
-            break;
-        case SCATTER_GATHER:
-            Arguments.require(serde != null);
-            break;
-        case NOTHING:
-            Arguments.require(serde == null);
-            Arguments.require(valueComparatorName == null);
-            break;
-        default:
-            throw new AssertionError();
-        }
-        this.movement = movement;
-        this.serde = serde;
+            Movement movement, SupplierInfo serde,
+            SupplierInfo comparator, String valueComparatorName) {
+        super(movement, serde, comparator);
+        Arguments.require((comparator == null) == (valueComparatorName == null));
         this.valueComparatorName = valueComparatorName;
-    }
-
-    /**
-     * Returns the movement.
-     * @return the movement
-     */
-    public Movement getMovement() {
-        return movement;
-    }
-
-    /**
-     * Returns the supplier of {@link ValueSerDe} or {@link KeyValueSerDe}.
-     * @return the ser/de
-     */
-    public SupplierInfo getSerDe() {
-        return serde;
     }
 
     /**
@@ -97,9 +59,7 @@ public class M3bpEdgeDescriptor implements EdgeDescriptor {
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + Objects.hashCode(movement);
-        result = prime * result + Objects.hashCode(serde);
+        int result = super.hashCode();
         result = prime * result + Objects.hashCode(valueComparatorName);
         return result;
     }
@@ -116,22 +76,7 @@ public class M3bpEdgeDescriptor implements EdgeDescriptor {
             return false;
         }
         M3bpEdgeDescriptor other = (M3bpEdgeDescriptor) obj;
-        if (!Objects.equals(movement, other.movement)) {
-            return false;
-        }
-        if (!Objects.equals(serde, other.serde)) {
-            return false;
-        }
-        if (!Objects.equals(valueComparatorName, other.valueComparatorName)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return MessageFormat.format(
-                "Edge({0})", //$NON-NLS-1$
-                movement.name());
+        return super.equals(other)
+                && Objects.equals(valueComparatorName, other.valueComparatorName);
     }
 }

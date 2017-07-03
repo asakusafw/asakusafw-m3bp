@@ -381,7 +381,7 @@ public class VertexExecutorTest {
         }
 
         M3bpEdgeDescriptor newScatterGather() {
-            return Descriptors.newScatterGatherEdge(IntSerDe.class, "?");
+            return Descriptors.newScatterGatherEdge(IntSerDe.class, null, null);
         }
 
         M3bpEdgeDescriptor newBroadcast() {

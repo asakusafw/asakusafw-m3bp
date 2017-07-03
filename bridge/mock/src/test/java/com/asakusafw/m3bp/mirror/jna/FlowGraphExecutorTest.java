@@ -157,10 +157,10 @@ public class FlowGraphExecutorTest {
         VertexMirror map = graph.addVertex("map", Descriptors.newVertex(WcMap.class));
         VertexMirror reduce = graph.addVertex("reduce", Descriptors.newVertex(WcReduce.class));
 
-        PortMirror mapOut = map.addOutput("out",
-                Descriptors.newScatterGatherEdge(StringSerDe.class, StringSerDe.class.getName()));
-        PortMirror reduceIn = reduce.addInput("in",
-                Descriptors.newScatterGatherEdge(StringSerDe.class, StringSerDe.class.getName()));
+        PortMirror mapOut = map.addOutput("out", Descriptors.newScatterGatherEdge(
+                StringSerDe.class, StringSerDe.class, StringSerDe.class.getName()));
+        PortMirror reduceIn = reduce.addInput("in", Descriptors.newScatterGatherEdge(
+                StringSerDe.class, StringSerDe.class, StringSerDe.class.getName()));
 
         graph.addEdge(mapOut, reduceIn);
 
@@ -201,12 +201,12 @@ public class FlowGraphExecutorTest {
         VertexMirror map2 = graph.addVertex("map2", Descriptors.newVertex(WcMap2.class));
         VertexMirror reduce = graph.addVertex("reduce", Descriptors.newVertex(WcReduce.class));
 
-        PortMirror map1Out = map1.addOutput("out",
-                Descriptors.newScatterGatherEdge(StringSerDe.class, StringSerDe.class.getName()));
-        PortMirror map2Out = map2.addOutput("out",
-                Descriptors.newScatterGatherEdge(StringSerDe.class, StringSerDe.class.getName()));
-        PortMirror reduceIn = reduce.addInput("in",
-                Descriptors.newScatterGatherEdge(StringSerDe.class, StringSerDe.class.getName()));
+        PortMirror map1Out = map1.addOutput("out", Descriptors.newScatterGatherEdge(
+                StringSerDe.class, StringSerDe.class, StringSerDe.class.getName()));
+        PortMirror map2Out = map2.addOutput("out", Descriptors.newScatterGatherEdge(
+                StringSerDe.class, StringSerDe.class, StringSerDe.class.getName()));
+        PortMirror reduceIn = reduce.addInput("in", Descriptors.newScatterGatherEdge(
+                StringSerDe.class, StringSerDe.class, StringSerDe.class.getName()));
 
         graph.addEdge(map1Out, reduceIn);
         graph.addEdge(map2Out, reduceIn);

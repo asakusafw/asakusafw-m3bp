@@ -18,7 +18,7 @@ package com.asakusafw.m3bp.client;
 /**
  * Constants for M3BP client.
  * @since 0.1.0
- * @version 0.1.1
+ * @version 0.1.2
  */
 public final class Constants {
 
@@ -100,6 +100,13 @@ public final class Constants {
      * @see Capability
      */
     public static final String KEY_ENGINE_MOCK = KEY_ENGINE_PREFIX + "engine.mock"; //$NON-NLS-1$
+
+    /**
+     * The configuration key of whether or not using Vanilla instead of M3BP.
+     * @see Capability
+     * @since 0.2.2
+     */
+    public static final String KEY_ENGINE_VANILLA = "com.asakusafw.vanilla"; //$NON-NLS-1$
 
     /**
      * The configuration key prefix of Hadoop settings.
