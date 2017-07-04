@@ -51,7 +51,7 @@ import com.asakusafw.m3bp.descriptor.Descriptors;
 /**
  * Test for {@link M3bpLauncher}.
  */
-public class LauncherTest {
+public class M3bpLauncherTest {
 
     static final File NATIVE_DIR = new File("target/native/test/lib");
 

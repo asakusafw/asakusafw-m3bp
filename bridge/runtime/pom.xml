@@ -167,7 +167,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <!-- On macos, use -Djava.library.path instead of LD_LIBRARY_PATH, and it cannot be set in systemPropertyVariables -->
-              <argLine>-Djava.library.path=${project.build.directory}/native/lib${path.separator}</argLine>
+              <argLine>-Djava.library.path=${project.build.directory}/native/lib${path.separator}${env.LD_LIBRARY_PATH}</argLine>
               <environmentVariables>
                 <LD_LIBRARY_PATH>${project.build.directory}/native/lib${path.separator}${env.LD_LIBRARY_PATH}</LD_LIBRARY_PATH>
               </environmentVariables>
