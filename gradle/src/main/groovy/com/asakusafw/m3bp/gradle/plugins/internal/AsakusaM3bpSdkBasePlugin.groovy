@@ -21,6 +21,7 @@ import org.gradle.api.Project
 import com.asakusafw.gradle.plugins.AsakusafwSdkExtension
 import com.asakusafw.gradle.plugins.internal.AsakusaSdkPlugin
 import com.asakusafw.gradle.plugins.internal.PluginUtils
+import com.asakusafw.lang.gradle.plugins.internal.AsakusaLangSdkPlugin
 
 /**
  * A base plug-in of {@link AsakusaM3bpSdkPlugin}.
@@ -35,7 +36,7 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
 
-        project.apply plugin: AsakusaSdkPlugin
+        project.apply plugin: AsakusaLangSdkPlugin
         project.apply plugin: AsakusaM3bpBasePlugin
 
         configureTestkit()
@@ -51,15 +52,17 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
         project.configurations {
             asakusaM3bpCommon {
                 description 'Common libraries of Asakusa DSL Compiler for M3BP'
+                extendsFrom project.configurations.asakusaLangCommon
                 exclude group: 'asm', module: 'asm'
             }
             asakusaM3bpCompiler {
                 description 'Full classpath of Asakusa DSL Compiler for M3BP'
-                extendsFrom project.configurations.compile
+                extendsFrom project.configurations.asakusaLangCompiler
                 extendsFrom project.configurations.asakusaM3bpCommon
             }
             asakusaM3bpTestkit {
                 description 'Asakusa DSL testkit classpath for M3BP'
+                extendsFrom project.configurations.asakusaLangTestkit
                 extendsFrom project.configurations.asakusaM3bpCommon
             }
         }
@@ -69,29 +72,11 @@ class AsakusaM3bpSdkBasePlugin implements Plugin<Project> {
             project.dependencies {
                 if (features.core) {
                     asakusaM3bpCommon "com.asakusafw.m3bp.compiler:asakusa-m3bp-compiler-core:${base.featureVersion}"
-                    asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-cli:${base.langVersion}"
-                    asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-redirector:${base.langVersion}"
-                    asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-yaess:${base.langVersion}"
-                    asakusaM3bpCommon "com.asakusafw:simple-graph:${base.coreVersion}"
-                    asakusaM3bpCommon "com.asakusafw:java-dom:${base.coreVersion}"
-
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-dsl-vocabulary:${base.coreVersion}"
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-runtime:${base.coreVersion}"
-                    asakusaM3bpCompiler "com.asakusafw:asakusa-yaess-core:${base.coreVersion}"
-
                     if (features.directio) {
                         asakusaM3bpCommon "com.asakusafw.dag.compiler:asakusa-dag-compiler-extension-directio:${base.langVersion}"
-                        asakusaM3bpCompiler "com.asakusafw:asakusa-directio-vocabulary:${base.coreVersion}"
                     }
                     if (features.windgate) {
                         asakusaM3bpCommon "com.asakusafw.dag.compiler:asakusa-dag-compiler-extension-windgate:${base.langVersion}"
-                        asakusaM3bpCompiler "com.asakusafw:asakusa-windgate-vocabulary:${base.coreVersion}"
-                    }
-                    if (features.hive) {
-                        asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-hive:${base.langVersion}"
-                    }
-                    if (features.incubating) {
-                        asakusaM3bpCommon "com.asakusafw.lang.compiler:asakusa-compiler-extension-info:${base.langVersion}"
                     }
                 }
                 if (features.testing) {
