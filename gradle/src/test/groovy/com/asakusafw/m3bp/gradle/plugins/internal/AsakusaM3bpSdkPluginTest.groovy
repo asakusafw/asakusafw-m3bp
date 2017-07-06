@@ -32,6 +32,7 @@ import com.asakusafw.gradle.plugins.AsakusafwCompilerExtension
 import com.asakusafw.gradle.plugins.AsakusafwPluginConvention
 import com.asakusafw.gradle.tasks.AsakusaCompileTask
 import com.asakusafw.gradle.tasks.internal.ResolutionUtils
+import com.asakusafw.lang.gradle.plugins.internal.AsakusaLangSdkPlugin
 
 /**
  * Test for {@link AsakusaM3bpSdkPlugin}.
@@ -59,6 +60,7 @@ class AsakusaM3bpSdkPluginTest {
     void base() {
         assert project.plugins.hasPlugin('asakusafw-sdk') != null
         assert project.plugins.hasPlugin(AsakusaM3bpBasePlugin) != null
+        assert project.plugins.hasPlugin(AsakusaLangSdkPlugin) != null
     }
 
     /**
