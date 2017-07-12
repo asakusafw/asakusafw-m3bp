@@ -146,7 +146,7 @@ if (project.hasProperty('referProject')) {
 }
 
 javadoc {
-    title "Asakusa Language Project Integration Tests ${version}"
+    title "Asakusa on M3BP Integration Tests ${version}"
     options {
         docTitle title
         windowTitle title

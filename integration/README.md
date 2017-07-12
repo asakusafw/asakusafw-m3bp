@@ -37,7 +37,7 @@ This integration test requires both development and runtime environment of Asaku
   * test with Asakusa SDK incubating features
   * default: `false` (disable incubating features, and **skip** incubating features related tests)
 * `-Dasakusafw-m3bp.version=x.y.z`
-  * change Asakusa Language Project version
+  * change Asakusa on M3BP version
   * default: (current version)
 * `-Dgradle.version=x.y`
   * change Gradle version (`>= 3.5`)
