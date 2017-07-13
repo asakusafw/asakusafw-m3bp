@@ -15,12 +15,14 @@
  */
 package com.asakusafw.m3bp.gradle.plugins.internal
 
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 
 import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
+import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.internal.AbstractOrganizer
 import com.asakusafw.gradle.plugins.internal.PluginUtils
@@ -155,9 +157,16 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
                         task('attachAssemble').dependsOn task('attachComponentM3bpNativeDependencies')
                     }
                 }
-                if (!extension.isUseSystemHadoop()) {
+                if (!extension.isUseSystemHadoop() && !profile.hadoop.isEmbed()) {
                     project.logger.info "Enabling Asakusa on M3BP Hadoop bundle (${profile.name})"
                     task('attachAssemble').dependsOn task('attachComponentM3bpHadoop')
+                }
+                if (extension.isUseSystemHadoop()
+                        && profile.hadoop.isEmbed()
+                        && profile.name != AsakusafwOrganizerPlugin.PROFILE_NAME_DEVELOPMENT) {
+                    throw new InvalidUserDataException(
+                        "'${profile.name}' profile in 'asakusafwOrganizer' defines both 'm3bp.useSystemHadoop = true'"
+                        + " and 'hadoop.embed = true'. Please set 'hadoop.embed = false' to use system Hadoop installation")
                 }
                 PluginUtils.afterTaskEnabled(project, AsakusaM3bpSdkPlugin.TASK_COMPILE) { Task compiler ->
                     task('attachM3bpBatchapps').dependsOn compiler
