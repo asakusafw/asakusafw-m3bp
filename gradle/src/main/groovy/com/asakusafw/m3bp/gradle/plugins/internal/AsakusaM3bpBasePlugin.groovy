@@ -62,7 +62,6 @@ class AsakusaM3bpBasePlugin implements Plugin<Project> {
         driveProperties(ARTIFACT_INFO_PATH, [
             'feature-version': 'Asakusa on M3BP',
             'core-version': 'Asakusa Core libraries',
-            'sdk-version': 'Asakusa SDK',
             'lang-version': 'Asakusa DSL compiler',
             'hadoop-version': 'Hadoop',
         ])
