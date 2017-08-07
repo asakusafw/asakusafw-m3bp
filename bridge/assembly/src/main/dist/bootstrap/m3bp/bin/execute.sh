@@ -97,43 +97,34 @@ _LIBRARYPATH=()
 _CLASSPATH=()
 _APP_OPTIONS=()
 
-if [ -d "$_ROOT/lib/hadoop" ]
-then
-    _USE_HADOOP_CMD=0
-    import "$_ROOT/libexec/configure-java-cmd.sh"
-    if [ "$LD_LIBRARY_PATH" != "" ]
-    then
-        _LIBRARYPATH+=("$LD_LIBRARY_PATH")
-    fi
-else
-    _USE_HADOOP_CMD=1
-    import "$_ROOT/libexec/configure-hadoop-cmd.sh"
-    if [ "$JAVA_LIBRARY_PATH" != "" ]
-    then
-        _LIBRARYPATH+=("$JAVA_LIBRARY_PATH")
-    fi
-fi
-
-import "$_ROOT/libexec/configure-native.sh"
-import "$_ROOT/libexec/configure-classpath.sh"
-import "$_ROOT/libexec/configure-options.sh"
-
-if [ "$ASAKUSA_M3BP_ARGS" != "" ]
-then
-    _APP_OPTIONS+=($ASAKUSA_M3BP_ARGS)
-fi
+import "$_ROOT/libexec/configure-hadoop.sh"
 
 if [ "$ASAKUSA_M3BP_LAUNCHER" != "" ]
 then
     _EXEC+=($ASAKUSA_M3BP_LAUNCHER)
 fi
 
-if [ $_USE_HADOOP_CMD -eq 1 ]
+if [ "$_HADOOP_CMD" = "" ]
 then
-    _EXEC+=("$HADOOP_CMD")
+    _USE_HADOOP_CMD=0
+    import "$ASAKUSA_HOME/core/libexec/configure-java.sh"
+    _EXEC+=("$_JAVA_CMD")
+    if [ "$LD_LIBRARY_PATH" != "" ]
+    then
+        _LIBRARYPATH+=("$LD_LIBRARY_PATH")
+    fi
 else
-    _EXEC+=("$JAVA_CMD")
+    _USE_HADOOP_CMD=1
+    _EXEC+=("$_HADOOP_CMD")
+    if [ "$JAVA_LIBRARY_PATH" != "" ]
+    then
+        _LIBRARYPATH+=("$JAVA_LIBRARY_PATH")
+    fi
 fi
+
+import "$_ROOT/libexec/configure-classpath.sh"
+import "$_ROOT/libexec/configure-native.sh"
+import "$_ROOT/libexec/configure-options.sh"
 
 echo "Starting Asakusa on M3BP:"
 echo "           Launcher: ${_EXEC[@]}"
@@ -160,8 +151,10 @@ then
         --batch-arguments "$_OPT_BATCH_ARGUMENTS," \
         "${_APP_OPTIONS[@]}" \
         "$@"
+    _RET=$?
 else
     export LD_LIBRARY_PATH="$(IFS=:; echo "${_LIBRARYPATH[*]}")"
+    _CLASSPATH+=("${_HADOOP_EMBED_CLASSPATH[@]}")
     "${_EXEC[@]}" \
         $ASAKUSA_M3BP_OPTS \
         -Djava.library.path="$LD_LIBRARY_PATH" \
@@ -174,9 +167,9 @@ else
         --batch-arguments "$_OPT_BATCH_ARGUMENTS," \
         "${_APP_OPTIONS[@]}" \
         "$@"
+    _RET=$?
 fi
 
-_RET=$?
 if [ $_RET -ne 0 ]
 then
     echo "Asakusa on M3BP failed with exit code: $_RET" 1>&2

@@ -25,3 +25,8 @@ then
     _APP_OPTIONS+=("--engine-conf")
     _APP_OPTIONS+=("@$_ROOT/conf/m3bp.properties")
 fi
+
+if [ "$ASAKUSA_M3BP_ARGS" != "" ]
+then
+    _APP_OPTIONS+=($ASAKUSA_M3BP_ARGS)
+fi

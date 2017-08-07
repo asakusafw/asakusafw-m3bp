@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -138,9 +137,6 @@ public class M3bpTest {
     public void test() {
         AsakusaProject project = provider.newInstance("prj");
 
-        // FIXME: testdriver requires hadoop command
-        project.with(AsakusaConfigurator.hadoop(AsakusaConfigurator.Action.SKIP_IF_UNDEFINED));
-
         project.gradle("installAsakusafw", "test");
     }
 
@@ -180,12 +176,6 @@ public class M3bpTest {
     @Test
     public void yaess_windgate() {
         AsakusaProject project = provider.newInstance("prj");
-
-        // FIXME: WindGate always requires hadoop command
-        Assume.assumeThat(
-                "WindGate always requires hadoop command",
-                project.environment("HADOOP_CMD"),
-                is(notNullValue()));
 
         project.gradle("attachM3bpBatchapps", "installAsakusafw");
 
