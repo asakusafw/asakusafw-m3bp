@@ -17,6 +17,5 @@
     <module>core</module>
     <module>test-adapter</module>
     <module>tester</module>
-    <module>inspection</module>
   </modules>
 </project>
