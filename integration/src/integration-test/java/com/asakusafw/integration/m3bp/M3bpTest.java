@@ -33,6 +33,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.asakusafw.integration.AsakusaConfigurator;
+import com.asakusafw.integration.AsakusaConstants;
 import com.asakusafw.integration.AsakusaProject;
 import com.asakusafw.integration.AsakusaProjectProvider;
 import com.asakusafw.utils.gradle.Bundle;
@@ -141,7 +142,7 @@ public class M3bpTest {
     }
 
     /**
-     * {@code yaess-batch.sh}.
+     * YAESS.
      */
     @Test
     public void yaess() {
@@ -158,7 +159,7 @@ public class M3bpTest {
         });
 
         project.getFramework().withLaunch(
-                "yaess/bin/yaess-batch.sh", "m3bp.perf.average.sort",
+                AsakusaConstants.CMD_YAESS, "m3bp.perf.average.sort",
                 "-A", "input=input", "-A", "output=output");
 
         project.getContents().get("var/data/output", dir -> {
@@ -171,7 +172,7 @@ public class M3bpTest {
     }
 
     /**
-     * {@code yaess-batch.sh}.
+     * YAESS w/ WindGate tasks.
      */
     @Test
     public void yaess_windgate() {
@@ -190,7 +191,7 @@ public class M3bpTest {
         });
 
         project.getFramework().withLaunch(
-                "yaess/bin/yaess-batch.sh", "m3bp.wg.perf.average.sort",
+                AsakusaConstants.CMD_YAESS, "m3bp.wg.perf.average.sort",
                 "-A", "input=input.csv", "-A", "output=output.csv");
 
         project.getContents().get("var/windgate/output.csv", file -> {
@@ -201,10 +202,10 @@ public class M3bpTest {
     }
 
     /**
-     * {@code asakusafw.sh run}.
+     * {@code run}.
      */
     @Test
-    public void workflow() {
+    public void run() {
         AsakusaProject project = provider.newInstance("prj");
         project.gradle("attachM3bpBatchapps", "installAsakusafw");
 
@@ -218,7 +219,7 @@ public class M3bpTest {
         });
 
         project.getFramework().withLaunch(
-                "bin/asakusafw.sh", "run", "m3bp.perf.average.sort",
+                AsakusaConstants.CMD_PORTAL, "run", "m3bp.perf.average.sort",
                 "-Ainput=input", "-Aoutput=output");
 
         project.getContents().get("var/data/output", dir -> {
@@ -231,10 +232,10 @@ public class M3bpTest {
     }
 
     /**
-     * {@code asakusafw.sh run}.
+     * {@code run} w/ WindGate tasks.
      */
     @Test
-    public void workflow_windgate() {
+    public void run_windgate() {
         AsakusaProject project = provider.newInstance("prj");
 
         project.gradle("attachM3bpBatchapps", "installAsakusafw");
@@ -250,7 +251,7 @@ public class M3bpTest {
         });
 
         project.getFramework().withLaunch(
-                "bin/asakusafw.sh", "run", "m3bp.wg.perf.average.sort",
+                AsakusaConstants.CMD_PORTAL, "run", "m3bp.wg.perf.average.sort",
                 "-Ainput=input.csv", "-Aoutput=output.csv");
 
         project.getContents().get("var/windgate/output.csv", file -> {
