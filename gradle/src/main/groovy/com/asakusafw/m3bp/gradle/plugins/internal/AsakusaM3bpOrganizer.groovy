@@ -19,6 +19,7 @@ import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileCopyDetails
 
 import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
@@ -114,6 +115,11 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
             M3bp : {
                 into('.') {
                     extract configuration('asakusafwM3bpDist')
+                    process {
+                        filesMatching('**/m3bp/bin/execute') { FileCopyDetails f ->
+                            f.setMode(0755)
+                        }
+                    }
                 }
                 into('m3bp/lib') {
                     put configuration('asakusafwM3bpLib')
