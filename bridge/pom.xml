@@ -17,6 +17,7 @@
     <module>client</module>
     <module>custom</module>
     <module>assembly</module>
+    <module>bootstrap</module>
     <module>workaround/hadoop</module>
   </modules>
 </project>
