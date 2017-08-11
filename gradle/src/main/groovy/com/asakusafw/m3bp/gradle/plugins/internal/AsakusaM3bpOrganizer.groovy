@@ -19,6 +19,7 @@ import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileCopyDetails
 
 import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
@@ -81,10 +82,12 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
             AsakusaM3bpBaseExtension m3bp = AsakusaM3bpBasePlugin.get(project)
             createDependencies('asakusafw', [
                 M3bpDist : [
-                    "com.asakusafw.m3bp.bridge:asakusa-m3bp-assembly:${m3bp.featureVersion}:bootstrap@jar"
+                    "com.asakusafw.m3bp.bridge:asakusa-m3bp-assembly:${m3bp.featureVersion}:bootstrap@jar",
+                    "com.asakusafw.m3bp.bridge:asakusa-m3bp-bootstrap:${m3bp.featureVersion}:dist@jar",
                 ],
                 M3bpLib : [
                     "com.asakusafw.m3bp.bridge:asakusa-m3bp-assembly:${m3bp.featureVersion}:lib@jar",
+                    "com.asakusafw.m3bp.bridge:asakusa-m3bp-bootstrap:${m3bp.featureVersion}:exec@jar",
                     "ch.qos.logback:logback-classic:${base.logbackVersion}",
                 ],
                 M3bpNative : [
@@ -114,9 +117,17 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
             M3bp : {
                 into('.') {
                     extract configuration('asakusafwM3bpDist')
+                    process {
+                        filesMatching('**/m3bp/bin/execute') { FileCopyDetails f ->
+                            f.setMode(0755)
+                        }
+                    }
                 }
                 into('m3bp/lib') {
                     put configuration('asakusafwM3bpLib')
+                    process {
+                        rename(/(asakusa-m3bp-bootstrap)-.*-exec\.jar/, '$1.jar')
+                    }
                 }
             },
             M3bpHadoop : {

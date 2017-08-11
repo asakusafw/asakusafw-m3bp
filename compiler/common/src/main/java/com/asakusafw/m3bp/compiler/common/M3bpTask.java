@@ -30,7 +30,7 @@ public final class M3bpTask {
     /**
      * The M3BP bootstrap command path (relative from the Asakusa framework installation).
      */
-    public static final Location PATH_COMMAND = PATH_M3BP.append(Location.of("bin/execute.sh")); //$NON-NLS-1$
+    public static final Location PATH_COMMAND = PATH_M3BP.append(Location.of("bin/execute")); //$NON-NLS-1$
 
     /**
      * The M3BP configuration directory path (relative from the Asakusa framework installation).
