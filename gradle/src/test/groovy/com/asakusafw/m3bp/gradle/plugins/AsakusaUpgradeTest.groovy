@@ -51,6 +51,14 @@ class AsakusaUpgradeTest {
     }
 
     /**
+     * Test for {@code 4.1} (Asakusa on M3BP {@code 0.3.0}).
+     */
+    @Test
+    void 'v4.1'() {
+        doUpgradeFromTestName()
+    }
+
+    /**
      * Test for {@code 3.4.1} (Asakusa on M3BP {@code 0.2.1}).
      */
     @Test
