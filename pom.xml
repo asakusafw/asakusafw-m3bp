@@ -61,15 +61,17 @@
     <asakusafw.version>0.10.0-SNAPSHOT</asakusafw.version>
     <asakusafw-lang.version>0.5.0-SNAPSHOT</asakusafw-lang.version>
     <hadoop.version>2.7.3</hadoop.version>
-    <commons-cli.version>1.2</commons-cli.version>
-    <asm.version>5.1</asm.version>
-    <slf4j.version>1.7.21</slf4j.version>
-    <logback.version>1.1.7</logback.version>
-    <jna.version>4.2.2</jna.version>
+    <asm.version>5.2</asm.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <logback.version>1.2.3</logback.version>
+    <jna.version>4.4.0</jna.version>
     <junit.version>4.12</junit.version>
     <hamcrest.version>1.3</hamcrest.version>
-    <ant.version>1.9.7</ant.version>
+    <ant.version>1.9.9</ant.version>
     <checkstyle.version>8.1</checkstyle.version>
+
+    <!-- fragile artifacts -->
+    <commons-cli.version>1.2</commons-cli.version>
 
     <!-- Build settings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
