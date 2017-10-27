@@ -67,7 +67,6 @@ class AsakusaM3bpOrganizerPluginTest {
 
         assert extension.enabled == true
         assert extension.nativeEnabled == true
-        assert extension.useSystemHadoop == false
         assert extension.useSystemNativeDependencies == false
 
         assert root.profiles.dev.m3bp.enabled == true

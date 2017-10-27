@@ -15,15 +15,12 @@
  */
 package com.asakusafw.m3bp.gradle.plugins.internal
 
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCopyDetails
 
 import com.asakusafw.gradle.plugins.AsakusafwBaseExtension
 import com.asakusafw.gradle.plugins.AsakusafwBasePlugin
-import com.asakusafw.gradle.plugins.AsakusafwOrganizerPlugin
 import com.asakusafw.gradle.plugins.AsakusafwOrganizerProfile
 import com.asakusafw.gradle.plugins.internal.AbstractOrganizer
 import com.asakusafw.gradle.plugins.internal.PluginUtils
@@ -65,15 +62,7 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
             M3bpNative : "Contents of Asakusa on M3BP native modules (${profile.name}).",
             M3bpNativeDependencies : "Contents of Asakusa on M3BP native dependencies (${profile.name}).",
             M3bpLib : "Libraries of Asakusa on M3BP modules (${profile.name}).",
-            M3bpHadoopLib : "Hadoop Libraries of Asakusa on M3BP modules (${profile.name}).",
         ])
-        configuration('asakusafwM3bpHadoopLib').with { Configuration conf ->
-            conf.transitive = true
-            // use snappy-java is provided in asakusa-runtime-all
-            conf.exclude group: 'org.xerial.snappy', module: 'snappy-java'
-            conf.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-            conf.exclude group: 'ch.qos.logback', module: 'logback-classic'
-        }
     }
 
     private void configureDependencies() {
@@ -96,15 +85,7 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
                 M3bpNativeDependencies : [
                     "com.asakusafw.m3bp.bridge:asakusa-m3bp-assembly:${m3bp.featureVersion}:native-dependencies@jar",
                 ],
-                M3bpHadoopLib : [
-                    "org.apache.hadoop:hadoop-common:${m3bp.hadoopVersion}",
-                    "org.apache.hadoop:hadoop-mapreduce-client-core:${m3bp.hadoopVersion}",
-                ],
             ])
-            configuration('asakusafwM3bpHadoopLib').resolutionStrategy.dependencySubstitution {
-                substitute module('log4j:log4j') with module("org.slf4j:log4j-over-slf4j:${base.slf4jVersion}")
-                substitute module('commons-logging:commons-logging') with module("org.slf4j:jcl-over-slf4j:${base.slf4jVersion}")
-            }
         }
     }
 
@@ -128,11 +109,6 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
                     process {
                         rename(/(asakusa-m3bp-bootstrap)-.*-exec\.jar/, '$1.jar')
                     }
-                }
-            },
-            M3bpHadoop : {
-                into('m3bp/lib/hadoop') {
-                    put configuration('asakusafwM3bpHadoopLib')
                 }
             },
             M3bpNative : {
@@ -167,17 +143,6 @@ class AsakusaM3bpOrganizer extends AbstractOrganizer {
                         project.logger.info "Enabling Asakusa on M3BP native dependencies (${profile.name})"
                         task('attachAssemble').dependsOn task('attachComponentM3bpNativeDependencies')
                     }
-                }
-                if (!extension.isUseSystemHadoop() && !profile.hadoop.isEmbed()) {
-                    project.logger.info "Enabling Asakusa on M3BP Hadoop bundle (${profile.name})"
-                    task('attachAssemble').dependsOn task('attachComponentM3bpHadoop')
-                }
-                if (extension.isUseSystemHadoop()
-                        && profile.hadoop.isEmbed()
-                        && profile.name != AsakusafwOrganizerPlugin.PROFILE_NAME_DEVELOPMENT) {
-                    throw new InvalidUserDataException(
-                        "'${profile.name}' profile in 'asakusafwOrganizer' defines both 'm3bp.useSystemHadoop = true'"
-                        + " and 'hadoop.embed = true'. Please set 'hadoop.embed = false' to use system Hadoop installation")
                 }
                 PluginUtils.afterTaskEnabled(project, AsakusaM3bpSdkPlugin.TASK_COMPILE) { Task compiler ->
                     task('attachM3bpBatchapps').dependsOn compiler
