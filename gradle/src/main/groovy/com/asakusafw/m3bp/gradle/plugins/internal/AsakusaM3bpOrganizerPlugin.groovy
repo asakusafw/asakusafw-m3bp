@@ -60,12 +60,11 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
     private void configureConvention() {
         AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
         AsakusafwOrganizerPluginConvention convention = project.asakusafwOrganizer
-        convention.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension)
+        convention.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension, project)
         convention.m3bp.conventionMapping.with {
             enabled = { true }
             nativeEnabled = { true }
             useSystemNativeDependencies = { false }
-            useSystemHadoop = { false }
         }
         PluginUtils.injectVersionProperty(convention.m3bp, { base.featureVersion })
     }
@@ -79,13 +78,12 @@ class AsakusaM3bpOrganizerPlugin implements Plugin<Project> {
 
     private void configureProfile(AsakusafwOrganizerProfile profile) {
         AsakusaM3bpBaseExtension base = AsakusaM3bpBasePlugin.get(project)
-        AsakusafwOrganizerM3bpExtension extension = profile.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension)
+        AsakusafwOrganizerM3bpExtension extension = profile.extensions.create('m3bp', AsakusafwOrganizerM3bpExtension, project)
         AsakusafwOrganizerM3bpExtension parent = project.asakusafwOrganizer.m3bp
         extension.conventionMapping.with {
             enabled = { parent.enabled }
             nativeEnabled = { parent.nativeEnabled }
             useSystemNativeDependencies = { parent.useSystemNativeDependencies }
-            useSystemHadoop = { parent.useSystemHadoop }
         }
         PluginUtils.injectVersionProperty(extension, { base.featureVersion })
 

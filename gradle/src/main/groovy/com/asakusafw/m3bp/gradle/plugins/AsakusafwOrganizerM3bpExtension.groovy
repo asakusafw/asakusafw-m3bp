@@ -15,8 +15,12 @@
  */
 package com.asakusafw.m3bp.gradle.plugins
 
+import org.gradle.api.Project
+
 /**
  * An extension object for {@code asakusafwOrgnizer.m3bp}.
+ * @since 0.1.0
+ * @version 0.3.0
  */
 class AsakusafwOrganizerM3bpExtension {
 
@@ -49,13 +53,36 @@ class AsakusafwOrganizerM3bpExtension {
     boolean useSystemNativeDependencies
 
     /**
-     * Configuration whether {@code 'Asakusa on M3BP'} uses the system Hadoop installation.
-     * If this is {@code true}, Asakusa on M3BP will require a Hadoop installation for the environment.
-     * Otherwise, the minimal Hadoop libraries will be bundled into the deployment archives.
-     * <dl>
-     *   <dt> Default value: </dt>
-     *     <dd> {@code false} </dd>
-     * </dl>
+     * NOP since {@code 0.3.0}.
+     * @deprecated Use {@code asakusafwOrganizer.hadoop.embed} instead.
      */
-    boolean useSystemHadoop
+    @Deprecated
+    Object useSystemHadoop
+
+    private Project project
+
+    AsakusafwOrganizerM3bpExtension(Project project) {
+        this.project = project
+    }
+
+    /**
+     * NOP.
+     * @param v ignored
+     * @since 0.3.0
+     * @deprecated Use {@code asakusafwOrganizer.hadoop.embed} instead.
+     */
+    @Deprecated
+    void setUseSystemHadoop(Object v) {
+        project.logger.warn "DEPRECATED: 'm3bp.useSystemHadoop' is ignored."
+    }
+
+    /**
+     * NOP.
+     * @since 0.3.0
+     * @deprecated Use {@code asakusafwOrganizer.hadoop.embed} instead.
+     */
+    @Deprecated
+    Object getUseSystemHadoop() {
+        return null
+    }
 }

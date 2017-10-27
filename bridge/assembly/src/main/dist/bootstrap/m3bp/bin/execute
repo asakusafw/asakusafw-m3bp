@@ -97,7 +97,7 @@ _LIBRARYPATH=()
 _CLASSPATH=()
 _APP_OPTIONS=()
 
-import "$_ROOT/libexec/configure-hadoop.sh"
+import "$ASAKUSA_HOME/hadoop/libexec/configure-hadoop.sh"
 
 if [ "$ASAKUSA_M3BP_LAUNCHER" != "" ]
 then
