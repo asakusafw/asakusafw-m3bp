@@ -3,4 +3,6 @@
 hs_err_*.log
 _directio
 /target
+*.iml
+.idea
 
