@@ -160,6 +160,9 @@ public class NativeValueComparatorParticipant extends AbstractCompilerParticipan
 
     private static final String[] FILE_CMAKE_LISTS = {
             "cmake_minimum_required(VERSION 2.8)",
+            "if (POLICY CMP0069)",
+            "  cmake_policy(SET CMP0069 OLD)",
+            "endif()",
             "project(all CXX)",
             "set(CMAKE_SKIP_RPATH ON)",
             "file(GLOB NATIVE \"src/*.cpp\")",
