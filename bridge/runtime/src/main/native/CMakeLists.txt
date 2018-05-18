@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
+if (POLICY CMP0069)
+  cmake_policy(SET CMP0069 OLD)
+endif()
+
 project(m3bpjni CXX)
 
 find_package(JNI)
