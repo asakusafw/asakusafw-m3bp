@@ -4,7 +4,7 @@
   <name>Asakusa on M3BP</name>
   <groupId>com.asakusafw.m3bp</groupId>
   <artifactId>project</artifactId>
-  <version>0.3.2-SNAPSHOT</version>
+  <version>0.3.2</version>
   <packaging>pom</packaging>
 
   <description>Asakusa on M3BP</description>
@@ -27,7 +27,7 @@
     <connection>scm:git:git@github.com:asakusafw/asakusafw-m3bp.git</connection>
     <developerConnection>scm:git:git@github.com:asakusafw/asakusafw-m3bp.git</developerConnection>
     <url>https://github.com/asakusafw/asakusafw-m3bp</url>
-    <tag>HEAD</tag>
+    <tag>0.3.2</tag>
   </scm>
 
   <properties>
