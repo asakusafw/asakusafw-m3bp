@@ -73,7 +73,7 @@ public class SerDeNativeTest {
         NativeLibrary.addSearchPath("test-serde", path);
         Mapper mapper;
         try {
-            mapper = (Mapper) Native.loadLibrary("test-serde", Mapper.class);
+            mapper = Native.loadLibrary("test-serde", Mapper.class);
         } catch (LinkageError e) {
             LOG.warn("native library is not available", e);
             mapper = null;
