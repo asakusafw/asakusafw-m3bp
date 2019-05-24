@@ -17,18 +17,19 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_FlowGraphMirrorImpl
  * Method:    addVertex0
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_FlowGraphMirrorImpl_addVertex0
-(JNIEnv *env, jclass clazz, jlong _self, jstring _name) {
+(JNIEnv *env, jclass, jlong _self, jstring _name) {
     try {
-        FlowGraphMirror *self = (FlowGraphMirror *) _self;
-        const char *name = env->GetStringUTFChars(_name, 0);
-        VertexMirror *vertex = self->vertex(std::string(name));
-        env->ReleaseStringUTFChars(_name, name);
+        auto* self = reinterpret_cast<FlowGraphMirror*>(_self);
+        auto name = extract_string(env, _name);
+        auto* vertex = self->vertex(name);
         return to_pointer(vertex);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -45,11 +46,11 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_FlowGraphMirrorImpl_a
  * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_FlowGraphMirrorImpl_addEdge0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _upstream, jlong _downstream) {
+(JNIEnv *env, jclass, jlong _self, jlong _upstream, jlong _downstream) {
     try {
-        FlowGraphMirror *self = (FlowGraphMirror *) _self;
-        OutputPortMirror *upstream = (OutputPortMirror *) _upstream;
-        InputPortMirror *downstream = (InputPortMirror *) _downstream;
+        auto* self = reinterpret_cast<FlowGraphMirror*>(_self);
+        auto* upstream = reinterpret_cast<OutputPortMirror*>(_upstream);
+        auto* downstream = reinterpret_cast<InputPortMirror*>(_downstream);
         self->edge(upstream, downstream);
     } catch (JavaException &e) {
         e.rethrow(env);

@@ -16,18 +16,19 @@
 #include "serde.hpp"
 #include "mpdecimal.hpp"
 
-using namespace asakusafw::serde;
+namespace asakusafw {
+namespace serde {
 
-int asakusafw::serde::compare_decimal(int8_t *&a, int8_t *&b) {
-    auto head_a = read_value<int8_t>(a);
-    auto head_b = read_value<int8_t>(b);
+int compare_decimal(std::int8_t *&a, std::int8_t *&b) {
+    auto head_a = read_value<std::int8_t>(a);
+    auto head_b = read_value<std::int8_t>(b);
     if (head_a == DECIMAL_NULL) {
         if (head_b == DECIMAL_NULL) {
             return 0;
-        } else {
-            return -1;
         }
-    } else if (head_b == DECIMAL_NULL) {
+        return -1;
+    }
+    if (head_b == DECIMAL_NULL) {
         return +1;
     }
     bool plus_a = (head_a & DECIMAL_PLUS_MASK) != 0;
@@ -37,37 +38,37 @@ int asakusafw::serde::compare_decimal(int8_t *&a, int8_t *&b) {
     }
     bool compact_a = (head_a & DECIMAL_COMPACT_MASK) != 0;
     bool compact_b = (head_b & DECIMAL_COMPACT_MASK) != 0;
-    int32_t scale_a = static_cast<int32_t>(read_compact_int(a));
-    int32_t scale_b = static_cast<int32_t>(read_compact_int(b));
-    int64_t unscaled_a = read_compact_int(a);
-    int64_t unscaled_b = read_compact_int(b);
+    auto scale_a = static_cast<std::int32_t>(read_compact_int(a));
+    auto scale_b = static_cast<std::int32_t>(read_compact_int(b));
+    std::int64_t unscaled_a = read_compact_int(a);
+    std::int64_t unscaled_b = read_compact_int(b);
     assert(unscaled_a >= 0);
     assert(unscaled_b >= 0);
     asakusafw::math::Sign sign;
     if (compact_a && compact_b) {
         sign = asakusafw::math::compare_decimal(
-                static_cast<uint64_t>(unscaled_a), -scale_a,
-                static_cast<uint64_t>(unscaled_b), -scale_b);
+                static_cast<std::uint64_t>(unscaled_a), -scale_a,
+                static_cast<std::uint64_t>(unscaled_b), -scale_b);
     } else if (compact_a) {
-        const uint8_t *b_buf = reinterpret_cast<uint8_t*>(b);
-        std::size_t b_length = static_cast<std::size_t>(unscaled_b);
+        auto* b_buf = reinterpret_cast<std::uint8_t*>(b);
+        auto b_length = static_cast<std::size_t>(unscaled_b);
         b += b_length;
         sign = asakusafw::math::compare_decimal(
-                static_cast<uint64_t>(unscaled_a), -scale_a,
+                static_cast<std::uint64_t>(unscaled_a), -scale_a,
                 b_buf, b_length, -scale_b);
     } else if (compact_b) {
-        const uint8_t *a_buf = reinterpret_cast<uint8_t*>(a);
-        std::size_t a_length = static_cast<std::size_t>(unscaled_a);
+        auto* a_buf = reinterpret_cast<std::uint8_t*>(a);
+        auto a_length = static_cast<std::size_t>(unscaled_a);
         a += a_length;
         sign = asakusafw::math::compare_decimal(
                 a_buf, a_length, -scale_a,
-                static_cast<uint64_t>(unscaled_b), -scale_b);
+                static_cast<std::uint64_t>(unscaled_b), -scale_b);
     } else {
-        const uint8_t *a_buf = reinterpret_cast<uint8_t*>(a);
-        std::size_t a_length = static_cast<std::size_t>(unscaled_a);
+        auto* a_buf = reinterpret_cast<std::uint8_t*>(a);
+        auto a_length = static_cast<std::size_t>(unscaled_a);
         a += a_length;
-        const uint8_t *b_buf = reinterpret_cast<uint8_t*>(b);
-        std::size_t b_length = static_cast<std::size_t>(unscaled_b);
+        auto* b_buf = reinterpret_cast<std::uint8_t*>(b);
+        auto b_length = static_cast<std::size_t>(unscaled_b);
         b += b_length;
         sign = asakusafw::math::compare_decimal(
                 a_buf, a_length, -scale_a,
@@ -75,3 +76,6 @@ int asakusafw::serde::compare_decimal(int8_t *&a, int8_t *&b) {
     }
     return static_cast<int>(plus_a ? sign : asakusafw::math::negate(sign));
 }
+
+} // namespace serde
+} // namespace asakusafw

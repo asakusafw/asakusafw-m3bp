@@ -22,6 +22,9 @@
 #include <memory>
 #include <m3bp/m3bp.hpp>
 
+namespace asakusafw {
+namespace jni {
+
 class EngineMirror;
 class ConfigurationMirror;
 class FlowGraphMirror;
@@ -34,10 +37,9 @@ private:
     m3bp::Configuration m_entity;
 
 public:
-    using ValueComparatorType = std::function<bool(const void *, const void *)>;
-    ConfigurationMirror(EngineMirror *engine) {};
-    ~ConfigurationMirror() = default;
-    m3bp::Configuration &entity() {
+    using ValueComparatorType = std::function<bool(void const*, void const*)>;
+    ConfigurationMirror(EngineMirror *) noexcept {}
+    m3bp::Configuration& entity() noexcept {
         return m_entity;
     }
 };
@@ -47,15 +49,14 @@ private:
     EngineMirror *m_engine;
     m3bp::FlowGraph m_entity;
     bool m_resolved;
-    std::vector<VertexMirror*> m_children;
+    std::vector<std::unique_ptr<VertexMirror>> m_children;
 
 public:
     FlowGraphMirror(EngineMirror *engine);
-    ~FlowGraphMirror();
-    VertexMirror *vertex(const std::string &name);
+    VertexMirror *vertex(std::string const& name);
     void edge(OutputPortMirror *upstream, InputPortMirror *downstream);
-    m3bp::FlowGraph &resolve();
-    m3bp::FlowGraph &entity() {
+    m3bp::FlowGraph& resolve();
+    m3bp::FlowGraph& entity() noexcept {
         return m_entity;
     }
 };
@@ -63,8 +64,8 @@ public:
 class EngineMirror {
 private:
     jobject m_mirror;
-    ConfigurationMirror *m_configuration;
-    FlowGraphMirror *m_graph;
+    std::unique_ptr<ConfigurationMirror> m_configuration;
+    std::unique_ptr<FlowGraphMirror> m_graph;
     std::string m_library_name;
     void *m_library;
     std::vector<jobject> m_global_refs;
@@ -83,25 +84,25 @@ private:
 
 public:
     EngineMirror(
-        jobject object, const std::string &library_name,
+        jobject object, std::string const& library_name,
         jmethodID thread_initialize_id, jmethodID thread_finalize_id,
         jmethodID global_initialize_id, jmethodID global_finalize_id,
         jmethodID local_initialize_id, jmethodID local_finalize_id,
         jmethodID run_id,
         jmethodID task_count_id, jmethodID max_concurrency_id);
     ~EngineMirror();
-    ConfigurationMirror *configuration() {
-        return m_configuration;
+    ConfigurationMirror *configuration() noexcept {
+        return m_configuration.get();
     }
-    FlowGraphMirror *graph() {
-        return m_graph;
+    FlowGraphMirror *graph() noexcept {
+        return m_graph.get();
     }
     void run();
     void cleanup(JNIEnv *env);
 
-    using ValueComparatorType = std::function<bool(const void *, const void *)>;
-    ValueComparatorType load_comparator(const std::string &name);
-    jobject mirror() {
+    using ValueComparatorType = std::function<bool(void const*, void const*)>;
+    ValueComparatorType load_comparator(std::string const& name);
+    jobject mirror() noexcept {
         return m_mirror;
     }
     void do_thread_initialize(JNIEnv *env) {
@@ -140,27 +141,26 @@ private:
     std::string m_name;
     m3bp::VertexDescriptor m_entity;
     bool m_resolved;
-    std::vector<InputPortMirror*> m_inputs;
-    std::vector<OutputPortMirror*> m_outputs;
+    std::vector<std::unique_ptr<InputPortMirror>> m_inputs;
+    std::vector<std::unique_ptr<OutputPortMirror>> m_outputs;
 
 public:
-    VertexMirror(EngineMirror *engine, FlowGraphMirror *parent, const std::string &name);
-    ~VertexMirror();
-    EngineMirror *engine() {
+    VertexMirror(EngineMirror *engine, FlowGraphMirror *parent, std::string const& name);
+    EngineMirror *engine() noexcept {
         return m_engine;
     }
     m3bp::VertexDescriptor &resolve();
-    InputPortMirror *input(
-        m3bp::identifier_type, const std::string &name,
-        m3bp::Movement movement, const std::string &comparator);
-    OutputPortMirror *output(
-        m3bp::identifier_type, const std::string &name,
+    InputPortMirror* input(
+        m3bp::identifier_type, std::string const& name,
+        m3bp::Movement movement, std::string const& comparator);
+    OutputPortMirror* output(
+        m3bp::identifier_type, std::string const& name,
         bool has_key);
-    InputPortMirror *input(m3bp::identifier_type id) {
-        return m_inputs[id];
+    InputPortMirror* input(m3bp::identifier_type id) {
+        return m_inputs[id].get();
     }
-    OutputPortMirror *output(m3bp::identifier_type id) {
-        return m_outputs[id];
+    OutputPortMirror* output(m3bp::identifier_type id) {
+        return m_outputs[id].get();
     }
     std::vector<m3bp::InputPort> input_ports();
     std::vector<m3bp::OutputPort> output_ports();
@@ -175,15 +175,14 @@ private:
 public:
     InputPortMirror(
         EngineMirror *engine, VertexMirror *m_parent,
-        m3bp::identifier_type id, const std::string &name);
-    ~InputPortMirror();
+        m3bp::identifier_type id, std::string const& name);
     VertexMirror *parent() {
         return m_parent;
     }
-    m3bp::identifier_type id() const {
+    m3bp::identifier_type id() const noexcept {
         return m_id;
     }
-    m3bp::InputPort &entity() {
+    m3bp::InputPort &entity() noexcept {
         return m_entity;
     }
 };
@@ -197,15 +196,14 @@ private:
 public:
     OutputPortMirror(
         EngineMirror *engine, VertexMirror *m_parent,
-        m3bp::identifier_type id, const std::string &name);
-    ~OutputPortMirror();
-    VertexMirror *parent() {
+        m3bp::identifier_type id, std::string const&name);
+    VertexMirror *parent() const noexcept {
         return m_parent;
     }
-    m3bp::identifier_type id() const {
+    m3bp::identifier_type id() const noexcept {
         return m_id;
     }
-    m3bp::OutputPort &entity() {
+    m3bp::OutputPort &entity() noexcept {
         return m_entity;
     }
 };
@@ -222,10 +220,10 @@ public:
     bool has_key() {
         return m_has_key;
     }
-    std::tuple<const void *, const void *, m3bp::size_type> key_buffer() {
+    std::tuple<void const*, void const*, m3bp::size_type> key_buffer() const noexcept {
         return std::make_tuple(m_buffer.key_buffer(), m_buffer.key_offset_table(), m_buffer.record_count());
     }
-    std::tuple<const void *, const void *, m3bp::size_type> value_buffer() {
+    std::tuple<void const*, void const*, m3bp::size_type> value_buffer() const noexcept {
         return std::make_tuple(m_buffer.value_buffer(), m_buffer.value_offset_table(), m_buffer.record_count());
     }
 };
@@ -238,9 +236,9 @@ private:
     m3bp::OutputBuffer m_buffer;
     bool m_ensured;
     m3bp::size_type m_base_offset;
-    std::tuple<const void *, m3bp::size_type> m_contents;
-    std::tuple<const void *, m3bp::size_type> m_offsets;
-    std::tuple<const void *, m3bp::size_type> m_key_lengths;
+    std::tuple<void const*, m3bp::size_type> m_contents;
+    std::tuple<void const*, m3bp::size_type> m_offsets;
+    std::tuple<void const*, m3bp::size_type> m_key_lengths;
     void ensure();
 
 public:
@@ -249,12 +247,12 @@ public:
     bool has_key() {
         return m_has_key;
     }
-    void flush(size_t record_count);
+    void flush(std::size_t record_count);
     m3bp::size_type base_offset();
-    std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size_type> output_buffer();
-    std::tuple<const void *, size_t> contents();
-    std::tuple<const void *, size_t> offsets();
-    std::tuple<const void *, size_t> key_lengths();
+    std::tuple<void const*, m3bp::size_type, void const*, void const*, m3bp::size_type> output_buffer();
+    std::tuple<void const*, std::size_t> contents();
+    std::tuple<void const*, std::size_t> offsets();
+    std::tuple<void const*, std::size_t> key_lengths();
 };
 
 class TaskMirror {
@@ -265,17 +263,20 @@ private:
 public:
     TaskMirror(m3bp::Task &task, VertexMirror *vertex);
     ~TaskMirror();
-    InputReaderMirror *input(m3bp::identifier_type id);
-    OutputWriterMirror *output(m3bp::identifier_type id);
-    m3bp::identifier_type logical_task_id() {
+    InputReaderMirror* input(m3bp::identifier_type id);
+    OutputWriterMirror* output(m3bp::identifier_type id);
+    m3bp::identifier_type logical_task_id() const noexcept {
         return m_entity->logical_task_id();
     }
-    m3bp::identifier_type physical_task_id() {
+    m3bp::identifier_type physical_task_id() const noexcept {
         return m_entity->physical_task_id();
     }
-    bool is_cancelled() {
+    bool is_cancelled() const noexcept {
         return m_entity->is_cancelled();
     }
 };
+
+}  // namespace jni
+}  // namespace asakusafw
 
 #endif // MIRROR_HPP

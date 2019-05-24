@@ -17,15 +17,21 @@
 #include "mirror.hpp"
 #include "env.hpp"
 
+namespace asakusafw {
+namespace jni {
+
 void ThreadObserverAdapter::on_initialize() {
-    JNIEnv *env = java_attach();
+    auto* env = java_attach();
     m_engine->do_thread_initialize(env);
 }
 
 void ThreadObserverAdapter::on_finalize() {
-    JNIEnv *env = java_env();
+    auto* env = java_env();
     if (env) {
         m_engine->do_thread_finalize(env);
     }
     java_detach();
 }
+
+}  // namespace jni
+}  // namespace asakusafw

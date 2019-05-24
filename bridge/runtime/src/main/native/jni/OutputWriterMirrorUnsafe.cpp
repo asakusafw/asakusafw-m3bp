@@ -17,22 +17,24 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe
  * Method:    allocateBuffer0
  * Signature: (J[J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_allocateBuffer0
-(JNIEnv *env, jclass clazz, jlong _self, jlongArray results) {
+(JNIEnv *env, jclass, jlong _self, jlongArray results) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         jlong array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_VALUES_SIZE];
-        std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size_type> buffer = self->output_buffer();
-        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_BUFFER_PTR] = (jlong) std::get<0>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_BUFFER_SIZE] = (jlong) std::get<1>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_OFFSET_TABLE_PTR] = (jlong) std::get<2>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_KEY_LENGTH_TABLE_PTR] = (jlong) std::get<3>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_RECORD_COUNT] = (jlong) std::get<4>(buffer);
+        std::tuple<void const*, m3bp::size_type, void const*, void const*, m3bp::size_type> buffer = self->output_buffer();
+        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_BUFFER_PTR] = to_pointer(std::get<0>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_BUFFER_SIZE] = static_cast<jlong>(std::get<1>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_OFFSET_TABLE_PTR] = to_pointer(std::get<2>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_KEY_LENGTH_TABLE_PTR] = to_pointer(std::get<3>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_INDEX_RECORD_COUNT] = static_cast<jlong>(std::get<4>(buffer));
         env->SetLongArrayRegion(results, 0, com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_VALUES_SIZE, &array[0]);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -47,10 +49,10 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsa
  * Signature: (JJ)Z
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_flush0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _recordCount) {
+(JNIEnv *env, jclass, jlong _self, jlong _recordCount) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
-        m3bp::size_type record_count = static_cast<m3bp::size_type>(_recordCount);
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
+        auto record_count = static_cast<m3bp::size_type>(_recordCount);
         self->flush(record_count);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -65,9 +67,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsa
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorUnsafe_close0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         delete self;
     } catch (JavaException &e) {
         e.rethrow(env);

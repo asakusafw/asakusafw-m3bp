@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 #include <cstdint>
+#include <cstring>
 
-#define LT_T(T) bool lt_ ## T(const void *a, const void *b) {\
-    return *static_cast<const T*>(a) < *static_cast<const T*>(b);\
+namespace asakusafw {
+namespace m3bp {
+namespace testing {
+
+template<class T>
+static inline bool less(void const* a, void const* b) {
+    T va, vb;
+    std::memcpy(&va, a, sizeof(T));
+    std::memcpy(&vb, b, sizeof(T));
+    return va < vb;
 }
 
-extern "C" {
-
-LT_T(int32_t)
-
+extern "C" bool lt_int32(void const* a, void const* b) {
+    return less<std::int32_t>(a, b);
 }
+
+}  // namespace testing
+}  // namespace m3bp
+}  // namespace asakusafw

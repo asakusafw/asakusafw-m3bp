@@ -18,10 +18,13 @@
 #include <stdexcept>
 #include <cstdint>
 
-// NOTE: offset buffer requires "(#-of-entries + 1) * sizeof(m3bp::size_type)" bytes
-static const m3bp::size_type MAX_ENTRIES = INT32_MAX / sizeof(m3bp::size_type);
+namespace asakusafw {
+namespace jni {
 
-static void put(std::tuple<const void *, m3bp::size_type> &t, const void *begin, m3bp::size_type length) {
+// NOTE: offset buffer requires "(#-of-entries + 1) * sizeof(m3bp::size_type)" bytes
+static constexpr m3bp::size_type MAX_ENTRIES = INT32_MAX / sizeof(m3bp::size_type);
+
+static void put(std::tuple<void const*, m3bp::size_type> &t, void const* begin, m3bp::size_type length) {
     std::get<0>(t) = begin;
     std::get<1>(t) = length;
 }
@@ -59,7 +62,7 @@ void OutputWriterMirror::ensure() {
     }
 }
 
-std::tuple<const void *, m3bp::size_type, const void *, const void *, m3bp::size_type> OutputWriterMirror::output_buffer() {
+std::tuple<void const*, m3bp::size_type, void const*, void const*, m3bp::size_type> OutputWriterMirror::output_buffer() {
     if (!m_ensured) {
         m_buffer = m_entity.allocate_buffer();
         m_ensured = true;
@@ -76,15 +79,15 @@ m3bp::size_type OutputWriterMirror::base_offset() {
     return m_base_offset;
 }
 
-std::tuple<const void *, size_t> OutputWriterMirror::contents() {
+std::tuple<void const*, size_t> OutputWriterMirror::contents() {
     ensure();
     return m_contents;
 }
-std::tuple<const void *, size_t> OutputWriterMirror::offsets() {
+std::tuple<void const*, size_t> OutputWriterMirror::offsets() {
     ensure();
     return m_offsets;
 }
-std::tuple<const void *, size_t> OutputWriterMirror::key_lengths() {
+std::tuple<void const*, size_t> OutputWriterMirror::key_lengths() {
     ensure();
     return m_key_lengths;
 }
@@ -93,3 +96,6 @@ void OutputWriterMirror::flush(m3bp::size_type record_count) {
     m_entity.flush_buffer(std::move(m_buffer), record_count);
     m_ensured = false;
 }
+
+}  // namespace jni
+}  // namespace asakusafw

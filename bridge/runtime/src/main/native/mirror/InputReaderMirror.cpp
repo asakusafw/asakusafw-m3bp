@@ -15,6 +15,9 @@
  */
 #include "mirror.hpp"
 
+namespace asakusafw {
+namespace jni {
+
 InputReaderMirror::InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id, InputPortMirror *port) :
         m_entity(task->input(id)),
         m_has_key(port->entity().movement() == m3bp::Movement::SCATTER_GATHER),
@@ -22,3 +25,6 @@ InputReaderMirror::InputReaderMirror(m3bp::Task *task, m3bp::identifier_type id,
 }
 
 InputReaderMirror::~InputReaderMirror() = default;
+
+}  // namespace jni
+}  // namespace asakusafw

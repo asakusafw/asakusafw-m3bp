@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 #include "mirror.hpp"
+#include "util.hpp"
+
+namespace asakusafw {
+namespace jni {
 
 FlowGraphMirror::FlowGraphMirror(EngineMirror *engine) :
         m_engine(engine),
@@ -21,26 +25,20 @@ FlowGraphMirror::FlowGraphMirror(EngineMirror *engine) :
         m_resolved(false) {
 }
 
-FlowGraphMirror::~FlowGraphMirror() {
-    for (VertexMirror *e : m_children) {
-        delete e;
-    }
-    m_children.clear();
-}
-
 m3bp::FlowGraph &FlowGraphMirror::resolve() {
     if (!m_resolved) {
-        for (VertexMirror *e : m_children) {
+        for (auto& e : m_children) {
             e->resolve();
         }
     }
     return m_entity;
 }
 
-VertexMirror *FlowGraphMirror::vertex(const std::string &name) {
-    auto v = new VertexMirror(m_engine, this, name);
-    m_children.push_back(v);
-    return v;
+VertexMirror *FlowGraphMirror::vertex(std::string const& name) {
+    auto v = make_unique<VertexMirror>(m_engine, this, name);
+    auto r = v.get();
+    m_children.emplace_back(std::move(v));
+    return r;
 }
 
 void FlowGraphMirror::edge(OutputPortMirror *upstream, InputPortMirror *downstream) {
@@ -48,3 +46,6 @@ void FlowGraphMirror::edge(OutputPortMirror *upstream, InputPortMirror *downstre
     auto down = downstream->parent()->resolve().input_port(downstream->id());
     m_entity.add_edge(up, down);
 }
+
+}  // namespace jni
+}  // namespace asakusafw

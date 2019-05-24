@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mirror.hpp"
+#ifndef UTIL_HPP
+#define UTIL_HPP
+
+#include <memory>
+#include <utility>
 
 namespace asakusafw {
 namespace jni {
 
-TaskMirror::TaskMirror(m3bp::Task &task, VertexMirror *vertex) :
-        m_entity(&task),
-        m_vertex(vertex) {
-}
-
-TaskMirror::~TaskMirror() = default;
-
-InputReaderMirror *TaskMirror::input(m3bp::identifier_type id) {
-    // NOTE: InputReaderMirror will be deleted by outer scope
-    auto mirror = new InputReaderMirror(m_entity, id, m_vertex->input(id));
-    return mirror;
-}
-
-OutputWriterMirror *TaskMirror::output(m3bp::identifier_type id) {
-    // NOTE: OutputWriterMirror will be deleted by outer scope
-    auto mirror = new OutputWriterMirror(m_entity, id, m_vertex->output(id));
-    return mirror;
+template<class T, class... Args>
+std::unique_ptr<T> make_unique(Args&&... args) {
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));    
 }
 
 }  // namespace jni
 }  // namespace asakusafw
+
+#endif // UTIL_HPP

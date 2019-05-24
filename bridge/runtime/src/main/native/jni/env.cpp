@@ -18,28 +18,30 @@
 #include <sstream>
 #include <iostream>
 
+namespace asakusafw {
+namespace jni {
+
 static JavaVM *s_java_vm;
 thread_local bool s_java_attached = false;
 
-JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
     s_java_vm = vm;
     return JNI_VERSION_1_8;
 }
 
 JNIEnv *java_env() {
     JNIEnv *env;
-    jint result = s_java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
+    jint result = s_java_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_8);
     if (result == JNI_OK) {
         return env;
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 JNIEnv *java_attach() {
     JNIEnv *env;
     jint result;
-    result = s_java_vm->GetEnv((void**) &env, JNI_VERSION_1_8);
+    result = s_java_vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_8);
     if (result == JNI_OK) {
         return env;
     }
@@ -48,22 +50,23 @@ JNIEnv *java_attach() {
         .name = nullptr,
         .group = nullptr
     };
-    result = s_java_vm->AttachCurrentThreadAsDaemon((void**) &env, &thread_args);
+    result = s_java_vm->AttachCurrentThreadAsDaemon(reinterpret_cast<void**>(&env), &thread_args);
     if (result == JNI_OK) {
         s_java_attached = true;
         return env;
-    } else {
-        std::stringstream stream;
-        stream << "failed to obtain JVM: JavaVM->AttachCurrentThreadAsDaemon() returns " << result;
-        throw BridgeError(stream.str());
     }
+
+    std::stringstream stream;
+    stream << "failed to obtain JVM: JavaVM->AttachCurrentThreadAsDaemon() returns " << result;
+    throw BridgeError(stream.str());
 }
 
 void java_detach() {
-    if (!s_java_attached) {
-        return;
-    } else {
+    if (s_java_attached) {
         s_java_vm->DetachCurrentThread();
         s_java_attached = false;
     }
 }
+
+}  // namespace jni
+}  // namespace asakusafw

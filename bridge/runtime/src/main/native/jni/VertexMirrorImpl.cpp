@@ -17,29 +17,22 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_VertexMirrorImpl
  * Method:    createInput0
  * Signature: (JJLjava/lang/String;ILjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_VertexMirrorImpl_createInput0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _id, jstring _name, jint _movement, jstring _comparator) {
+(JNIEnv *env, jclass, jlong _self, jlong _id, jstring _name, jint _movement, jstring _comparator) {
     try {
-        VertexMirror *self = (VertexMirror *) _self;
-        m3bp::identifier_type id = _id;
-        m3bp::Movement movement = static_cast<m3bp::Movement>(_movement);
-        const char *name = env->GetStringUTFChars(_name, 0);
-        const char *comparator = 0;
-        if (_comparator) {
-            comparator = env->GetStringUTFChars(_comparator, 0);
-        }
-        InputPortMirror *port = self->input(
-            id, std::string(name),
-            movement, comparator ? std::string(comparator) : std::string());
-        env->ReleaseStringUTFChars(_name, name);
-        if (_comparator) {
-            env->ReleaseStringUTFChars(_comparator, comparator);
-        }
+        auto* self = reinterpret_cast<VertexMirror*>(_self);
+        auto id = static_cast<m3bp::identifier_type>(_id);
+        auto name = extract_string(env, _name);
+        auto movement = static_cast<m3bp::Movement>(_movement);
+        auto comparator = extract_string(env, _comparator);
+        auto* port = self->input(id, name, movement, comparator);
         return to_pointer(port);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -56,13 +49,12 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_VertexMirrorImpl_crea
  * Signature: (JJLjava/lang/String;IZ)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_VertexMirrorImpl_createOutput0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _id, jstring _name, jboolean has_key) {
+(JNIEnv *env, jclass, jlong _self, jlong _id, jstring _name, jboolean has_key) {
     try {
-        VertexMirror *self = (VertexMirror *) _self;
-        m3bp::identifier_type id = _id;
-        const char *name = env->GetStringUTFChars(_name, 0);
-        OutputPortMirror *port = self->output(id, std::string(name), static_cast<bool>(has_key));
-        env->ReleaseStringUTFChars(_name, name);
+        auto* self = reinterpret_cast<VertexMirror*>(_self);
+        auto id = static_cast<m3bp::identifier_type>(_id);
+        auto name = extract_string(env, _name);
+        auto* port = self->output(id, name, static_cast<bool>(has_key));
         return to_pointer(port);
     } catch (JavaException &e) {
         e.rethrow(env);

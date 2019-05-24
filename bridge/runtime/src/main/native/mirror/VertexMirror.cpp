@@ -15,6 +15,10 @@
  */
 #include "mirror.hpp"
 #include "adapter.hpp"
+#include "util.hpp"
+
+namespace asakusafw {
+namespace jni {
 
 VertexMirror::VertexMirror(
         EngineMirror *engine,
@@ -26,17 +30,6 @@ VertexMirror::VertexMirror(
         m_resolved(false) {
 }
 
-VertexMirror::~VertexMirror() {
-    for (InputPortMirror *e : m_inputs) {
-        delete e;
-    }
-    m_inputs.clear();
-    for (OutputPortMirror *e : m_outputs) {
-        delete e;
-    }
-    m_outputs.clear();
-}
-
 m3bp::VertexDescriptor &VertexMirror::resolve() {
     if (!m_resolved) {
         m_entity = m_parent->entity().add_vertex(m_name, ProcessorAdapter(this));
@@ -46,39 +39,46 @@ m3bp::VertexDescriptor &VertexMirror::resolve() {
 }
 
 InputPortMirror *VertexMirror::input(
-        m3bp::identifier_type id, const std::string &name,
-        m3bp::Movement movement, const std::string &comparator_name) {
-    auto port = new InputPortMirror(m_engine, this, id, name);
-    m_inputs.insert(m_inputs.begin() + id, port);
-    port->entity().movement(movement);
-    auto comparator = m_engine->load_comparator(comparator_name);
-    if (comparator) {
-        port->entity().value_comparator(comparator);
+        m3bp::identifier_type id, std::string const& name,
+        m3bp::Movement movement, std::string const& comparator_name) {
+    auto port = make_unique<InputPortMirror>(m_engine, this, id, name);
+    auto* p = port.get();
+    m_inputs.insert(m_inputs.begin() + id, std::move(port));
+    p->entity().movement(movement);
+    if (!comparator_name.empty()) {
+        auto comparator = m_engine->load_comparator(comparator_name);
+        p->entity().value_comparator(std::move(comparator));
     }
-    return port;
+    return p;
 }
 
 OutputPortMirror *VertexMirror::output(
-        m3bp::identifier_type id, const std::string &name,
+        m3bp::identifier_type id, std::string const& name,
         bool has_key) {
-    auto port = new OutputPortMirror(m_engine, this, id, name);
-    m_outputs.insert(m_outputs.begin() + id, port);
-    port->entity().has_key(has_key);
-    return port;
+    auto port = make_unique<OutputPortMirror>(m_engine, this, id, name);
+    auto* p = port.get();
+    m_outputs.insert(m_outputs.begin() + id, std::move(port));
+    p->entity().has_key(has_key);
+    return p;
 }
 
 std::vector<m3bp::InputPort> VertexMirror::input_ports() {
     std::vector<m3bp::InputPort> results;
-    for (InputPortMirror *e : m_inputs) {
-        results.push_back(e->entity());
+    results.reserve(m_inputs.size());
+    for (auto& e : m_inputs) {
+        results.emplace_back(e->entity());
     }
     return results;
 }
 
 std::vector<m3bp::OutputPort> VertexMirror::output_ports() {
     std::vector<m3bp::OutputPort> results;
-    for (OutputPortMirror *e : m_outputs) {
-        results.push_back(e->entity());
+    results.reserve(m_outputs.size());
+    for (auto& e : m_outputs) {
+        results.emplace_back(e->entity());
     }
     return results;
 }
+
+}  // namespace jni
+}  // namespace asakusafw

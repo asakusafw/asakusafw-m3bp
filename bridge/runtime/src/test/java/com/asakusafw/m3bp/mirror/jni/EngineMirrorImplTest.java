@@ -75,7 +75,7 @@ public class EngineMirrorImplTest {
 
     private static final File TEST_LIB = new File(
             "target/native/test",
-            System.mapLibraryName("test")).getAbsoluteFile();
+            System.mapLibraryName("m3bpjni-test")).getAbsoluteFile();
 
     /**
      * Checks native library is enabled.
@@ -325,7 +325,7 @@ public class EngineMirrorImplTest {
             FlowGraphMirror graph = mirror.getGraph();
 
             M3bpEdgeDescriptor edge = newScatterGatherEdge(
-                    IntModSerDe.class, IntModSerDe.class, "lt_int32_t");
+                    IntModSerDe.class, IntModSerDe.class, "lt_int32");
             VertexMirror producer = graph.addVertex("producer", newVertex(ValueProducerProcessor.class));
             PortMirror up = producer.addOutput("out", edge);
             VertexMirror consumer = graph.addVertex("consumer", newVertex(GroupConsumerProcessor.class));
