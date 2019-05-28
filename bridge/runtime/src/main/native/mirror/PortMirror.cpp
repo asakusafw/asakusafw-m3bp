@@ -15,22 +15,24 @@
  */
 #include "mirror.hpp"
 
+namespace asakusafw {
+namespace jni {
+
 InputPortMirror::InputPortMirror(
-        EngineMirror *engine,  VertexMirror *parent,
-        m3bp::identifier_type id, const std::string &name) :
+        EngineMirror*,  VertexMirror* parent,
+        m3bp::identifier_type id, std::string const& name) :
         m_parent(parent),
         m_id(id),
         m_entity(m3bp::InputPort(name)) {
 }
 
-InputPortMirror::~InputPortMirror() = default;
-
 OutputPortMirror::OutputPortMirror(
-        EngineMirror *engine, VertexMirror *parent,
-        m3bp::identifier_type id, const std::string &name) :
+        EngineMirror*, VertexMirror* parent,
+        m3bp::identifier_type id, std::string const& name) :
         m_parent(parent),
         m_id(id),
         m_entity(m3bp::OutputPort(name)) {
 }
 
-OutputPortMirror::~OutputPortMirror() = default;
+}  // namespace jni
+}  // namespace asakusafw

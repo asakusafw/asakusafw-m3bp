@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 #include "mirror.hpp"
+#include "util.hpp"
 #include "jniutil.hpp"
 #include "adapter.hpp"
 #include <memory>
 #include <stdexcept>
 #include <dlfcn.h>
 
+namespace asakusafw {
+namespace jni {
+
 EngineMirror::EngineMirror(
-        jobject mirror, const std::string &library_name,
+        jobject mirror, std::string const& library_name,
         jmethodID thread_initialize_id, jmethodID thread_finalize_id,
         jmethodID global_initialize_id, jmethodID global_finalize_id,
         jmethodID local_initialize_id, jmethodID local_finalize_id,
@@ -38,28 +42,27 @@ EngineMirror::EngineMirror(
     if (!library_name.empty()) {
         m_library = dlopen(library_name.data(), RTLD_LAZY);
     }
-    m_configuration = new ConfigurationMirror(this);
-    m_graph = new FlowGraphMirror(this);
+    m_configuration = make_unique<ConfigurationMirror>(this);
+    m_graph = make_unique<FlowGraphMirror>(this);
 }
 
 EngineMirror::~EngineMirror() {
     if (m_library) {
         dlclose(m_library);
     }
-    delete m_configuration;
-    delete m_graph;
 }
 
-using ValueComparatorFunc = bool(const void *, const void *);
+using ValueComparatorFunc = bool(void const*, void const*);
 using ValueComparatorType = std::function<ValueComparatorFunc>;
-ValueComparatorType EngineMirror::load_comparator(const std::string &name) {
+ValueComparatorType EngineMirror::load_comparator(std::string const& name) {
     if (name.empty()) {
-        return nullptr;
+        // no-op
+        return { nullptr };
     }
     if (!m_library) {
         throw std::runtime_error("value comparator library is not specified");
     }
-    auto *func = (ValueComparatorFunc*) dlsym(m_library, name.data());
+    auto *func = reinterpret_cast<ValueComparatorFunc*>(dlsym(m_library, name.data()));
     if (!func) {
         throw std::runtime_error("unknown comparator: " + name + " (" + m_library_name + ")");
     }
@@ -101,3 +104,6 @@ jint EngineMirror::do_invoke(JNIEnv *env, VertexMirror *vertex, jmethodID method
     check_java_exception(env, m_global_refs);
     return result;
 }
+
+}  // namespace jni
+}  // namespace asakusafw

@@ -17,15 +17,17 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe
  * Method:    hasKey0
  * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_hasKey0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        InputReaderMirror *self = (InputReaderMirror *) _self;
+        auto* self = reinterpret_cast<InputReaderMirror*>(_self);
         return self->has_key();
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -42,19 +44,19 @@ JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorU
  * Signature: (JZ[J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_getInputBufferFragment0
-(JNIEnv *env, jclass clazz, jlong _self, jboolean is_key, jlongArray results) {
+(JNIEnv *env, jclass, jlong _self, jboolean is_key, jlongArray results) {
     try {
+        auto* self = reinterpret_cast<InputReaderMirror*>(_self);
         jlong array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_VALUES_SIZE];
-        InputReaderMirror *self = (InputReaderMirror *) _self;
         std::tuple<const void *, const void *, m3bp::size_type> buffer;
         if (is_key) {
             buffer = self->key_buffer();
         } else {
             buffer = self->value_buffer();
         }
-        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_BUFFER_PTR] = (jlong) std::get<0>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_OFFSET_TABLE_PTR] = (jlong) std::get<1>(buffer);
-        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_RECORD_COUNT] = (jlong) std::get<2>(buffer);
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_BUFFER_PTR] = to_pointer(std::get<0>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_OFFSET_TABLE_PTR] = to_pointer(std::get<1>(buffer));
+        array[com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_INDEX_RECORD_COUNT] = static_cast<jlong>(std::get<2>(buffer));
         env->SetLongArrayRegion(results, 0, com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_VALUES_SIZE, &array[0]);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -69,9 +71,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsaf
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_InputReaderMirrorUnsafe_close0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        InputReaderMirror *self = (InputReaderMirror *) _self;
+        auto* self = reinterpret_cast<InputReaderMirror*>(_self);
         delete self;
     } catch (JavaException &e) {
         e.rethrow(env);

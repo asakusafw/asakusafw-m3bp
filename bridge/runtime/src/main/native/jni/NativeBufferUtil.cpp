@@ -22,8 +22,8 @@
  * Signature: (JI)Ljava/nio/ByteBuffer;
  */
 JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_NativeBufferUtil_getView0
-(JNIEnv *env, jclass clazz, jlong ptr, jint length) {
-    return env->NewDirectByteBuffer((void *) ptr, length);
+(JNIEnv* env, jclass, jlong ptr, jint length) {
+    return env->NewDirectByteBuffer(reinterpret_cast<void*>(ptr), length);
 }
 
 /*
@@ -32,8 +32,8 @@ JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_NativeBufferUtil_ge
  * Signature: (Ljava/nio/ByteBuffer;)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_NativeBufferUtil_getAddress0
-(JNIEnv * env, jclass clazz, jobject buffer) {
-    return (jlong) env->GetDirectBufferAddress(buffer);
+(JNIEnv* env, jclass, jobject buffer) {
+    return reinterpret_cast<jlong>(env->GetDirectBufferAddress(buffer));
 }
 
 /*
@@ -43,8 +43,8 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_NativeBufferUtil_getA
  */
 JNIEXPORT jint JNICALL Java_com_asakusafw_m3bp_mirror_jni_NativeBufferUtil_compare0
 (JNIEnv *, jclass, jlong _a, jlong _b, jlong _length) {
-    void *a = (void *) _a;
-    void *b = (void *) _b;
-    size_t len = (size_t) _length;
-    return (jint) memcmp(a, b, len);
+    auto* a = reinterpret_cast<void*>(_a);
+    auto* b = reinterpret_cast<void*>(_b);
+    auto len = static_cast<std::size_t>(_length);
+    return static_cast<jint>(std::memcmp(a, b, len));
 }

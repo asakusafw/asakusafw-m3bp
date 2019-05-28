@@ -17,15 +17,17 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl
  * Method:    getMaxConcurrency0
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getMaxConcurrency0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         return static_cast<jlong>(self->entity().max_concurrency());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -42,9 +44,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorIm
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setMaxConcurrency0
-(JNIEnv *env, jclass clazz, jlong _self, jlong value) {
+(JNIEnv *env, jclass, jlong _self, jlong value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         self->entity().max_concurrency(static_cast<unsigned int>(value));
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -59,9 +61,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getPartitionCount0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         return static_cast<jlong>(self->entity().partition_count());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -78,9 +80,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorIm
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setPartitionCount0
-(JNIEnv *env, jclass clazz, jlong _self, jlong value) {
+(JNIEnv *env, jclass, jlong _self, jlong value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         self->entity().partition_count(static_cast<m3bp::size_type>(value));
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -95,9 +97,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getOutputBufferSize0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         return static_cast<jlong>(self->entity().default_output_buffer_size());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -114,9 +116,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorIm
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setOutputBufferSize0
-(JNIEnv *env, jclass clazz, jlong _self, jlong value) {
+(JNIEnv *env, jclass, jlong _self, jlong value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         self->entity().default_output_buffer_size(static_cast<m3bp::size_type>(value));
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -131,9 +133,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getOutputRecordsPerBuffer0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         return static_cast<jlong>(self->entity().default_records_per_buffer());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -150,9 +152,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorIm
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setOutputRecordsPerBuffer0
-(JNIEnv *env, jclass clazz, jlong _self, jlong value) {
+(JNIEnv *env, jclass, jlong _self, jlong value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         self->entity().default_records_per_buffer(static_cast<m3bp::size_type>(value));
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -167,9 +169,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getAffinityMode0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         return static_cast<jint>(self->entity().affinity());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -186,9 +188,9 @@ JNIEXPORT jint JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setAffinityMode0
-(JNIEnv *env, jclass clazz, jlong _self, jint value) {
+(JNIEnv *env, jclass, jlong _self, jint value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
         self->entity().affinity(static_cast<m3bp::AffinityMode>(value));
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -203,17 +205,16 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImp
  * Signature: (J)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_getProfilingOutput0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
-        std::string str(self->entity().profile_log());
-        if (str.empty()) {
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
+        auto path = self->entity().profile_log();
+        if (path.empty()) {
             return nullptr;
-        } else {
-            jbyteArray results = env->NewByteArray(str.length());
-            env->SetByteArrayRegion(results, 0, str.length(), (const jbyte *) str.data());
-            return results;
         }
+        jbyteArray results = env->NewByteArray(path.length());
+        env->SetByteArrayRegion(results, 0, path.length(), reinterpret_cast<jbyte const*>(path.data()));
+        return results;
     } catch (JavaException &e) {
         e.rethrow(env);
         return nullptr;
@@ -229,12 +230,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMir
  * Signature: (JLjava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_ConfigurationMirrorImpl_setProfilingOutput0
-(JNIEnv *env, jclass clazz, jlong _self, jstring _value) {
+(JNIEnv *env, jclass, jlong _self, jstring _value) {
     try {
-        ConfigurationMirror *self = (ConfigurationMirror *) _self;
-        const char *value = env->GetStringUTFChars(_value, 0);
-        self->entity().profile_log(std::string(value));
-        env->ReleaseStringUTFChars(_value, value);
+        auto* self = reinterpret_cast<ConfigurationMirror*>(_self);
+        auto value = extract_string(env, _value);
+        self->entity().profile_log(value);
     } catch (JavaException &e) {
         e.rethrow(env);
     } catch (std::exception &e) {

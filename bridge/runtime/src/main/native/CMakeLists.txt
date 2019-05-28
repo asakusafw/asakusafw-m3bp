@@ -6,7 +6,9 @@ endif()
 
 project(m3bpjni CXX)
 
-find_package(JNI)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+
+find_package(JNI REQUIRED)
 
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(${JNI_HEADER_DIR})
@@ -17,6 +19,5 @@ link_directories(${CUSTOM_LIBRARIES_DIR})
 file(GLOB NATIVE "jni/*.cpp" "mirror/*.cpp" "adapter/*.cpp")
 
 add_library(m3bpjni SHARED ${NATIVE})
-set_target_properties(m3bpjni PROPERTIES COMPILE_FLAGS "-std=c++11 -Wall")
 set_target_properties(m3bpjni PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
 target_link_libraries(m3bpjni m3bp)

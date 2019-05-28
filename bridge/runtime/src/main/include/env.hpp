@@ -19,14 +19,20 @@
 #include <jni.h>
 #include <stdexcept>
 
+namespace asakusafw {
+namespace jni {
+
 JNIEnv *java_env();
 JNIEnv *java_attach();
 void java_detach();
 
 class BridgeError : public std::runtime_error {
 public:
-    BridgeError(const char *message) : std::runtime_error(message) {}
-    BridgeError(const std::string &message) : std::runtime_error(message) {}
+    BridgeError(char const* message) : std::runtime_error(message) {}
+    BridgeError(std::string const& message) : std::runtime_error(message) {}
 };
  
+}  // namespace jni
+}  // namespace asakusafw
+
 #endif //ENV_HPP

@@ -22,15 +22,19 @@
 #include <vector>
 #include <exception>
 
-jlong to_pointer(void *);
-jobject to_java_buffer(JNIEnv *env, const std::tuple<const void *, size_t> &range);
-jclass find_class(JNIEnv *env, const char *name);
-jmethodID find_method(JNIEnv *env, jclass clazz, const char *name, const char *signature);
-void check_java_exception(JNIEnv *env);
-void check_java_exception(JNIEnv *env, std::vector<jobject> &global_refs);
-void handle_native_exception(JNIEnv *env, std::exception &e);
-jobject new_global_ref(JNIEnv *env, jobject object);
-void delete_global_ref(JNIEnv *env, jobject object);
+namespace asakusafw {
+namespace jni {
+
+jlong to_pointer(void const*) noexcept;
+std::string extract_string(JNIEnv* env, jstring string);
+jobject to_java_buffer(JNIEnv* env, const std::tuple<void const*, std::size_t> &range);
+jclass find_class(JNIEnv* env, char const* name);
+jmethodID find_method(JNIEnv* env, jclass clazz, char const* name, char const* signature);
+void check_java_exception(JNIEnv* env);
+void check_java_exception(JNIEnv* env, std::vector<jobject> &global_refs);
+void handle_native_exception(JNIEnv* env, std::exception &e);
+jobject new_global_ref(JNIEnv* env, jobject object);
+void delete_global_ref(JNIEnv* env, jobject object);
 
 class LocalFrame {
 private:
@@ -38,9 +42,9 @@ private:
     bool m_temporary;
 public:
     LocalFrame(jint capacity);
-    LocalFrame(JNIEnv *env, jint capacity);
+    LocalFrame(JNIEnv* env, jint capacity);
     ~LocalFrame();
-    inline JNIEnv *env() const {
+    inline JNIEnv* env() const noexcept {
         return m_env;
     }
 };
@@ -54,16 +58,18 @@ public:
             m_throwable((jthrowable) throwable),
             m_what("(java exception)") {
     }
-    ~JavaException() = default;
-    jthrowable throwable() {
+    jthrowable throwable() noexcept {
         return m_throwable;
     }
-    virtual const char *what() const noexcept override {
+    char const* what() const noexcept override {
         return m_what.data();
     }
-    void rethrow(JNIEnv *env) {
+    void rethrow(JNIEnv* env) {
         env->Throw(m_throwable);
     }
 };
+
+}  // namespace jni
+}  // namespace asakusafw
 
 #endif // JNIUTIL_HPP

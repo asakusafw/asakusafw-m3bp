@@ -20,6 +20,9 @@
 
 #include "jniutil.hpp"
 
+namespace asakusafw {
+namespace jni {
+
 class VertexMirror;
 class EngineMirror;
 
@@ -29,12 +32,11 @@ private:
 
 public:
     ProcessorAdapter(VertexMirror *mirror);
-    ~ProcessorAdapter();
-    virtual void global_initialize(m3bp::Task &task) override;
-    virtual void global_finalize(m3bp::Task &task) override;
-    virtual void thread_local_initialize(m3bp::Task &task) override;
-    virtual void thread_local_finalize(m3bp::Task &task) override;
-    virtual void run(m3bp::Task &task) override;
+    void global_initialize(m3bp::Task& task) override;
+    void global_finalize(m3bp::Task& task) override;
+    void thread_local_initialize(m3bp::Task& task) override;
+    void thread_local_finalize(m3bp::Task& task) override;
+    void run(m3bp::Task& task) override;
 };
 
 class ThreadObserverAdapter : public m3bp::ThreadObserverBase {
@@ -45,9 +47,11 @@ public:
     ThreadObserverAdapter(EngineMirror *engine) :
             m3bp::ThreadObserverBase(),
             m_engine(engine) {}
-    ~ThreadObserverAdapter() = default;
-    virtual void on_initialize() override;
-    virtual void on_finalize() override;
+    void on_initialize() override;
+    void on_finalize() override;
 };
+
+}  // namespace jni
+}  // namespace asakusafw
 
 #endif // ADAPTER_HPP

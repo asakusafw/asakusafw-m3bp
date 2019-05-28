@@ -17,15 +17,17 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
 * Class:     com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl
 * Method:    hasKey0
 * Signature: (J)Z
 */
 JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_hasKey0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         return self->has_key();
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -42,9 +44,9 @@ JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirror
 * Signature: (J)J
 */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_getBaseOffset0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         return self->base_offset();
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -61,9 +63,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImp
 * Signature: (J)Ljava/nio/ByteBuffer;
 */
 JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_getContentsBuffer0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         return to_java_buffer(env, self->contents());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -80,9 +82,9 @@ JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorI
 * Signature: (J)Ljava/nio/ByteBuffer;
 */
 JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_getEntryOffsetsBuffer0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         return to_java_buffer(env, self->offsets());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -99,9 +101,9 @@ JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorI
 * Signature: (J)Ljava/nio/ByteBuffer;
 */
 JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_getKeyLengthsBuffer0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         return to_java_buffer(env, self->key_lengths());
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -118,10 +120,10 @@ JNIEXPORT jobject JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorI
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_flush0
-(JNIEnv *env, jclass clazz, jlong _self, jint _recordCount) {
+(JNIEnv *env, jclass, jlong _self, jint _recordCount) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
-        m3bp::size_type record_count = static_cast<m3bp::size_type>(_recordCount);
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
+        auto record_count = static_cast<m3bp::size_type>(_recordCount);
         self->flush(record_count);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -136,9 +138,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_OutputWriterMirrorImpl_close0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        OutputWriterMirror *self = (OutputWriterMirror *) _self;
+        auto* self = reinterpret_cast<OutputWriterMirror*>(_self);
         delete self;
     } catch (JavaException &e) {
         e.rethrow(env);

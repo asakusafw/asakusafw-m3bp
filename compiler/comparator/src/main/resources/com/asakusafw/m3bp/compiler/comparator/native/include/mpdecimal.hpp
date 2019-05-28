@@ -49,7 +49,7 @@ enum class Sign : int {
  * \param sign the original sign value
  * \return the negated sign value
  */
-inline
+constexpr inline
 Sign negate(Sign sign) {
     return static_cast<Sign>(-static_cast<int>(sign));
 }
@@ -70,37 +70,17 @@ public:
     MpInt() = default;
 
     /*
-     * \brief The destructor.
-     */
-    ~MpInt() = default;
-
-    /*
      * \brief A constructor.
      * \param value the integer
      */
-    MpInt(uint64_t value);
+    MpInt(std::uint64_t value);
 
     /*
      * \brief A constructor.
      * \param bytes the binary integer, in network byte order
      * \param length the byte length of binary integer
      */
-    MpInt(const uint8_t *bytes, std::size_t length);
-
-    /*
-     * \brief The copy constructor.
-     * \param other the source object
-     */
-    MpInt(const MpInt& other) = default;
-
-    /*
-     * \brief The move constructor.
-     * \param other the source object
-     */
-    MpInt(MpInt&& other) noexcept = default;
-
-    MpInt& operator=(const MpInt&) = delete;
-    MpInt& operator=(MpInt&&) noexcept = delete;
+    MpInt(std::uint8_t const* bytes, std::size_t length);
 
     /**
      * \brief Returns the number of available bits.
@@ -112,7 +92,7 @@ public:
      * \brief Returns a copy of bytes, as the network byte order.
      * \return a copy of bytes as network byte order
      */
-    std::vector<uint8_t> data() const;
+    std::vector<std::uint8_t> data() const;
 
     /**
      * \brief Compares this to another integer.
@@ -121,7 +101,7 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(uint64_t other) const;
+    Sign compare_to(std::uint64_t other) const;
 
     /**
      * \brief Compares this to another multi-precision integer.
@@ -130,7 +110,7 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(const MpInt& other) const;
+    Sign compare_to(MpInt const& other) const;
 
     /**
      * \brief Returns 10^{exponent}.
@@ -138,7 +118,7 @@ public:
      * \return 10^{exponent} as a multi-precision integer
      */
     static
-    const MpInt& power_of_10(uint32_t exponent);
+    MpInt const& power_of_10(std::uint32_t exponent);
 
     /*
      * \brief Returns whether or not this and another integer are equivalent.
@@ -146,7 +126,7 @@ public:
      * \return true if both are equivalent, otherwise false
      */
     inline
-    bool operator==(const MpInt& other) const {
+    bool operator==(MpInt const& other) const {
         return m_members == other.m_members;
     }
 
@@ -156,7 +136,7 @@ public:
      * \return true if both are NOT equivalent, otherwise false
      */
     inline
-    bool operator!=(const MpInt& other) const {
+    bool operator!=(MpInt const& other) const {
         return !(*this == other);
     }
 
@@ -166,19 +146,21 @@ public:
      * \return true if both are equivalent, otherwise false
      */
     inline
-    bool operator==(uint64_t other) const {
+    bool operator==(std::uint64_t other) const {
         if (m_members.empty()) {
             return other == UINT64_C(0);
-        } else if (other == UINT64_C(0)) {
-            return false;
-        } else if (m_members.size() == 1) {
-            return m_members.front() == other;
-        } else if (m_members.size() == 2) {
-            return m_members[0] == static_cast<uint32_t>(other)
-                    && m_members[1] == static_cast<uint32_t>(other >> 32);
-        } else {
+        }
+        if (other == UINT64_C(0)) {
             return false;
         }
+        if (m_members.size() == 1) {
+            return m_members.front() == other;
+        }
+        if (m_members.size() == 2) {
+            return m_members[0] == static_cast<std::uint32_t>(other)
+                    && m_members[1] == static_cast<std::uint32_t>(other >> 32);
+        }
+        return false;
     }
 
     /*
@@ -187,7 +169,7 @@ public:
      * \return true if both are NOT equivalent, otherwise false
      */
     inline
-    bool operator!=(uint64_t other) const {
+    bool operator!=(std::uint64_t other) const {
         return !(*this == other);
     }
 
@@ -198,7 +180,7 @@ public:
      * \return true if both are equivalent, otherwise false
      */
     inline
-    friend bool operator==(uint64_t a, const MpInt& b) {
+    friend bool operator==(std::uint64_t a, MpInt const& b) {
         return b == a;
     }
 
@@ -209,7 +191,7 @@ public:
      * \return true if both are NOT equivalent, otherwise false
      */
     inline
-    friend bool operator!=(uint64_t a, const MpInt& b) {
+    friend bool operator!=(std::uint64_t a, MpInt const& b) {
         return !(a == b);
     }
 
@@ -218,14 +200,14 @@ public:
      * \param multiplier the multiplier
      * \return the product
      */
-    MpInt operator*(const MpInt& multiplier) const;
+    MpInt operator*(MpInt const& multiplier) const;
 
     /*
      * \brief Returns the product of this and the multiplier.
      * \param multiplier the multiplier
      * \return the product
      */
-    MpInt operator*(uint32_t multiplier) const;
+    MpInt operator*(std::uint32_t multiplier) const;
 
     /*
      * \brief Returns the product of the two integers.
@@ -234,14 +216,14 @@ public:
      * \return the product
      */
     inline
-    friend MpInt operator*(uint32_t a, const MpInt& b) {
+    friend MpInt operator*(std::uint32_t a, MpInt const& b) {
         return b * a;
     }
 
 private:
-    MpInt(const std::vector<uint32_t>& members);
-    MpInt(std::vector<uint32_t>&& members);
-    std::vector<uint32_t> m_members;
+    MpInt(std::vector<std::uint32_t> const& members);
+    MpInt(std::vector<std::uint32_t>&& members);
+    std::vector<std::uint32_t> m_members;
 };
 
 /*
@@ -254,43 +236,23 @@ public:
      * \brief The default constructor.
      * The created object will just represent zero.
      */
-    CompactDecimal() = default;
-
-    /*
-     * \brief The destructor.
-     */
-    ~CompactDecimal() = default;
-
-    /*
-     * \brief The copy constructor.
-     * \param other the source object
-     */
-    CompactDecimal(const CompactDecimal& other) = default;
-
-    /*
-     * \brief The move constructor.
-     * \param other the source object
-     */
-    CompactDecimal(CompactDecimal&& other) noexcept = default;
-
-    CompactDecimal& operator=(const CompactDecimal&) = delete;
-    CompactDecimal& operator=(CompactDecimal&&) noexcept = delete;
+    constexpr CompactDecimal() noexcept = default;
 
     /*
      * \brief A constructor.
      * \param significand the significand
      * \param exponent the ten's exponent
      */
-    CompactDecimal(uint64_t significand, int32_t exponent)
-            : m_significand(significand)
-            , m_exponent(exponent) {};
+    constexpr CompactDecimal(std::uint64_t significand, std::int32_t exponent) noexcept
+        : m_significand(significand)
+        , m_exponent(exponent)
+    {}
 
     /*
      * \brief Returns the significand.
      * \return the significand
      */
-    inline
-    uint64_t significand() const {
+    constexpr inline std::uint64_t significand() const noexcept {
         return m_significand;
     }
 
@@ -298,8 +260,7 @@ public:
      * \brief Returns the ten's exponent.
      * \return the exponent
      */
-    inline
-    int32_t exponent() const {
+    constexpr inline std::int32_t exponent() const noexcept {
         return m_exponent;
     }
 
@@ -310,7 +271,7 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(const CompactDecimal& other) const;
+    Sign compare_to(CompactDecimal const& other) const;
 
     /*
      * \brief Compares this with another decimal.
@@ -319,11 +280,11 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(const MpDecimal& other) const;
+    Sign compare_to(MpDecimal const& other) const;
 
 private:
-    const uint64_t m_significand;
-    const int32_t m_exponent;
+    std::uint64_t const m_significand {};
+    std::int32_t const m_exponent {};
 };
 
 /*
@@ -343,29 +304,12 @@ public:
     ~MpDecimal() = default;
 
     /*
-     * \brief The copy constructor.
-     * \param other the source object
-     */
-    MpDecimal(const MpDecimal& other) = default;
-
-    /*
-     * \brief The move constructor.
-     * \param other the source object
-     */
-    MpDecimal(MpDecimal&& other) noexcept
-            : m_significand(std::move(other.m_significand))
-            , m_exponent(other.m_exponent) {};
-
-    MpDecimal& operator=(const MpDecimal&) = delete;
-    MpDecimal& operator=(MpDecimal&&) noexcept = delete;
-
-    /*
      * \brief A constructor.
      * \param bytes the binary integer of significand, in network byte order
      * \param length the byte length of binary integer
      * \param exponent the ten's exponent
      */
-    MpDecimal(const uint8_t *bytes, std::size_t length, int32_t exponent)
+    MpDecimal(std::uint8_t const* bytes, std::size_t length, std::int32_t exponent)
             : m_significand(bytes, length)
             , m_exponent(exponent) {};
 
@@ -374,7 +318,7 @@ public:
      * \param significand the significand
      * \param exponent the ten's exponent
      */
-    MpDecimal(const MpInt& significand, int32_t exponent)
+    MpDecimal(MpInt const& significand, std::int32_t exponent)
             : m_significand(significand)
             , m_exponent(exponent) {};
 
@@ -383,7 +327,7 @@ public:
      * \param significand the significand
      * \param exponent the ten's exponent
      */
-    MpDecimal(MpInt&& significand, int32_t exponent)
+    MpDecimal(MpInt&& significand, std::int32_t exponent) noexcept
             : m_significand(std::move(significand))
             , m_exponent(exponent) {};
 
@@ -392,7 +336,7 @@ public:
      * \return the significand
      */
     inline
-    const MpInt& significand() const {
+    MpInt const& significand() const noexcept {
         return m_significand;
     }
 
@@ -401,7 +345,7 @@ public:
      * \return the exponent
      */
     inline
-    int32_t exponent() const {
+    std::int32_t exponent() const noexcept {
         return m_exponent;
     };
 
@@ -412,7 +356,7 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(const CompactDecimal& other) const;
+    Sign compare_to(CompactDecimal const& other) const;
 
     /*
      * \brief Compares this with another decimal.
@@ -421,11 +365,11 @@ public:
      *     equal_to - if this and another are equivalent,
      *     greater_than - otherwise
      */
-    Sign compare_to(const MpDecimal& other) const;
+    Sign compare_to(MpDecimal const& other) const;
 
 private:
-    const MpInt m_significand;
-    const int32_t m_exponent;
+    MpInt m_significand;
+    std::int32_t m_exponent;
 };
 
 /*
@@ -441,8 +385,8 @@ private:
  *     greater_than - otherwise
  */
 Sign compare_decimal(
-        const uint8_t *a_buf, std::size_t a_length, int32_t a_exponent,
-        const uint8_t *b_buf, std::size_t b_length, int32_t b_exponent);
+        std::uint8_t const* a_buf, std::size_t a_length, std::int32_t a_exponent,
+        std::uint8_t const* b_buf, std::size_t b_length, std::int32_t b_exponent);
 
 /*
  * \brief Compares two decimals.
@@ -456,8 +400,8 @@ Sign compare_decimal(
  *     greater_than - otherwise
  */
 Sign compare_decimal(
-        const uint8_t *a_buf, std::size_t a_length, int32_t a_exponent,
-        uint64_t b_significand, int32_t b_exponent);
+        std::uint8_t const* a_buf, std::size_t a_length, std::int32_t a_exponent,
+        std::uint64_t b_significand, std::int32_t b_exponent);
 
 /*
  * \brief Compares two decimals.
@@ -472,8 +416,8 @@ Sign compare_decimal(
  */
 inline
 Sign compare_decimal(
-        uint64_t a_significand, int32_t a_exponent,
-        const uint8_t *b_buf, std::size_t b_length, int32_t b_exponent) {
+        std::uint64_t a_significand, std::int32_t a_exponent,
+        std::uint8_t const* b_buf, std::size_t b_length, std::int32_t b_exponent) {
     return negate(compare_decimal(b_buf, b_length, b_exponent, a_significand, a_exponent));
 }
 
@@ -488,8 +432,8 @@ Sign compare_decimal(
  *     greater_than - otherwise
  */
 Sign compare_decimal(
-        uint64_t a_significand, int32_t a_exponent,
-        uint64_t b_significand, int32_t b_exponent);
+        std::uint64_t a_significand, std::int32_t a_exponent,
+        std::uint64_t b_significand, std::int32_t b_exponent);
 
 } // namespace math
 } // namespace asakusafw

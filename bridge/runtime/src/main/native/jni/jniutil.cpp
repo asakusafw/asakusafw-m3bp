@@ -17,11 +17,24 @@
 #include "env.hpp"
 #include <mutex>
 
-jlong to_pointer(void *p) {
-    return (jlong) p;
+namespace asakusafw {
+namespace jni {
+
+jlong to_pointer(void const* p) noexcept {
+    return reinterpret_cast<jlong>(p);
 }
 
-jobject to_java_buffer(JNIEnv *env, const std::tuple<const void *, size_t> &range) {
+std::string extract_string(JNIEnv* env, jstring string) {
+    if (string) {
+        auto* contents = env->GetStringUTFChars(string, 0);
+        std::string result { contents };
+        env->ReleaseStringUTFChars(string, contents);
+        return result;
+    }
+    return {};
+}
+
+jobject to_java_buffer(JNIEnv* env, const std::tuple<void const*, std::size_t>& range) {
     if (std::get<0>(range) == nullptr) {
         return nullptr;
     }
@@ -30,19 +43,19 @@ jobject to_java_buffer(JNIEnv *env, const std::tuple<const void *, size_t> &rang
     return result;
 }
 
-jclass find_class(JNIEnv *env, const char *name) {
+jclass find_class(JNIEnv* env, char const* name) {
     jclass clazz = env->FindClass(name);
     check_java_exception(env);
     return clazz;
 }
 
-jmethodID find_method(JNIEnv *env, jclass clazz, const char *name, const char *signature) {
+jmethodID find_method(JNIEnv* env, jclass clazz, char const* name, char const* signature) {
     jmethodID id = env->GetMethodID(clazz, name, signature);
     check_java_exception(env);
     return id;
 }
 
-void check_java_exception(JNIEnv *env) {
+void check_java_exception(JNIEnv* env) {
     jthrowable object = env->ExceptionOccurred();
     if (object) {
         env->ExceptionClear();
@@ -52,44 +65,44 @@ void check_java_exception(JNIEnv *env) {
 
 static std::mutex s_global_exception_mutex;
 
-void check_java_exception(JNIEnv *env, std::vector<jobject> &global_refs) {
+void check_java_exception(JNIEnv* env, std::vector<jobject> &global_refs) {
     jthrowable object = env->ExceptionOccurred();
     if (object) {
         env->ExceptionClear();
-        jthrowable global_object = (jthrowable) env->NewGlobalRef(object);
+        jthrowable global_object = static_cast<jthrowable>(env->NewGlobalRef(object));
         if (!global_object) {
-            throw new std::runtime_error("failed to create global reference of exception");
+            throw std::runtime_error("failed to create global reference of exception");
         }
         {
-            std::lock_guard<std::mutex> lock(s_global_exception_mutex);
-            global_refs.push_back(global_object);
+            std::lock_guard<decltype(s_global_exception_mutex)> lock(s_global_exception_mutex);
+            global_refs.emplace_back(global_object);
         }
         throw JavaException(global_object);
     }
 }
 
-void handle_native_exception(JNIEnv *env, std::exception &e) {
-    const char *what = e.what();
+void handle_native_exception(JNIEnv* env, std::exception const& e) {
+    auto *what = e.what();
     jclass clazz = find_class(env, "com/asakusafw/m3bp/mirror/jni/NativeException");
     env->ThrowNew(clazz, what ? what : "(unknown reason)");
 }
 
-jobject new_global_ref(JNIEnv *env, jobject object) {
+jobject new_global_ref(JNIEnv* env, jobject object) {
     jobject global_object = env->NewGlobalRef(object);
     if (!global_object) {
-        throw new std::runtime_error("failed to create global reference");
+        throw std::runtime_error("failed to create global reference");
     }
     env->DeleteLocalRef(object);
     check_java_exception(env);
     return global_object;
 }
 
-void delete_global_ref(JNIEnv *env, jobject object) {
+void delete_global_ref(JNIEnv* env, jobject object) {
     env->DeleteGlobalRef(object);
     check_java_exception(env);
 }
 
-LocalFrame::LocalFrame(JNIEnv *env, jint capacity) :
+LocalFrame::LocalFrame(JNIEnv* env, jint capacity) :
         m_env(env),
         m_temporary(false) {
     m_env->PushLocalFrame(capacity);
@@ -97,7 +110,7 @@ LocalFrame::LocalFrame(JNIEnv *env, jint capacity) :
 }
 
 LocalFrame::LocalFrame(jint capacity) {
-    JNIEnv *env = java_env();
+    JNIEnv* env = java_env();
     if (env) {
         m_env = env;
         m_temporary = false;
@@ -115,3 +128,6 @@ LocalFrame::~LocalFrame() {
         java_detach();
     }
 }
+
+}  // namespace jni
+}  // namespace asakusafw

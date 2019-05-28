@@ -17,6 +17,8 @@
 #include "mirror.hpp"
 #include "jniutil.hpp"
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl
  * Method:    logicalTaskId0
@@ -25,8 +27,8 @@
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_logicalTaskId0
 (JNIEnv *env, jclass, jlong _self) {
     try {
-        TaskMirror *self = (TaskMirror *) _self;
-        jlong id = static_cast<jlong>(self->logical_task_id());
+        auto* self = reinterpret_cast<TaskMirror*>(_self);
+        auto id = static_cast<jlong>(self->logical_task_id());
         return id;
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -45,8 +47,8 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_logica
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_physicalTaskId0
 (JNIEnv *env, jclass, jlong _self) {
     try {
-        TaskMirror *self = (TaskMirror *) _self;
-        jlong id = static_cast<jlong>(self->physical_task_id());
+        auto* self = reinterpret_cast<TaskMirror*>(_self);
+        auto id = static_cast<jlong>(self->physical_task_id());
         return id;
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -63,11 +65,11 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_physic
  * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_input0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _id) {
+(JNIEnv *env, jclass, jlong _self, jlong _id) {
     try {
-        TaskMirror *self = (TaskMirror *) _self;
-        m3bp::identifier_type id = static_cast<m3bp::identifier_type>(_id);
-        InputReaderMirror *result = self->input(id);
+        auto* self = reinterpret_cast<TaskMirror*>(_self);
+        auto id = static_cast<m3bp::identifier_type>(_id);
+        auto* result = self->input(id);
         return to_pointer(result);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -84,11 +86,11 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_input0
  * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_output0
-(JNIEnv *env, jclass clazz, jlong _self, jlong _id) {
+(JNIEnv *env, jclass, jlong _self, jlong _id) {
     try {
-        TaskMirror *self = (TaskMirror *) _self;
-        m3bp::identifier_type id = static_cast<m3bp::identifier_type>(_id);
-        OutputWriterMirror *result = self->output(id);
+        auto* self = reinterpret_cast<TaskMirror*>(_self);
+        auto id = static_cast<m3bp::identifier_type>(_id);
+        auto* result = self->output(id);
         return to_pointer(result);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -105,9 +107,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_output
  * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_asakusafw_m3bp_mirror_jni_TaskMirrorImpl_isCancelled0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        TaskMirror *self = (TaskMirror *) _self;
+        auto* self = reinterpret_cast<TaskMirror*>(_self);
         return self->is_cancelled();
     } catch (JavaException &e) {
         e.rethrow(env);

@@ -18,19 +18,19 @@
 #include "env.hpp"
 #include "jniutil.hpp"
 
-ProcessorAdapter::ProcessorAdapter(VertexMirror *vertex) :
+namespace asakusafw {
+namespace jni {
+
+ProcessorAdapter::ProcessorAdapter(VertexMirror* vertex) :
         m3bp::ProcessorBase(vertex->input_ports(), vertex->output_ports()),
         m_mirror(vertex) {
 }
 
-ProcessorAdapter::~ProcessorAdapter() = default;
-
-void ProcessorAdapter::global_initialize(m3bp::Task &task) {
+void ProcessorAdapter::global_initialize(m3bp::Task& task) {
     LocalFrame frame(64);
-    JNIEnv *env = frame.env();
-
-    VertexMirror *vertex = m_mirror;
-    EngineMirror *engine = vertex->engine();
+    auto* env = frame.env();
+    auto* vertex = m_mirror;
+    auto* engine = vertex->engine();
     engine->do_global_initialize(env, vertex, task);
 
     jint tasks = engine->do_task_count(env, vertex);
@@ -43,38 +43,37 @@ void ProcessorAdapter::global_initialize(m3bp::Task &task) {
     }
 }
 
-void ProcessorAdapter::global_finalize(m3bp::Task &task) {
+void ProcessorAdapter::global_finalize(m3bp::Task& task) {
     LocalFrame frame(64);
-    JNIEnv *env = frame.env();
-
-    VertexMirror *vertex = m_mirror;
-    EngineMirror *engine = vertex->engine();
+    auto* env = frame.env();
+    auto* vertex = m_mirror;
+    auto* engine = vertex->engine();
     engine->do_global_finalize(env, vertex, task);
 }
 
-void ProcessorAdapter::thread_local_initialize(m3bp::Task &task) {
+void ProcessorAdapter::thread_local_initialize(m3bp::Task& task) {
     LocalFrame frame(64);
-    JNIEnv *env = frame.env();
-
-    VertexMirror *vertex = m_mirror;
-    EngineMirror *engine = vertex->engine();
+    auto* env = frame.env();
+    auto* vertex = m_mirror;
+    auto* engine = vertex->engine();
     engine->do_thread_local_initialize(env, vertex, task);
 }
 
-void ProcessorAdapter::thread_local_finalize(m3bp::Task &task) {
+void ProcessorAdapter::thread_local_finalize(m3bp::Task& task) {
     LocalFrame frame(64);
-    JNIEnv *env = frame.env();
-
-    VertexMirror *vertex = m_mirror;
-    EngineMirror *engine = vertex->engine();
+    auto* env = frame.env();
+    auto* vertex = m_mirror;
+    auto* engine = vertex->engine();
     engine->do_thread_local_finalize(env, vertex, task);
 }
 
-void ProcessorAdapter::run(m3bp::Task &task) {
+void ProcessorAdapter::run(m3bp::Task& task) {
     LocalFrame frame(64);
-    JNIEnv *env = frame.env();
-
-    VertexMirror *vertex = m_mirror;
-    EngineMirror *engine = vertex->engine();
+    auto* env = frame.env();
+    auto* vertex = m_mirror;
+    auto* engine = vertex->engine();
     engine->do_run(env, vertex, task);
 }
+
+}  // namespace jni
+}  // namespace asakusafw

@@ -23,6 +23,8 @@
 
 #include <m3bp/m3bp.hpp>
 
+using namespace asakusafw::jni;
+
 /*
  * Class:     com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl
  * Method:    initialize0
@@ -31,17 +33,11 @@
 jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_initialize0
 (JNIEnv *env, jobject _this, jstring _library) {
     try {
-        std::string library_name;
-        if (_library) {
-            const char *path = env->GetStringUTFChars(_library, NULL);
-            library_name = std::string(path);
-            env->ReleaseStringUTFChars(_library, path);
-        }
         jobject mirror = new_global_ref(env, _this);
         jclass clazz = find_class(env, "com/asakusafw/m3bp/mirror/jni/EngineMirrorImpl");
-
-        EngineMirror *self = new EngineMirror(
-            mirror, library_name,
+        auto library = extract_string(env, _library);
+        auto* self = new EngineMirror(
+            mirror, library,
             find_method(env, clazz, "doThreadInitialize", "()V"),
             find_method(env, clazz, "doThreadFinalize", "()V"),
             find_method(env, clazz, "doGlobalInitialize", "(JJ)V"),
@@ -67,10 +63,10 @@ jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_initialize0
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_getConfiguration0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        EngineMirror *self = (EngineMirror *) _self;
-        ConfigurationMirror *conf = self->configuration();
+        auto* self = reinterpret_cast<EngineMirror*>(_self);
+        auto* conf = self->configuration();
         return to_pointer(conf);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -87,10 +83,10 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_getC
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_getGraph0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        EngineMirror *self = (EngineMirror *) _self;
-        FlowGraphMirror *graph = self->graph();
+        auto* self = reinterpret_cast<EngineMirror*>(_self);
+        auto* graph = self->graph();
         return to_pointer(graph);
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -107,9 +103,9 @@ JNIEXPORT jlong JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_getG
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_run0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        EngineMirror *self = (EngineMirror *) _self;
+        auto* self = reinterpret_cast<EngineMirror*>(_self);
         self->run();
     } catch (JavaException &e) {
         e.rethrow(env);
@@ -124,9 +120,9 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_run0
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_close0
-(JNIEnv *env, jclass clazz, jlong _self) {
+(JNIEnv *env, jclass, jlong _self) {
     try {
-        EngineMirror *self = (EngineMirror *) _self;
+        auto* self = reinterpret_cast<EngineMirror*>(_self);
         self->cleanup(env);
         delete_global_ref(env, self->mirror());
         delete self;
@@ -143,7 +139,7 @@ JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_close
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_asakusafw_m3bp_mirror_jni_EngineMirrorImpl_initializeNativeLogger0
-(JNIEnv *env, jclass clazz, jint _level) {
-    m3bp::LogLevel level = static_cast<m3bp::LogLevel>(_level);
+(JNIEnv*, jclass, jint _level) {
+    auto level = static_cast<m3bp::LogLevel>(_level);
     m3bp::Logger::add_destination_stream(std::clog, level);
 }
