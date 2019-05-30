@@ -141,6 +141,7 @@ if [ $_USE_HADOOP_CMD -eq 1 ]
 then
     export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTS $ASAKUSA_M3BP_OPTS"
     export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:$(IFS=:; echo "${_CLASSPATH[*]}")"
+    export LD_LIBRARY_PATH="$(IFS=:; echo "${_LIBRARYPATH[*]}")"
     export JAVA_LIBRARY_PATH="$(IFS=:; echo "${_LIBRARYPATH[*]}")"
     "${_EXEC[@]}" \
         "$_JAVA_MAIN" \
