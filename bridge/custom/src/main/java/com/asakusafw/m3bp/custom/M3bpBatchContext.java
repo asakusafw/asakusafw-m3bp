@@ -31,6 +31,7 @@ import com.asakusafw.runtime.stage.StageConstants;
 /**
  * Custom implementation of {@link BatchContext}.
  */
+@SuppressWarnings("deprecation")
 public final class M3bpBatchContext {
 
     static final Logger LOG = LoggerFactory.getLogger(M3bpBatchContext.class);
