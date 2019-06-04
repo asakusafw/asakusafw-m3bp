@@ -58,8 +58,8 @@
     <plugin.surefire-report.version>2.20</plugin.surefire-report.version>
 
     <!-- artifact versions -->
-    <asakusafw.version>0.10.3-RC1</asakusafw.version>
-    <asakusafw-lang.version>0.5.3-RC1</asakusafw-lang.version>
+    <asakusafw.version>0.10.3-SNAPSHOT</asakusafw.version>
+    <asakusafw-lang.version>0.5.3-SNAPSHOT</asakusafw-lang.version>
     <hadoop.version>2.7.3</hadoop.version>
     <asm.version>5.2</asm.version>
     <slf4j.version>1.7.25</slf4j.version>
