@@ -7,7 +7,7 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>com.asakusafw.m3bp</groupId>
-    <version>0.3.3-RC1</version>
+    <version>0.3.3-SNAPSHOT</version>
   </parent>
   <packaging>pom</packaging>
 
