@@ -77,7 +77,7 @@ apply plugin: 'asakusafw-m3bp'
 * [Asakusa Framework Documentation](https://github.com/asakusafw/asakusafw-documentation)
 
 ## Resources
-* [Asakusa on M<sup>3</sup>BP Documentation (ja)](http://docs.asakusafw.com/asakusa-on-m3bp/)
+* [Asakusa on M<sup>3</sup>BP Documentation (ja)](https://docs.asakusafw.com/asakusa-on-m3bp/)
 
 ## License
 * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
