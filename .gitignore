@@ -5,4 +5,5 @@ _directio
 /target
 *.iml
 .idea
-
+/.settings
+/.project
